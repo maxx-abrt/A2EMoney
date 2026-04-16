@@ -1,653 +1,457 @@
-"use client"
-
-import { useState } from "react"
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { LanguageSwitcher } from "@/components/language-switcher"
-import { useTranslations } from "next-intl"
 import {
   ArrowRight,
+  ArrowUpRight,
   BarChart3,
-  Building2,
+  BookOpen,
   CheckCircle2,
-  ChevronRight,
-  CreditCard,
   FileText,
-  Menu,
-  PieChart,
+  Layers,
+  Link2,
   Receipt,
   Shield,
   Sparkles,
-  User,
-  X,
-  Wallet,
+  Star,
+  Target,
   TrendingUp,
-  FileSpreadsheet,
-  Scale,
-  Link2,
-  Upload,
-  Download,
-  Zap,
-  Globe,
-  Lock,
+  Wallet,
 } from "lucide-react"
 
-export default function LandingPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const t = useTranslations()
+const featureIcons = {
+  budget: Target,
+  invoice: FileText,
+  expense: Receipt,
+  book: BookOpen,
+  connected: Link2,
+  storage: Shield,
+} as const
+
+export default async function LandingPage() {
+  const t = await getTranslations("landing")
+  const nav = await getTranslations("nav")
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background">
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-accent shadow-sm">
-              <Wallet className="h-5 w-5 text-accent-foreground" />
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background">
+              <Wallet className="h-4 w-4" />
             </div>
-            <span className="text-xl font-bold tracking-tight">Finflow</span>
+            <span className="text-lg font-semibold tracking-tight">Finflow</span>
           </Link>
-
-          {/* Desktop Navigation */}
           <nav className="hidden items-center gap-8 md:flex">
-            <Link href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4">
-              {t('nav.features')}
+            <Link href="#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+              {nav("features")}
             </Link>
-            <Link href="#pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4">
-              {t('nav.pricing')}
+            <Link href="#pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+              {nav("pricing")}
             </Link>
-            <Link href="#testimonials" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4">
-              {t('nav.testimonials')}
+            <Link
+              href="#testimonials"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {nav("testimonials")}
             </Link>
           </nav>
-
-          <div className="hidden items-center gap-3 md:flex">
-            <LanguageSwitcher variant="ghost" size="icon" className="rounded-lg border border-transparent hover:border-border" />
-            <Button variant="ghost" asChild className="font-medium">
-              <Link href="/dashboard">{t('nav.signIn')}</Link>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
+              <Link href="/onboarding">{nav("signIn")}</Link>
             </Button>
-            <Button asChild className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all font-semibold">
-              <Link href="/onboarding">{t('nav.getStarted')}</Link>
+            <Button asChild size="sm" className="rounded-full">
+              <Link href="/onboarding">
+                {nav("getStarted")}
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              </Link>
             </Button>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="rounded-lg border border-border p-2 transition-colors hover:bg-muted md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="border-t border-border bg-background md:hidden">
-            <div className="space-y-1 px-4 py-4">
-              <Link href="#features" className="block rounded-lg border border-transparent px-3 py-2 text-sm font-medium hover:border-border hover:bg-muted">
-                {t('nav.features')}
-              </Link>
-              <Link href="#pricing" className="block rounded-lg border border-transparent px-3 py-2 text-sm font-medium hover:border-border hover:bg-muted">
-                {t('nav.pricing')}
-              </Link>
-              <Link href="#testimonials" className="block rounded-lg border border-transparent px-3 py-2 text-sm font-medium hover:border-border hover:bg-muted">
-                {t('nav.testimonials')}
-              </Link>
-              <div className="flex flex-col gap-2 pt-4">
-                <div className="flex justify-center pb-2">
-                  <LanguageSwitcher variant="outline" size="default" className="w-full rounded-lg border" />
-                </div>
-                <Button variant="outline" asChild className="w-full rounded-lg border font-medium">
-                  <Link href="/dashboard">{t('nav.signIn')}</Link>
-                </Button>
-                <Button asChild className="w-full shadow-sm font-semibold">
-                  <Link href="/onboarding">{t('nav.getStarted')}</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Pixel art decorative background */}
-        <div className="absolute inset-0 -z-10 opacity-30">
-          <div className="absolute top-20 left-10 w-4 h-4 bg-accent" />
-          <div className="absolute top-24 left-14 w-2 h-2 bg-accent" />
-          <div className="absolute top-40 right-20 w-6 h-6 bg-chart-3" />
-          <div className="absolute top-44 right-14 w-2 h-2 bg-chart-3" />
-          <div className="absolute bottom-40 left-1/4 w-4 h-4 bg-chart-4" />
-          <div className="absolute bottom-20 right-1/3 w-3 h-3 bg-accent" />
-        </div>
-        
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-surface-grid">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 shadow-sm">
-              <Sparkles className="h-4 w-4 text-accent" />
-              <span className="text-sm font-medium">{t('landing.badge')}</span>
-            </div>
-            <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              {t('landing.hero.title')}{" "}
+            <Badge
+              variant="secondary"
+              className="mb-6 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground"
+            >
+              <Sparkles className="mr-1.5 h-3 w-3 text-accent" />
+              {t("badge")}
+            </Badge>
+            <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl lg:text-7xl">
+              {t("hero.title")}{" "}
               <span className="relative inline-block">
-                <span className="relative z-10">{t('landing.hero.highlight')}</span>
-                <span className="absolute bottom-2 left-0 h-3 w-full bg-accent/40 z-0" />
+                <span className="relative z-10 text-accent">{t("hero.highlight")}</span>
+                <span className="absolute inset-x-0 bottom-1 -z-0 h-3 bg-accent/15 sm:h-4" aria-hidden />
               </span>
+              .
             </h1>
-            <p className="mt-6 text-pretty text-lg text-muted-foreground sm:text-xl leading-relaxed">
-              {t('landing.hero.description')}
+            <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+              {t("hero.description")}
             </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg" asChild className="w-full sm:w-auto shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-base font-semibold px-8">
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button asChild size="lg" className="rounded-full">
                 <Link href="/onboarding">
-                  {t('landing.hero.startFree')}
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  {t("hero.startFree")}
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="w-full sm:w-auto rounded-lg border text-base font-medium">
-                <Link href="#features">
-                  {t('landing.hero.seeHowItWorks')}
-                </Link>
+              <Button asChild size="lg" variant="outline" className="rounded-full">
+                <Link href="#features">{t("hero.seeHowItWorks")}</Link>
               </Button>
             </div>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm">
-              {[
-                t('landing.hero.benefits.freeForever'),
-                t('landing.hero.benefits.storage'),
-                t('landing.hero.benefits.setup'),
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-accent" />
-                  <span className="font-medium">{item}</span>
-                </div>
-              ))}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-accent" />
+                {t("hero.benefits.freeForever")}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-accent" />
+                {t("hero.benefits.storage")}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-accent" />
+                {t("hero.benefits.setup")}
+              </span>
             </div>
           </div>
 
-          {/* Hero Visual - Dashboard Preview */}
-          <div className="mt-16 sm:mt-20">
-            <div className="relative mx-auto max-w-5xl">
-              <Card className="relative overflow-hidden rounded-lg border shadow-lg">
-                <CardContent className="p-0">
-                  <DashboardPreview />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Profile Selection Showcase */}
-      <section className="border-y-2 border-border bg-muted py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-              {t('landing.profiles.title')}
-            </h2>
-            <p className="mt-4 text-pretty text-lg text-muted-foreground">
-              {t('landing.profiles.description')}
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <Card className="group relative overflow-hidden rounded-lg border bg-card transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5">
-              <CardContent className="p-6 sm:p-8">
-                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-lg border border-border bg-secondary">
-                  <User className="h-7 w-7 text-accent" />
-                </div>
-                <h3 className="text-xl font-bold">{t('landing.profiles.individual.title')}</h3>
-                <p className="mt-2 text-muted-foreground">
-                  {t('landing.profiles.individual.description')}
-                </p>
-                <ul className="mt-6 space-y-3">
-                  {[0, 1, 2, 3].map((i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm font-medium">
-                      <div className="flex h-5 w-5 items-center justify-center bg-accent">
-                        <CheckCircle2 className="h-3 w-3 text-accent-foreground" />
-                      </div>
-                      {t(`landing.profiles.individual.features.${i}`)}
-                    </li>
-                  ))}
-                </ul>
-                <Button variant="outline" className="mt-8 w-full rounded-lg border font-semibold" asChild>
-                  <Link href="/onboarding?type=individual">
-                    {t('landing.profiles.individual.cta')}
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="group relative overflow-hidden rounded-lg border bg-card transition-all shadow-sm ring-1 ring-accent hover:shadow-md hover:-translate-y-0.5">
-              <div className="absolute top-0 right-0 bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
-                {t('landing.profiles.business.badge')}
+          {/* Dashboard preview */}
+          <div className="relative mx-auto mt-16 max-w-5xl">
+            <div className="absolute inset-x-0 -bottom-10 -top-10 -z-10 bg-gradient-to-b from-accent/10 via-accent/5 to-transparent blur-3xl" />
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-foreground/10">
+              <div className="flex items-center gap-1.5 border-b border-border bg-muted/40 px-4 py-3">
+                <div className="h-2.5 w-2.5 rounded-full bg-border" />
+                <div className="h-2.5 w-2.5 rounded-full bg-border" />
+                <div className="h-2.5 w-2.5 rounded-full bg-border" />
+                <div className="ml-4 h-5 flex-1 max-w-xs rounded-md bg-card" />
               </div>
-              <CardContent className="p-6 sm:p-8">
-                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-lg border border-accent bg-accent/10">
-                  <Building2 className="h-7 w-7 text-accent" />
-                </div>
-                <h3 className="text-xl font-bold">{t('landing.profiles.business.title')}</h3>
-                <p className="mt-2 text-muted-foreground">
-                  {t('landing.profiles.business.description')}
-                </p>
-                <ul className="mt-6 space-y-3">
-                  {[0, 1, 2, 3].map((i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm font-medium">
-                      <div className="flex h-5 w-5 items-center justify-center bg-accent">
-                        <CheckCircle2 className="h-3 w-3 text-accent-foreground" />
-                      </div>
-                      {t(`landing.profiles.business.features.${i}`)}
-                    </li>
-                  ))}
-                </ul>
-                <Button className="mt-8 w-full shadow-sm font-semibold" asChild>
-                  <Link href="/onboarding?type=business">
-                    {t('landing.profiles.business.cta')}
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-              {t('landing.features.title')}
-            </h2>
-            <p className="mt-4 text-pretty text-lg text-muted-foreground">
-              {t('landing.features.description')}
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                icon: PieChart,
-                titleKey: 'budget',
-                color: 'bg-chart-3',
-              },
-              {
-                icon: FileText,
-                titleKey: 'invoice',
-                color: 'bg-accent',
-              },
-              {
-                icon: Receipt,
-                titleKey: 'expense',
-                color: 'bg-chart-4',
-              },
-              {
-                icon: FileSpreadsheet,
-                titleKey: 'book',
-                color: 'bg-chart-5',
-              },
-              {
-                icon: Link2,
-                titleKey: 'connected',
-                color: 'bg-chart-3',
-              },
-              {
-                icon: Upload,
-                titleKey: 'storage',
-                color: 'bg-accent',
-              },
-            ].map((feature) => (
-              <Card key={feature.titleKey} className="group rounded-lg border transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5">
-                <CardContent className="p-6">
-                  <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg border border-border ${feature.color}`}>
-                    <feature.icon className="h-6 w-6 text-white" />
+              <div className="grid grid-cols-3 gap-4 p-6 sm:p-8">
+                <div className="col-span-3 rounded-xl border border-border bg-background p-5 sm:col-span-2">
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Total balance</p>
+                  <p className="mt-2 font-numeric text-3xl font-semibold">€12,480.50</p>
+                  <div className="mt-2 inline-flex items-center gap-1 rounded-md bg-accent/10 px-1.5 py-0.5 text-xs font-medium text-accent">
+                    <TrendingUp className="h-3 w-3" />
+                    +12.4% this month
                   </div>
-                  <h3 className="font-bold">{t(`landing.features.items.${feature.titleKey}.title`)}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{t(`landing.features.items.${feature.titleKey}.description`)}</p>
-                </CardContent>
-              </Card>
-            ))}
+                  <div className="mt-6 grid h-28 grid-cols-12 items-end gap-1.5">
+                    {[45, 60, 40, 75, 55, 80, 65, 90, 70, 85, 95, 100].map((h, i) => (
+                      <div
+                        key={i}
+                        className="rounded-sm bg-gradient-to-t from-accent/40 to-accent"
+                        style={{ height: `${h}%` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="col-span-3 space-y-3 sm:col-span-1">
+                  <div className="rounded-xl border border-border bg-background p-4">
+                    <p className="text-xs font-medium text-muted-foreground">Income</p>
+                    <p className="mt-1 font-numeric text-lg font-semibold">€5,240</p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-background p-4">
+                    <p className="text-xs font-medium text-muted-foreground">Expenses</p>
+                    <p className="mt-1 font-numeric text-lg font-semibold">€3,120</p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-foreground p-4 text-background">
+                    <p className="text-xs font-medium text-background/60">Savings</p>
+                    <p className="mt-1 font-numeric text-lg font-semibold">€2,120</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Book System Showcase */}
-      <section className="border-y-2 border-border bg-muted py-16 sm:py-24">
+      {/* Profiles */}
+      <section className="border-t border-border bg-background py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium">
-                <Zap className="h-4 w-4 text-accent" />
-                <span>{t('landing.bookSystem.badge')}</span>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">{t("profiles.title")}</h2>
+            <p className="mt-4 text-muted-foreground">{t("profiles.description")}</p>
+          </div>
+          <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-8 transition-shadow hover:shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                <Wallet className="h-5 w-5 text-foreground" />
               </div>
-              <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-                {t('landing.bookSystem.title')}
-              </h2>
-              <p className="mt-4 text-pretty text-lg text-muted-foreground leading-relaxed">
-                {t('landing.bookSystem.description')}
-              </p>
-              <ul className="mt-8 space-y-4">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <div className="flex h-6 w-6 items-center justify-center bg-accent">
-                      <CheckCircle2 className="h-4 w-4 text-accent-foreground" />
-                    </div>
-                    <span className="text-sm font-medium">{t(`landing.bookSystem.features.${i}`)}</span>
+              <h3 className="mt-6 text-xl font-semibold">{t("profiles.individual.title")}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{t("profiles.individual.description")}</p>
+              <ul className="mt-6 space-y-2">
+                {(t.raw("profiles.individual.features") as string[]).map(feature => (
+                  <li key={feature} className="flex items-center gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-accent" />
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
-              <Button className="mt-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all font-semibold" asChild>
+              <Button asChild variant="outline" className="mt-8 w-full rounded-full">
+                <Link href="/onboarding?type=individual">
+                  {t("profiles.individual.cta")}
+                  <ArrowUpRight className="ml-1.5 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            <div className="relative rounded-2xl border border-foreground bg-foreground p-8 text-background transition-shadow hover:shadow-lg">
+              <Badge className="absolute right-6 top-6 bg-accent text-accent-foreground">
+                {t("profiles.business.badge")}
+              </Badge>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/10">
+                <Layers className="h-5 w-5" />
+              </div>
+              <h3 className="mt-6 text-xl font-semibold">{t("profiles.business.title")}</h3>
+              <p className="mt-2 text-sm text-background/70">{t("profiles.business.description")}</p>
+              <ul className="mt-6 space-y-2">
+                {(t.raw("profiles.business.features") as string[]).map(feature => (
+                  <li key={feature} className="flex items-center gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-accent" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button asChild className="mt-8 w-full rounded-full bg-background text-foreground hover:bg-background/90">
+                <Link href="/onboarding?type=business">
+                  {t("profiles.business.cta")}
+                  <ArrowUpRight className="ml-1.5 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="border-t border-border bg-muted/30 py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">{t("features.title")}</h2>
+            <p className="mt-4 text-muted-foreground">{t("features.description")}</p>
+          </div>
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {(Object.entries(featureIcons) as [keyof typeof featureIcons, (typeof featureIcons)[keyof typeof featureIcons]][]).map(
+              ([key, Icon]) => (
+                <div
+                  key={key}
+                  className="group rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-5 text-lg font-semibold">{t(`features.items.${key}.title`)}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{t(`features.items.${key}.description`)}</p>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Book system */}
+      <section className="border-t border-border bg-background py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div>
+              <Badge variant="secondary" className="rounded-full bg-accent/10 text-accent hover:bg-accent/10">
+                {t("bookSystem.badge")}
+              </Badge>
+              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+                {t("bookSystem.title")}
+              </h2>
+              <p className="mt-4 text-muted-foreground">{t("bookSystem.description")}</p>
+              <ul className="mt-6 space-y-2.5">
+                {(t.raw("bookSystem.features") as string[]).map(feature => (
+                  <li key={feature} className="flex items-center gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-accent" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button asChild className="mt-8 rounded-full">
                 <Link href="/onboarding">
-                  {t('landing.bookSystem.cta')}
+                  {t("bookSystem.cta")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
-            <div className="relative">
-              <Card className="relative overflow-hidden rounded-lg border shadow-lg">
-                <CardContent className="p-0">
-                  <BookPreview />
-                </CardContent>
-              </Card>
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
+              <div className="border-b border-border bg-muted/40 px-4 py-3 text-xs font-medium text-muted-foreground">
+                finances-q4.book
+              </div>
+              <div className="divide-y divide-border font-numeric text-sm">
+                <div className="grid grid-cols-4 gap-2 bg-muted/20 px-4 py-2 text-xs font-semibold text-muted-foreground">
+                  <span>Date</span>
+                  <span>Description</span>
+                  <span>Category</span>
+                  <span className="text-right">Amount</span>
+                </div>
+                {[
+                  ["04 Oct", "Client invoice #1082", "Income", "+€2,400.00", "text-accent"],
+                  ["02 Oct", "Office supplies", "Expense", "-€187.50", "text-foreground"],
+                  ["29 Sep", "Subscription renewal", "Expense", "-€49.00", "text-foreground"],
+                  ["27 Sep", "Consulting retainer", "Income", "+€1,200.00", "text-accent"],
+                  ["25 Sep", "Transport", "Expense", "-€72.40", "text-foreground"],
+                ].map(([date, desc, cat, amt, color]) => (
+                  <div key={desc} className="grid grid-cols-4 items-center gap-2 px-4 py-2.5 text-xs">
+                    <span className="text-muted-foreground">{date}</span>
+                    <span className="truncate">{desc}</span>
+                    <span className="text-muted-foreground">{cat}</span>
+                    <span className={`text-right font-medium ${color}`}>{amt}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { value: t('landing.stats.activeUsers.value'), label: t('landing.stats.activeUsers.label'), key: 'activeUsers' },
-              { value: t('landing.stats.invoices.value'), label: t('landing.stats.invoices.label'), key: 'invoices' },
-              { value: t('landing.stats.uptime.value'), label: t('landing.stats.uptime.label'), key: 'uptime' },
-              { value: t('landing.stats.rating.value'), label: t('landing.stats.rating.label'), key: 'rating' },
-            ].map((stat) => (
-              <div key={stat.key} className="rounded-lg border border-border bg-card p-6 text-center shadow-sm">
-                <div className="font-mono text-4xl font-bold tracking-tight text-accent">{stat.value}</div>
-                <div className="mt-2 text-sm font-medium text-muted-foreground">{stat.label}</div>
+      {/* Stats */}
+      <section className="border-t border-border bg-foreground py-16 text-background">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 sm:grid-cols-4 sm:px-6 lg:px-8">
+          {(["activeUsers", "invoices", "uptime", "rating"] as const).map(key => (
+            <div key={key} className="text-center sm:text-left">
+              <div className="font-numeric text-3xl font-semibold sm:text-4xl">{t(`stats.${key}.value`)}</div>
+              <div className="mt-1 text-xs uppercase tracking-widest text-background/60">
+                {t(`stats.${key}.label`)}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="border-y-2 border-border bg-muted py-16 sm:py-24">
+      {/* Pricing */}
+      <section id="pricing" className="border-t border-border bg-background py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-              {t('landing.pricing.title')}
-            </h2>
-            <p className="mt-4 text-pretty text-lg text-muted-foreground">
-              {t('landing.pricing.description')}
-            </p>
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">{t("pricing.title")}</h2>
+            <p className="mt-4 text-muted-foreground">{t("pricing.description")}</p>
           </div>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {[
-              {
-                planKey: 'free',
-                price: '0',
-                popular: false,
-                featureCount: 5,
-              },
-              {
-                planKey: 'pro',
-                price: '19',
-                popular: true,
-                featureCount: 6,
-              },
-              {
-                planKey: 'enterprise',
-                price: '49',
-                popular: false,
-                featureCount: 6,
-              },
-            ].map((plan) => (
-              <Card key={plan.planKey} className={`relative rounded-lg border bg-card ${plan.popular ? "shadow-sm ring-1 ring-accent" : "shadow-sm"}`}>
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="bg-accent px-4 py-1 text-xs font-bold text-accent-foreground">
-                      {t(`landing.pricing.plans.${plan.planKey}.badge`)}
-                    </span>
+          <div className="mx-auto mt-12 grid max-w-5xl gap-6 lg:grid-cols-3">
+            {(["free", "pro", "enterprise"] as const).map(plan => {
+              const isPro = plan === "pro"
+              return (
+                <div
+                  key={plan}
+                  className={
+                    isPro
+                      ? "relative rounded-2xl border-2 border-foreground bg-card p-8 shadow-md"
+                      : "relative rounded-2xl border border-border bg-card p-8"
+                  }
+                >
+                  {isPro && (
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent text-accent-foreground">
+                      {t("pricing.plans.pro.badge")}
+                    </Badge>
+                  )}
+                  <h3 className="text-lg font-semibold">{t(`pricing.plans.${plan}.name`)}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t(`pricing.plans.${plan}.description`)}</p>
+                  <div className="mt-6 flex items-baseline gap-1">
+                    <span className="font-numeric text-4xl font-semibold">€{t(`pricing.plans.${plan}.price`)}</span>
+                    <span className="text-sm text-muted-foreground">{t("pricing.perMonth")}</span>
                   </div>
-                )}
-                <CardContent className="p-6">
-                  <h3 className="font-bold">{t(`landing.pricing.plans.${plan.planKey}.name`)}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{t(`landing.pricing.plans.${plan.planKey}.description`)}</p>
-                  <div className="mt-4">
-                    <span className="font-mono text-4xl font-bold">${plan.price}</span>
-                    <span className="text-muted-foreground">{t('landing.pricing.perMonth')}</span>
-                  </div>
-                  <ul className="mt-6 space-y-3">
-                    {Array.from({ length: plan.featureCount }).map((_, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-accent" />
-                        <span>{t(`landing.pricing.plans.${plan.planKey}.features.${i}`)}</span>
+                  <ul className="mt-6 space-y-2.5">
+                    {(t.raw(`pricing.plans.${plan}.features`) as string[]).map(feature => (
+                      <li key={feature} className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                        <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button 
-                    className={`mt-6 w-full font-semibold ${plan.popular ? "shadow-sm" : ""}`} 
-                    variant={plan.popular ? "default" : "outline"} 
+                  <Button
                     asChild
+                    variant={isPro ? "default" : "outline"}
+                    className="mt-8 w-full rounded-full"
                   >
-                    <Link href="/onboarding">{t(`landing.pricing.plans.${plan.planKey}.cta`)}</Link>
+                    <Link href="/onboarding">{t(`pricing.plans.${plan}.cta`)}</Link>
                   </Button>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="py-16 sm:py-24">
+      <section id="testimonials" className="border-t border-border bg-muted/30 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-              {t('landing.testimonials.title')}
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+              {t("testimonials.title")}
             </h2>
-            <p className="mt-4 text-pretty text-lg text-muted-foreground">
-              {t('landing.testimonials.description')}
-            </p>
+            <p className="mt-4 text-muted-foreground">{t("testimonials.description")}</p>
           </div>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {[0, 1, 2].map((i) => (
-              <Card key={i} className="rounded-lg border shadow-sm">
-                <CardContent className="p-6">
-                  <p className="text-muted-foreground leading-relaxed">&quot;{t(`landing.testimonials.items.${i}.quote`)}&quot;</p>
-                  <div className="mt-6 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-secondary font-bold">
-                      {t(`landing.testimonials.items.${i}.author`).split(" ").map((n: string) => n[0]).join("")}
-                    </div>
-                    <div>
-                      <p className="font-semibold">{t(`landing.testimonials.items.${i}.author`)}</p>
-                      <span className="text-sm text-muted-foreground font-mono mb-1">of 100MB</span>
-                      <p className="text-sm text-muted-foreground">{t(`landing.testimonials.items.${i}.role`)}</p>
-                    </div>
+          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            {(t.raw("testimonials.items") as Array<{ quote: string; author: string; role: string }>).map(item => (
+              <figure
+                key={item.author}
+                className="flex h-full flex-col justify-between rounded-2xl border border-border bg-card p-6"
+              >
+                <div>
+                  <div className="flex gap-0.5 text-accent">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-current" />
+                    ))}
                   </div>
-                </CardContent>
-              </Card>
+                  <blockquote className="mt-4 text-sm leading-relaxed text-foreground">"{item.quote}"</blockquote>
+                </div>
+                <figcaption className="mt-6 border-t border-border pt-4">
+                  <div className="text-sm font-semibold">{item.author}</div>
+                  <div className="text-xs text-muted-foreground">{item.role}</div>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="border-t border-border bg-foreground py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-balance text-3xl font-bold tracking-tight text-background sm:text-4xl">
-            {t('landing.cta.title')}
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-pretty text-lg text-background/70">
-            {t('landing.cta.description')}
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm font-semibold px-8">
-              <Link href="/onboarding">
-                {t('landing.cta.button')}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
+      {/* CTA */}
+      <section className="relative overflow-hidden border-t border-border bg-foreground py-20 text-background sm:py-24">
+        <div className="absolute inset-0 -z-0 opacity-30">
+          <div className="absolute -left-20 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-accent/40 blur-3xl" />
+          <div className="absolute -right-20 top-1/3 h-80 w-80 -translate-y-1/2 rounded-full bg-accent/20 blur-3xl" />
+        </div>
+        <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+          <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl">{t("cta.title")}</h2>
+          <p className="mx-auto mt-4 max-w-xl text-background/70">{t("cta.description")}</p>
+          <Button asChild size="lg" className="mt-8 rounded-full bg-background text-foreground hover:bg-background/90">
+            <Link href="/onboarding">
+              {t("cta.button")}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-border bg-background py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-accent">
-                <Wallet className="h-4 w-4 text-accent-foreground" />
-              </div>
-              <span className="font-bold">Finflow</span>
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-background">
+              <Wallet className="h-3.5 w-3.5" />
             </div>
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-              <Link href="#" className="hover:text-foreground hover:underline underline-offset-4">{t('landing.footer.privacy')}</Link>
-              <Link href="#" className="hover:text-foreground hover:underline underline-offset-4">{t('landing.footer.terms')}</Link>
-              <Link href="#" className="hover:text-foreground hover:underline underline-offset-4">{t('landing.footer.contact')}</Link>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {t('landing.footer.copyright')}
-            </p>
+            <span className="text-sm font-semibold">Finflow</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground">
+            <Link href="#" className="hover:text-foreground">
+              {t("footer.privacy")}
+            </Link>
+            <Link href="#" className="hover:text-foreground">
+              {t("footer.terms")}
+            </Link>
+            <Link href="#" className="hover:text-foreground">
+              {t("footer.contact")}
+            </Link>
+            <span>© {t("footer.copyright")}</span>
           </div>
         </div>
       </footer>
-    </div>
-  )
-}
-
-// Dashboard Preview Component
-function DashboardPreview() {
-  return (
-    <div className="bg-muted p-3 sm:p-6">
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-lg border border-border bg-card p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Balance</span>
-            <TrendingUp className="h-4 w-4 text-accent" />
-          </div>
-          <div className="mt-2 font-mono text-xl sm:text-2xl font-bold">$24,580.00</div>
-          <div className="mt-1 text-xs text-accent font-medium">+12.5% this month</div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Income</span>
-            <ArrowRight className="h-4 w-4 text-accent -rotate-45" />
-          </div>
-          <div className="mt-2 font-mono text-xl sm:text-2xl font-bold">$8,450.00</div>
-          <div className="mt-1 text-xs text-muted-foreground">This month</div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Expenses</span>
-            <ArrowRight className="h-4 w-4 text-destructive rotate-45" />
-          </div>
-          <div className="mt-2 font-mono text-xl sm:text-2xl font-bold">$3,240.00</div>
-          <div className="mt-1 text-xs text-muted-foreground">This month</div>
-        </div>
-      </div>
-      <div className="mt-3 sm:mt-4 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-        <div className="rounded-lg border border-border bg-card p-3 sm:p-4">
-          <h4 className="text-sm font-bold mb-3">Recent Transactions</h4>
-          <div className="space-y-2 min-w-0">
-            {[
-              { name: "Client Payment", amount: "+$2,500", type: "income" },
-              { name: "Software Sub", amount: "-$49.99", type: "expense" },
-              { name: "Office Supplies", amount: "-$124.50", type: "expense" },
-            ].map((tx, i) => (
-              <div key={i} className="flex items-center justify-between border-b border-border pb-2 last:border-0">
-                <span className="text-sm">{tx.name}</span>
-                <span className={`font-mono text-sm font-semibold ${tx.type === "income" ? "text-accent" : ""}`}>
-                  {tx.amount}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <h4 className="text-sm font-bold mb-3">Budget Overview</h4>
-          <div className="space-y-3">
-            {[
-              { name: "Marketing", percent: 60, color: "bg-chart-3" },
-              { name: "Software", percent: 90, color: "bg-chart-4" },
-              { name: "Office", percent: 40, color: "bg-accent" },
-            ].map((budget, i) => (
-              <div key={i}>
-                <div className="flex justify-between text-xs mb-1">
-                  <span>{budget.name}</span>
-                  <span className="font-mono">{budget.percent}%</span>
-                </div>
-                <div className="h-2 w-full bg-muted border border-border">
-                  <div className={`h-full ${budget.color}`} style={{ width: `${budget.percent}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Book Preview Component
-function BookPreview() {
-  return (
-    <div className="bg-card">
-      <div className="flex items-center gap-2 border-b border-border bg-muted p-3">
-        <div className="flex h-6 w-6 items-center justify-center bg-accent text-xs font-bold text-accent-foreground">$</div>
-        <span className="text-sm font-bold">Income Tracker</span>
-        <span className="ml-auto text-xs text-muted-foreground">3 entries</span>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="px-4 py-2 text-left font-semibold">Date</th>
-              <th className="px-4 py-2 text-left font-semibold">Description</th>
-              <th className="px-4 py-2 text-left font-semibold">Amount</th>
-              <th className="px-4 py-2 text-left font-semibold">Invoice</th>
-              <th className="px-4 py-2 text-left font-semibold">Receipt</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b border-border">
-              <td className="px-4 py-2 font-mono text-xs">Apr 10</td>
-              <td className="px-4 py-2">Acme Corp Payment</td>
-              <td className="px-4 py-2 font-mono text-accent font-semibold">$4,000.00</td>
-              <td className="px-4 py-2"><span className="border border-accent bg-accent/10 px-2 py-0.5 text-xs">INV-001</span></td>
-              <td className="px-4 py-2"><CheckCircle2 className="h-4 w-4 text-accent" /></td>
-            </tr>
-            <tr className="border-b border-border">
-              <td className="px-4 py-2 font-mono text-xs">Apr 05</td>
-              <td className="px-4 py-2">Freelance Work</td>
-              <td className="px-4 py-2 font-mono text-accent font-semibold">$850.00</td>
-              <td className="px-4 py-2"><span className="text-muted-foreground">-</span></td>
-              <td className="px-4 py-2"><CheckCircle2 className="h-4 w-4 text-accent" /></td>
-            </tr>
-            <tr className="border-b border-border bg-muted/30">
-              <td className="px-4 py-2 font-mono text-xs">Apr 01</td>
-              <td className="px-4 py-2">Consulting Fee</td>
-              <td className="px-4 py-2 font-mono text-accent font-semibold">$1,500.00</td>
-              <td className="px-4 py-2"><span className="border border-accent bg-accent/10 px-2 py-0.5 text-xs">INV-002</span></td>
-              <td className="px-4 py-2"><span className="text-muted-foreground">Pending</span></td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr className="bg-secondary border-t border-border">
-              <td className="px-4 py-2 font-bold" colSpan={2}>Total</td>
-              <td className="px-4 py-2 font-mono font-bold text-accent">$6,350.00</td>
-              <td className="px-4 py-2" colSpan={2}></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
     </div>
   )
 }

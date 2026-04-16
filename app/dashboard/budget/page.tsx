@@ -173,7 +173,7 @@ export default function BudgetPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Budget</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Budget</h1>
           <p className="text-muted-foreground font-mono text-sm">Manage your spending limits and track progress</p>
         </div>
         <div className="flex gap-2">
@@ -190,7 +190,7 @@ export default function BudgetPage() {
             </DialogTrigger>
             <DialogContent className="rounded-lg border border-foreground shadow-brutal">
               <DialogHeader>
-                <DialogTitle className="font-black">Add Budget Category</DialogTitle>
+                <DialogTitle className="font-semibold">Add Budget Category</DialogTitle>
                 <DialogDescription className="font-mono text-sm">Create a new category to track your spending</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -272,20 +272,20 @@ export default function BudgetPage() {
         <Card className="rounded-lg border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Total Budget</span>
+              <span className="text-sm text-muted-foreground text-xs font-medium">Total Budget</span>
               <PieChart className="h-5 w-5" />
             </div>
-            <div className="mt-2 text-3xl font-black">{formatCurrency(totalBudget, currency)}</div>
+            <div className="mt-2 text-3xl font-semibold">{formatCurrency(totalBudget, currency)}</div>
             <p className="mt-1 text-sm text-muted-foreground font-mono">Monthly allocation</p>
           </CardContent>
         </Card>
         <Card className="rounded-lg border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Total Spent</span>
+              <span className="text-sm text-muted-foreground text-xs font-medium">Total Spent</span>
               <TrendingDown className="h-5 w-5" />
             </div>
-            <div className="mt-2 text-3xl font-black">{formatCurrency(totalSpent, currency)}</div>
+            <div className="mt-2 text-3xl font-semibold">{formatCurrency(totalSpent, currency)}</div>
             <div className="mt-2 flex items-center gap-2">
               <div className="flex-1 h-3 bg-muted rounded-lg border border-border">
                 <div 
@@ -302,10 +302,10 @@ export default function BudgetPage() {
         <Card className="rounded-lg border border-border shadow-sm bg-accent text-accent-foreground">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm opacity-80 font-mono uppercase tracking-wider">Remaining</span>
+              <span className="text-sm opacity-80 text-xs font-medium">Remaining</span>
               <TrendingUp className="h-5 w-5" />
             </div>
-            <div className={`mt-2 text-3xl font-black ${remaining < 0 ? "text-destructive" : ""}`}>
+            <div className={`mt-2 text-3xl font-semibold ${remaining < 0 ? "text-destructive" : ""}`}>
               {formatCurrency(Math.abs(remaining), currency)}
               {remaining < 0 && " over"}
             </div>
@@ -368,7 +368,7 @@ export default function BudgetPage() {
                     </div>
                     <div className="mt-4">
                       <div className="mb-2 flex items-center justify-between">
-                        <span className={`text-sm font-black font-mono ${getStatusColor(category.spent, category.budget)}`}>
+                        <span className={`text-sm font-semibold font-mono ${getStatusColor(category.spent, category.budget)}`}>
                           {percentage}%
                         </span>
                         {getStatusIcon(category.spent, category.budget)}
@@ -490,7 +490,7 @@ export default function BudgetPage() {
       <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
         <DialogContent className="rounded-lg border border-foreground shadow-brutal">
           <DialogHeader>
-            <DialogTitle className="font-black">Edit Category</DialogTitle>
+            <DialogTitle className="font-semibold">Edit Category</DialogTitle>
             <DialogDescription className="font-mono text-sm">Update your budget category settings</DialogDescription>
           </DialogHeader>
           {editingCategory && (

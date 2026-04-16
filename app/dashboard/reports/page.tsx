@@ -102,7 +102,7 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Reports</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Reports</h1>
           <p className="text-muted-foreground font-mono text-sm">Analyze your financial performance</p>
         </div>
         <div className="flex gap-2">
@@ -118,7 +118,7 @@ export default function ReportsPage() {
               <SelectItem value="1year">Last Year</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={() => exportReport("csv")} className="rounded-lg border border-border shadow-sm-sm hover:-translate-y-0.5 transition-all">
+          <Button variant="outline" onClick={() => exportReport("csv")} className="rounded-lg border border-border shadow-sm hover:-translate-y-0.5 transition-all">
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -130,10 +130,10 @@ export default function ReportsPage() {
         <Card className="rounded-lg border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Total {isBusiness ? "Revenue" : "Income"}</span>
+              <span className="text-sm text-muted-foreground text-xs font-medium">Total {isBusiness ? "Revenue" : "Income"}</span>
               <TrendingUp className="h-5 w-5 text-accent" />
             </div>
-            <div className="mt-2 text-2xl font-black">{formatCurrency(totalIncome, currency)}</div>
+            <div className="mt-2 text-2xl font-semibold">{formatCurrency(totalIncome, currency)}</div>
             <div className="mt-2 flex items-center text-sm text-accent font-mono">
               <ArrowUp className="mr-1 h-4 w-4" />
               +12.5% vs previous
@@ -143,10 +143,10 @@ export default function ReportsPage() {
         <Card className="rounded-lg border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Total Expenses</span>
+              <span className="text-sm text-muted-foreground text-xs font-medium">Total Expenses</span>
               <TrendingDown className="h-5 w-5 text-destructive" />
             </div>
-            <div className="mt-2 text-2xl font-black">{formatCurrency(totalExpenses, currency)}</div>
+            <div className="mt-2 text-2xl font-semibold">{formatCurrency(totalExpenses, currency)}</div>
             <div className="mt-2 flex items-center text-sm text-destructive font-mono">
               <ArrowUp className="mr-1 h-4 w-4" />
               +8.3% vs previous
@@ -156,10 +156,10 @@ export default function ReportsPage() {
         <Card className="rounded-lg border border-border shadow-sm bg-accent text-accent-foreground">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm opacity-80 font-mono uppercase tracking-wider">Net {isBusiness ? "Profit" : "Savings"}</span>
+              <span className="text-sm opacity-80 text-xs font-medium">Net {isBusiness ? "Profit" : "Savings"}</span>
               <BarChart3 className="h-5 w-5" />
             </div>
-            <div className={`mt-2 text-2xl font-black ${netSavings < 0 ? "text-destructive" : ""}`}>
+            <div className={`mt-2 text-2xl font-semibold ${netSavings < 0 ? "text-destructive" : ""}`}>
               {formatCurrency(netSavings, currency)}
             </div>
             <div className="mt-2 flex items-center text-sm font-mono">
@@ -171,10 +171,10 @@ export default function ReportsPage() {
         <Card className="rounded-lg border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground font-mono uppercase tracking-wider">{isBusiness ? "Profit" : "Savings"} Rate</span>
+              <span className="text-sm text-muted-foreground text-xs font-medium">{isBusiness ? "Profit" : "Savings"} Rate</span>
               <PieChart className="h-5 w-5" />
             </div>
-            <div className="mt-2 text-2xl font-black">{savingsRate}%</div>
+            <div className="mt-2 text-2xl font-semibold">{savingsRate}%</div>
             <p className="mt-2 text-sm text-muted-foreground font-mono">
               {isBusiness ? "Revenue to profit" : "Income to savings"}
             </p>
@@ -196,7 +196,7 @@ export default function ReportsPage() {
             {/* Monthly Chart */}
             <Card className="lg:col-span-2 rounded-lg border border-border shadow-sm">
               <CardHeader className="border-b border-border">
-                <CardTitle className="font-black">Income vs Expenses</CardTitle>
+                <CardTitle className="font-semibold">Income vs Expenses</CardTitle>
                 <CardDescription className="font-mono text-xs">Monthly comparison over the selected period</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -204,7 +204,7 @@ export default function ReportsPage() {
                   {monthlyData.map((data) => (
                     <div key={data.month} className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="w-12 font-black font-mono">{data.month}</span>
+                        <span className="w-12 font-semibold font-mono">{data.month}</span>
                         <div className="flex gap-4 text-muted-foreground font-mono text-xs">
                           <span className="text-accent">{formatCurrency(data.income, currency)}</span>
                           <span className="text-destructive">{formatCurrency(data.expenses, currency)}</span>
@@ -241,7 +241,7 @@ export default function ReportsPage() {
             {/* Category Breakdown */}
             <Card className="rounded-lg border border-border shadow-sm">
               <CardHeader className="border-b border-border">
-                <CardTitle className="font-black">Expense Breakdown</CardTitle>
+                <CardTitle className="font-semibold">Expense Breakdown</CardTitle>
                 <CardDescription className="font-mono text-xs">By category</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -271,15 +271,15 @@ export default function ReportsPage() {
           {/* Top Expenses */}
           <Card className="rounded-lg border border-border shadow-sm">
             <CardHeader className="border-b border-border">
-              <CardTitle className="font-black">Top Expenses</CardTitle>
+              <CardTitle className="font-semibold">Top Expenses</CardTitle>
               <CardDescription className="font-mono text-xs">Largest transactions this period</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="divide-y-2 divide-foreground">
+              <div className="divide-y divide-border">
                 {topExpenses.map((expense, i) => (
                   <div key={i} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-secondary font-black font-mono">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-secondary font-semibold font-mono">
                         {i + 1}
                       </div>
                       <div>
@@ -288,7 +288,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-black font-mono">{formatCurrency(expense.amount, currency)}</p>
+                      <p className="font-semibold font-mono">{formatCurrency(expense.amount, currency)}</p>
                       <p className="text-sm text-muted-foreground font-mono">{expense.date}</p>
                     </div>
                   </div>
@@ -301,7 +301,7 @@ export default function ReportsPage() {
         <TabsContent value="income" className="space-y-6">
           <Card className="rounded-lg border border-border shadow-sm">
             <CardHeader className="border-b border-border">
-              <CardTitle className="font-black">{isBusiness ? "Revenue" : "Income"} Trend</CardTitle>
+              <CardTitle className="font-semibold">{isBusiness ? "Revenue" : "Income"} Trend</CardTitle>
               <CardDescription className="font-mono text-xs">Monthly {isBusiness ? "revenue" : "income"} over time</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
@@ -323,7 +323,7 @@ export default function ReportsPage() {
         <TabsContent value="expenses" className="space-y-6">
           <Card className="rounded-lg border border-border shadow-sm">
             <CardHeader className="border-b border-border">
-              <CardTitle className="font-black">Expense Trend</CardTitle>
+              <CardTitle className="font-semibold">Expense Trend</CardTitle>
               <CardDescription className="font-mono text-xs">Monthly expenses over time</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
@@ -346,14 +346,14 @@ export default function ReportsPage() {
           <div className="grid gap-6 md:grid-cols-2">
             <Card className="rounded-lg border border-border shadow-sm">
               <CardHeader className="border-b border-border">
-                <CardTitle className="font-black">Key Insights</CardTitle>
+                <CardTitle className="font-semibold">Key Insights</CardTitle>
                 <CardDescription className="font-mono text-xs">AI-powered analysis of your finances</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
                 <div className="flex items-start gap-3 rounded-lg border border-accent bg-accent/10 p-4">
                   <ArrowUp className="mt-0.5 h-5 w-5 text-accent" />
                   <div>
-                    <p className="font-black">Income Growing</p>
+                    <p className="font-semibold">Income Growing</p>
                     <p className="text-sm text-muted-foreground font-mono">
                       Your income has increased by 32% over the last 6 months.
                     </p>
@@ -362,7 +362,7 @@ export default function ReportsPage() {
                 <div className="flex items-start gap-3 rounded-lg border border-warning bg-warning/10 p-4">
                   <TrendingDown className="mt-0.5 h-5 w-5 text-warning" />
                   <div>
-                    <p className="font-black">Food Expenses High</p>
+                    <p className="font-semibold">Food Expenses High</p>
                     <p className="text-sm text-muted-foreground font-mono">
                       Food & Dining represents 25% of your expenses. Consider setting a budget.
                     </p>
@@ -371,7 +371,7 @@ export default function ReportsPage() {
                 <div className="flex items-start gap-3 rounded-lg border border-accent bg-accent/10 p-4">
                   <BarChart3 className="mt-0.5 h-5 w-5 text-accent" />
                   <div>
-                    <p className="font-black">Healthy Savings Rate</p>
+                    <p className="font-semibold">Healthy Savings Rate</p>
                     <p className="text-sm text-muted-foreground font-mono">
                       You&apos;re saving {savingsRate}% of your income, above the recommended 20%.
                     </p>
@@ -382,25 +382,25 @@ export default function ReportsPage() {
 
             <Card className="rounded-lg border border-border shadow-sm">
               <CardHeader className="border-b border-border">
-                <CardTitle className="font-black">Projections</CardTitle>
+                <CardTitle className="font-semibold">Projections</CardTitle>
                 <CardDescription className="font-mono text-xs">Forecast based on current trends</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
                 <div className="rounded-lg border border-border p-4 bg-accent/10">
-                  <p className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Projected Year-End {isBusiness ? "Profit" : "Savings"}</p>
-                  <p className="mt-1 text-2xl font-black text-accent">
+                  <p className="text-sm text-muted-foreground text-xs font-medium">Projected Year-End {isBusiness ? "Profit" : "Savings"}</p>
+                  <p className="mt-1 text-2xl font-semibold text-accent">
                     {formatCurrency(netSavings * 2, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border p-4">
-                  <p className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Average Monthly {isBusiness ? "Revenue" : "Income"}</p>
-                  <p className="mt-1 text-2xl font-black">
+                  <p className="text-sm text-muted-foreground text-xs font-medium">Average Monthly {isBusiness ? "Revenue" : "Income"}</p>
+                  <p className="mt-1 text-2xl font-semibold">
                     {formatCurrency(totalIncome / monthlyData.length, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border p-4">
-                  <p className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Average Monthly Expenses</p>
-                  <p className="mt-1 text-2xl font-black">
+                  <p className="text-sm text-muted-foreground text-xs font-medium">Average Monthly Expenses</p>
+                  <p className="mt-1 text-2xl font-semibold">
                     {formatCurrency(totalExpenses / monthlyData.length, currency)}
                   </p>
                 </div>
@@ -413,36 +413,36 @@ export default function ReportsPage() {
       {/* Export Options */}
       <Card className="rounded-lg border border-border shadow-sm">
         <CardHeader className="border-b border-border">
-          <CardTitle className="font-black">Export Reports</CardTitle>
+          <CardTitle className="font-semibold">Export Reports</CardTitle>
           <CardDescription className="font-mono text-xs">Download your financial data in various formats</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <div className="grid gap-4 sm:grid-cols-3">
             <Button 
               variant="outline" 
-              className="h-auto flex-col gap-2 p-4 rounded-lg border border-border shadow-sm-sm hover:-translate-y-0.5 transition-all"
+              className="h-auto flex-col gap-2 p-4 rounded-lg border border-border shadow-sm hover:-translate-y-0.5 transition-all"
               onClick={() => exportReport("pdf")}
             >
               <FileText className="h-6 w-6" />
-              <span className="font-black">PDF Report</span>
+              <span className="font-semibold">PDF Report</span>
               <span className="text-xs text-muted-foreground font-mono">Full financial summary</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-auto flex-col gap-2 p-4 rounded-lg border border-border shadow-sm-sm hover:-translate-y-0.5 transition-all"
+              className="h-auto flex-col gap-2 p-4 rounded-lg border border-border shadow-sm hover:-translate-y-0.5 transition-all"
               onClick={() => exportReport("csv")}
             >
               <FileSpreadsheet className="h-6 w-6" />
-              <span className="font-black">Excel Export</span>
+              <span className="font-semibold">Excel Export</span>
               <span className="text-xs text-muted-foreground font-mono">Raw data for analysis</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-auto flex-col gap-2 p-4 rounded-lg border border-border shadow-sm-sm hover:-translate-y-0.5 transition-all"
+              className="h-auto flex-col gap-2 p-4 rounded-lg border border-border shadow-sm hover:-translate-y-0.5 transition-all"
               onClick={() => exportReport("csv")}
             >
               <BarChart3 className="h-6 w-6" />
-              <span className="font-black">CSV Export</span>
+              <span className="font-semibold">CSV Export</span>
               <span className="text-xs text-muted-foreground font-mono">Transaction history</span>
             </Button>
           </div>
