@@ -4,8 +4,10 @@ import { prisma } from "@/lib/db"
 
 const TEMP_USER_ID = "temp-user-id"
 
-// Maximum file size: 10MB (adjust as needed)
+// Maximum file size: 10MB per upload
 const MAX_FILE_SIZE = 10 * 1024 * 1024
+// Per-user storage quota: 100MB
+const STORAGE_QUOTA = 100 * 1024 * 1024
 
 // Allowed file types for PDFs and images
 const ALLOWED_TYPES = [
@@ -56,6 +58,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Enforce per-user storage quota (100MB)
+    const used = await prisma.document.aggregate({
+      where: { userId: TEMP_USER_ID },
+      _sum: { size: true },
+    })
+    const currentUsage = used._sum.size ?? 0
+    if (currentUsage + file.size > STORAGE_QUOTA) {
+      return NextResponse.json(
+        {
+          error: "Storage quota exceeded",
+          message: `You've used ${(currentUsage / 1024 / 1024).toFixed(1)}MB of your ${STORAGE_QUOTA / 1024 / 1024}MB quota. Delete files to free up space.`,
+          used: currentUsage,
+          quota: STORAGE_QUOTA,
+        },
+        { status: 413 }
+      )
+    }
+
     // Generate unique key for S3
     const key = generateS3Key(userId, documentTypeRaw, file.name)
 
@@ -70,9 +90,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Save document metadata to database
-    const documentType = (documentTypeRaw as 
+    const documentType = (documentTypeRaw as
       "invoice" | "receipt" | "certificate" | "contract" | "other")
-    
+
+    const linkedToType = formData.get("linkedToType") as
+      | "expense"
+      | "invoice"
+      | "book_entry"
+      | null
+    const linkedToId = formData.get("linkedToId") as string | null
+
     const document = await prisma.document.create({
       data: {
         name: file.name,
@@ -81,8 +108,27 @@ export async function POST(request: NextRequest) {
         url: result.url!,
         key: result.key!,
         userId: TEMP_USER_ID,
+        linkedToType: linkedToType ?? undefined,
+        linkedToId: linkedToId ?? undefined,
       },
     })
+
+    // Storage warning notification at 80%
+    const newUsage = currentUsage + file.size
+    if (
+      newUsage >= STORAGE_QUOTA * 0.8 &&
+      currentUsage < STORAGE_QUOTA * 0.8
+    ) {
+      await prisma.notification.create({
+        data: {
+          userId: TEMP_USER_ID,
+          type: "storage_warning",
+          title: "Storage almost full",
+          message: `You've used ${Math.round((newUsage / STORAGE_QUOTA) * 100)}% of your 100MB quota.`,
+          link: "/dashboard/documents",
+        },
+      }).catch(() => {})
+    }
 
     return NextResponse.json({
       success: true,

@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useDataStore, formatCurrency, formatDate, type Expense } from "@/lib/data-store"
+import { AttachmentsField, AttachmentsBadge, type LocalAttachment } from "@/components/attachments-field"
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -84,7 +85,7 @@ const paymentMethods = [
 ]
 
 export default function ExpensesPage() {
-  const { expenses, invoices, addExpense, updateExpense, deleteExpense, linkExpenseToInvoice, storage } = useDataStore()
+  const { expenses, invoices, addExpense, updateExpense, deleteExpense, linkExpenseToInvoice, linkDocument, storage } = useDataStore()
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -97,9 +98,10 @@ export default function ExpensesPage() {
     date: new Date().toISOString().split("T")[0],
     paymentMethod: "Credit Card",
     notes: "",
-    type: "expense" as const,
+    type: "expense" as "expense" | "income",
     tags: [] as string[],
   })
+  const [attachments, setAttachments] = useState<LocalAttachment[]>([])
 
   const getCategoryIcon = (categoryName: string) => {
     const cat = categories.find(c => c.name === categoryName)
@@ -128,10 +130,10 @@ export default function ExpensesPage() {
     recurring: expenses.filter(e => e.isRecurring).length,
   }
 
-  const handleAddExpense = () => {
+  const handleAddExpense = async () => {
     if (!newExpense.description || !newExpense.amount || !newExpense.category) return
-    
-    addExpense({
+
+    const expenseId = await addExpense({
       description: newExpense.description,
       amount: parseFloat(newExpense.amount),
       category: newExpense.category,
@@ -141,6 +143,14 @@ export default function ExpensesPage() {
       type: newExpense.type,
       tags: newExpense.tags,
     })
+
+    // Link uploaded attachments to the new expense
+    for (const att of attachments) {
+      try {
+        await linkDocument(att.id, "expense", expenseId)
+      } catch {}
+    }
+
     setNewExpense({
       description: "",
       amount: "",
@@ -151,6 +161,7 @@ export default function ExpensesPage() {
       type: "expense",
       tags: [],
     })
+    setAttachments([])
     setDialogOpen(false)
   }
 
@@ -298,6 +309,19 @@ export default function ExpensesPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-medium">
+                    Justification documents
+                    <span className="ml-1 font-normal text-muted-foreground">(optional)</span>
+                  </Label>
+                  <AttachmentsField
+                    value={attachments}
+                    onChange={setAttachments}
+                    documentType={newExpense.type === "income" ? "invoice" : "receipt"}
+                    linkedTo={{ type: "expense" }}
+                  />
                 </div>
               </div>
               <DialogFooter>

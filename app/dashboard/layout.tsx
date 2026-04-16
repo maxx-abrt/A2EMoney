@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { NotificationsDropdown } from "@/components/notifications-dropdown"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +38,6 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import {
   BarChart3,
-  Bell,
   BookOpen,
   Building2,
   ChevronLeft,
@@ -78,6 +78,7 @@ const navItems: NavItem[] = [
   { key: "book", href: "/dashboard/book", icon: BookOpen, group: "main" },
   { key: "documents", href: "/dashboard/documents", icon: HardDrive, group: "main" },
   { key: "reports", href: "/dashboard/reports", icon: BarChart3, group: "secondary" },
+  { key: "team", href: "/dashboard/team", icon: Users, group: "secondary" },
   { key: "legal", href: "/dashboard/legal", icon: Gavel, group: "secondary", businessOnly: true },
   { key: "settings", href: "/dashboard/settings", icon: Settings, group: "secondary" },
 ]
@@ -329,9 +330,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
               <LanguageSwitcher />
-              <Button variant="ghost" size="icon" aria-label="Notifications">
-                <Bell className="h-5 w-5" />
-              </Button>
+              <NotificationsDropdown />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="ml-1 flex h-9 items-center gap-2 rounded-full border border-border bg-card px-2 pr-3 transition-colors hover:bg-muted">

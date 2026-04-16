@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import Link from "next/link"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -54,6 +56,9 @@ import {
   CheckCircle2,
   X,
   Sparkles,
+  ArrowUpRight,
+  ArrowDownRight,
+  Wallet,
 } from "lucide-react"
 
 const columnTypes = [
@@ -84,12 +89,62 @@ const sheetColors = [
 ]
 
 export default function BookPage() {
-  const { 
-    sheets, addSheet, updateSheet, deleteSheet, 
+  const t = useTranslations("book.smartOverview")
+  const {
+    sheets, addSheet, updateSheet, deleteSheet,
     addBookEntry, updateBookEntry, deleteBookEntry,
     invoices, expenses, storage,
-    exportData 
+    exportData
   } = useDataStore()
+
+  // Smart aggregation: unified feed across expenses, income and invoices
+  const smartStats = useMemo(() => {
+    const totalIncome = expenses
+      .filter(e => e.type === "income")
+      .reduce((acc, e) => acc + e.amount, 0)
+    const totalExpenses = expenses
+      .filter(e => e.type === "expense")
+      .reduce((acc, e) => acc + e.amount, 0)
+    const paidInvoicesTotal = invoices
+      .filter(i => i.status === "paid")
+      .reduce(
+        (acc, i) =>
+          acc + i.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0),
+        0,
+      )
+    const pendingInvoicesCount = invoices.filter(
+      i => i.status === "sent" || i.status === "overdue",
+    ).length
+
+    const expenseEntries = expenses.map(e => ({
+      id: `expense-${e.id}`,
+      source: e.type as "expense" | "income",
+      label: e.description,
+      subtitle: e.category,
+      amount: e.type === "income" ? e.amount : -e.amount,
+      date: e.date,
+    }))
+    const invoiceEntries = invoices
+      .filter(i => i.status === "paid")
+      .map(i => ({
+        id: `invoice-${i.id}`,
+        source: "invoice" as const,
+        label: i.number,
+        subtitle: i.client,
+        amount: i.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0),
+        date: i.paidDate ?? i.issueDate,
+      }))
+    const feed = [...expenseEntries, ...invoiceEntries].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    )
+    return {
+      totalIncome: totalIncome + paidInvoicesTotal,
+      totalExpenses,
+      netBalance: totalIncome + paidInvoicesTotal - totalExpenses,
+      pendingInvoicesCount,
+      feed,
+    }
+  }, [expenses, invoices])
   
   const [activeSheetId, setActiveSheetId] = useState(sheets[0]?.id || "")
   const [editingCell, setEditingCell] = useState<{ entryId: string; colId: string } | null>(null)
@@ -289,6 +344,7 @@ export default function BookPage() {
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Financial Book</h1>
           <p className="text-muted-foreground">Smart spreadsheets connected to your invoices and expenses</p>
         </div>
+        {/* moved to header actions below */}
         <div className="flex flex-wrap gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -374,6 +430,141 @@ export default function BookPage() {
           </Dialog>
         </div>
       </div>
+
+      {/* Smart Overview — aggregates expenses, income and paid invoices */}
+      <section className="animate-fade-up space-y-4">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold">{t("title")}</h2>
+            <p className="text-sm text-muted-foreground">{t("description")}</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="rounded-xl border shadow-sm">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{t("income")}</span>
+                <ArrowUpRight className="h-4 w-4 text-accent" />
+              </div>
+              <div className="mt-2 font-mono text-2xl font-semibold text-accent">
+                +{formatCurrency(smartStats.totalIncome)}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="rounded-xl border shadow-sm">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{t("expenses")}</span>
+                <ArrowDownRight className="h-4 w-4 text-destructive" />
+              </div>
+              <div className="mt-2 font-mono text-2xl font-semibold">
+                -{formatCurrency(smartStats.totalExpenses)}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="rounded-xl border shadow-sm">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{t("netBalance")}</span>
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div
+                className={`mt-2 font-mono text-2xl font-semibold ${
+                  smartStats.netBalance >= 0 ? "text-accent" : "text-destructive"
+                }`}
+              >
+                {formatCurrency(smartStats.netBalance)}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="rounded-xl border shadow-sm">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{t("pendingInvoices")}</span>
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="mt-2 font-mono text-2xl font-semibold">
+                {smartStats.pendingInvoicesCount}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="rounded-xl border shadow-sm">
+          <CardHeader className="pb-2">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <CardTitle className="text-base font-semibold">{t("latestActivity")}</CardTitle>
+                <CardDescription>{t("description")}</CardDescription>
+              </div>
+              <Link
+                href="/dashboard/expenses"
+                className="text-xs font-medium text-accent hover:underline"
+              >
+                {t("viewAll")} →
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {smartStats.feed.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                  <Sparkles className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <h3 className="text-sm font-semibold">{t("emptyTitle")}</h3>
+                <p className="text-xs text-muted-foreground">{t("emptyDescription")}</p>
+              </div>
+            ) : (
+              <ul className="divide-y divide-border">
+                {smartStats.feed.slice(0, 8).map(entry => (
+                  <li
+                    key={entry.id}
+                    className="flex items-center gap-3 px-4 py-3"
+                  >
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${
+                        entry.source === "income"
+                          ? "bg-accent/10 text-accent"
+                          : entry.source === "invoice"
+                            ? "bg-blue-500/10 text-blue-500"
+                            : "bg-destructive/10 text-destructive"
+                      }`}
+                    >
+                      {entry.source === "income" ? (
+                        <ArrowUpRight className="h-4 w-4" />
+                      ) : entry.source === "invoice" ? (
+                        <FileText className="h-4 w-4" />
+                      ) : (
+                        <ArrowDownRight className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{entry.label}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t(`source.${entry.source}`)} · {entry.subtitle || "—"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p
+                        className={`font-mono text-sm font-semibold ${
+                          entry.amount >= 0 ? "text-accent" : "text-destructive"
+                        }`}
+                      >
+                        {entry.amount >= 0 ? "+" : ""}
+                        {formatCurrency(entry.amount)}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {formatDate(entry.date)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </section>
 
       {/* Sheet Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2">

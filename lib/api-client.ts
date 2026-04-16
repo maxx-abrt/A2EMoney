@@ -103,3 +103,62 @@ export const initAPI = {
   initialize: () => fetchAPI("/api/init", { method: "POST" }),
   health: () => fetchAPI("/api/health"),
 }
+
+// Notifications API
+export const notificationsAPI = {
+  getAll: (unreadOnly = false) =>
+    fetchAPI(`/api/notifications${unreadOnly ? "?unread=1" : ""}`),
+  create: (data: Record<string, unknown>) =>
+    fetchAPI("/api/notifications", { method: "POST", body: JSON.stringify(data) }),
+  markRead: (id: string) =>
+    fetchAPI("/api/notifications", { method: "PATCH", body: JSON.stringify({ id, read: true }) }),
+  markAllRead: () =>
+    fetchAPI("/api/notifications", { method: "PATCH", body: JSON.stringify({ readAll: true }) }),
+  delete: (id: string) =>
+    fetchAPI(`/api/notifications?id=${id}`, { method: "DELETE" }),
+  clearAll: () =>
+    fetchAPI("/api/notifications?all=1", { method: "DELETE" }),
+}
+
+// Workspaces API
+export const workspacesAPI = {
+  getAll: () => fetchAPI("/api/workspaces"),
+  create: (data: { name: string; description?: string }) =>
+    fetchAPI("/api/workspaces", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: Record<string, unknown>) =>
+    fetchAPI(`/api/workspaces/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  delete: (id: string) =>
+    fetchAPI(`/api/workspaces/${id}`, { method: "DELETE" }),
+  updateMember: (workspaceId: string, userId: string, role: string) =>
+    fetchAPI(`/api/workspaces/${workspaceId}/members`, {
+      method: "PATCH",
+      body: JSON.stringify({ userId, role }),
+    }),
+  removeMember: (workspaceId: string, userId: string) =>
+    fetchAPI(`/api/workspaces/${workspaceId}/members?userId=${userId}`, {
+      method: "DELETE",
+    }),
+  listInvitations: (workspaceId: string) =>
+    fetchAPI(`/api/workspaces/${workspaceId}/invitations`),
+  invite: (workspaceId: string, email: string, role: string) =>
+    fetchAPI(`/api/workspaces/${workspaceId}/invitations`, {
+      method: "POST",
+      body: JSON.stringify({ email, role }),
+    }),
+  revokeInvitation: (workspaceId: string, invitationId: string) =>
+    fetchAPI(
+      `/api/workspaces/${workspaceId}/invitations?invitationId=${invitationId}`,
+      { method: "DELETE" },
+    ),
+}
+
+// Storage API
+export const storageAPI = {
+  get: () => fetchAPI("/api/storage") as Promise<{
+    used: number
+    total: number
+    count: number
+    percentage: number
+    available: number
+  }>,
+}
