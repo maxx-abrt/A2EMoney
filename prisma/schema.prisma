@@ -14,9 +14,11 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   name          String?
+  avatar        String?
+  locale        String    @default("en")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  
+
   // Relations
   invoices      Invoice[]
   expenses      Expense[]
@@ -24,6 +26,12 @@ model User {
   bookSheets    BookSheet[]
   budgets       Budget[]
   projects      Project[]
+
+  // Teams & collaboration
+  ownedWorkspaces Workspace[]    @relation("WorkspaceOwner")
+  memberships     Membership[]
+  sentInvites     Invitation[]   @relation("InvitationSender")
+  notifications   Notification[]
 }
 
 // Invoice model
@@ -236,4 +244,120 @@ enum ProjectStatus {
   active
   completed
   on_hold
+}
+
+// ============================================================================
+// Teams & Workspaces
+// ============================================================================
+
+model Workspace {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  avatar      String?
+
+  // Billing / limits (all applied per-workspace, GDPR scoped)
+  storageQuota BigInt       @default(104857600) // 100MB default
+
+  ownerId     String
+  owner       User          @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  memberships Membership[]
+  invitations Invitation[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([ownerId])
+}
+
+enum WorkspaceRole {
+  owner
+  admin
+  member
+  viewer
+}
+
+model Membership {
+  id          String        @id @default(cuid())
+  role        WorkspaceRole @default(member)
+
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  workspaceId String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  joinedAt    DateTime      @default(now())
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId])
+  @@index([userId])
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  revoked
+  expired
+}
+
+model Invitation {
+  id          String            @id @default(cuid())
+  email       String
+  role        WorkspaceRole     @default(member)
+  token       String            @unique
+  status      InvitationStatus  @default(pending)
+  expiresAt   DateTime
+
+  workspaceId String
+  workspace   Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  invitedById String
+  invitedBy   User              @relation("InvitationSender", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([workspaceId])
+  @@index([email])
+  @@index([status])
+}
+
+// ============================================================================
+// Notifications
+// ============================================================================
+
+enum NotificationType {
+  info
+  success
+  warning
+  error
+  invoice_paid
+  invoice_overdue
+  expense_added
+  storage_warning
+  invitation_received
+  invitation_accepted
+  member_joined
+  member_left
+}
+
+model Notification {
+  id        String            @id @default(cuid())
+  type      NotificationType  @default(info)
+  title     String
+  message   String
+  read      Boolean           @default(false)
+  link      String?
+  metadata  Json?
+
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime          @default(now())
+
+  @@index([userId, read])
+  @@index([createdAt])
 }

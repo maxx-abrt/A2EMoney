@@ -207,5 +207,113 @@
     "expense": "Expense",
     "pending": "Pending",
     "linkedTo": "Linked to"
+  },
+  "notifications": {
+    "open": "Open notifications",
+    "title": "Notifications",
+    "unreadCount": "{count} unread",
+    "allRead": "You're all caught up",
+    "markAllRead": "Mark all read",
+    "emptyTitle": "No notifications",
+    "emptyDescription": "You'll see alerts, invoice updates, and team activity here.",
+    "dismiss": "Dismiss",
+    "clearAll": "Clear all",
+    "preferences": "Preferences"
+  },
+  "attachments": {
+    "cta": "Drop files or click to upload",
+    "hint": "PDF, images, DOC — up to 10MB each",
+    "uploading": "Uploading…",
+    "tooMany": "You can attach up to {max} files",
+    "fileTooLarge": "{name} is larger than 10MB",
+    "quotaExceeded": "Storage quota exceeded (100MB)",
+    "uploadFailed": "Upload failed",
+    "fallbackLocal": "{name} saved locally (S3 unavailable)",
+    "download": "Download",
+    "remove": "Remove",
+    "countLabel": "{count} attached"
+  },
+  "team": {
+    "title": "Team & Workspaces",
+    "description": "Manage members, roles and invitations across workspaces.",
+    "newWorkspace": "New workspace",
+    "newWorkspaceDescription": "A workspace groups your finances with a separate set of members and data.",
+    "workspaceName": "Workspace name",
+    "workspaceNamePlaceholder": "e.g. Acme Inc.",
+    "workspaceDescription": "Description",
+    "workspaceDescriptionPlaceholder": "A short description of this workspace",
+    "workspaceSlug": "Slug: {slug}",
+    "optional": "optional",
+    "cancel": "Cancel",
+    "create": "Create workspace",
+    "createFirstWorkspace": "Create your first workspace",
+    "emptyTitle": "No workspace yet",
+    "emptyDescription": "Create a workspace to start collaborating with your team.",
+    "yourWorkspaces": "Your workspaces",
+    "memberCount": "{count, plural, =0 {No members} =1 {1 member} other {# members}}",
+    "members": "Members",
+    "invite": "Invite",
+    "inviteMember": "Invite a member",
+    "inviteDescription": "They'll receive an email with an invitation link valid for 14 days.",
+    "email": "Email",
+    "role": "Role",
+    "sendInvitation": "Send invitation",
+    "pendingInvitations": "Pending invitations",
+    "invitationCount": "{count, plural, =0 {No pending invitations} =1 {1 pending invitation} other {# pending invitations}}",
+    "noInvitationsTitle": "No pending invitations",
+    "noInvitationsDescription": "Invite teammates to collaborate on this workspace.",
+    "invitationExpiresAt": "Expires {date}",
+    "invitationExpired": "Expired",
+    "copyInviteLink": "Copy invitation link",
+    "revoke": "Revoke",
+    "makeAdmin": "Make admin",
+    "makeMember": "Make member",
+    "makeViewer": "Make viewer",
+    "remove": "Remove from workspace",
+    "you": "You",
+    "confirmDelete": "Delete this workspace? This cannot be undone.",
+    "confirmRemoveMember": "Remove this member from the workspace?",
+    "gdprTitle": "Your data, your rules",
+    "gdprDescription": "All workspace data is scoped to your account and encrypted in transit. Members only access data explicitly shared with them. You can delete a workspace at any time — all related data is permanently removed.",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member",
+      "viewer": "Viewer"
+    },
+    "roleHint": {
+      "admin": "Can invite members, manage roles and edit all data.",
+      "member": "Can create and edit shared data.",
+      "viewer": "Read-only access to workspace data."
+    },
+    "toasts": {
+      "workspaceCreated": "Workspace created",
+      "workspaceCreateFailed": "Could not create workspace",
+      "workspaceDeleted": "Workspace deleted",
+      "invitationSent": "Invitation sent to {email}",
+      "invitationRevoked": "Invitation revoked",
+      "roleUpdated": "Role updated",
+      "memberRemoved": "Member removed",
+      "linkCopied": "Invitation link copied"
+    }
+  },
+  "book": {
+    "smartOverview": {
+      "title": "Smart overview",
+      "description": "Every expense, income and paid invoice aggregated in one place.",
+      "income": "Total income",
+      "expenses": "Total expenses",
+      "netBalance": "Net balance",
+      "pendingInvoices": "Pending invoices",
+      "latestActivity": "Latest activity",
+      "viewAll": "View full book",
+      "source": {
+        "expense": "Expense",
+        "income": "Income",
+        "invoice": "Invoice"
+      },
+      "emptyTitle": "Your book is empty",
+      "emptyDescription": "Add your first expense, income or invoice — it'll appear here automatically."
+    }
   }
 }

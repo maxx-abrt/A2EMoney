@@ -207,5 +207,113 @@
     "expense": "Dépense",
     "pending": "En attente",
     "linkedTo": "Lié à"
+  },
+  "notifications": {
+    "open": "Ouvrir les notifications",
+    "title": "Notifications",
+    "unreadCount": "{count} non lues",
+    "allRead": "Vous êtes à jour",
+    "markAllRead": "Tout marquer comme lu",
+    "emptyTitle": "Aucune notification",
+    "emptyDescription": "Les alertes, mises à jour de factures et activités d'équipe apparaîtront ici.",
+    "dismiss": "Ignorer",
+    "clearAll": "Tout effacer",
+    "preferences": "Préférences"
+  },
+  "attachments": {
+    "cta": "Déposez des fichiers ou cliquez pour téléverser",
+    "hint": "PDF, images, DOC — jusqu'à 10Mo par fichier",
+    "uploading": "Téléversement…",
+    "tooMany": "Vous pouvez joindre jusqu'à {max} fichiers",
+    "fileTooLarge": "{name} dépasse 10Mo",
+    "quotaExceeded": "Quota de stockage dépassé (100Mo)",
+    "uploadFailed": "Échec du téléversement",
+    "fallbackLocal": "{name} enregistré localement (S3 indisponible)",
+    "download": "Télécharger",
+    "remove": "Supprimer",
+    "countLabel": "{count} joint(s)"
+  },
+  "team": {
+    "title": "Équipe & Espaces",
+    "description": "Gérez les membres, rôles et invitations de vos espaces.",
+    "newWorkspace": "Nouvel espace",
+    "newWorkspaceDescription": "Un espace regroupe vos finances avec ses propres membres et données.",
+    "workspaceName": "Nom de l'espace",
+    "workspaceNamePlaceholder": "ex. Acme SARL",
+    "workspaceDescription": "Description",
+    "workspaceDescriptionPlaceholder": "Une courte description de cet espace",
+    "workspaceSlug": "Slug : {slug}",
+    "optional": "optionnel",
+    "cancel": "Annuler",
+    "create": "Créer l'espace",
+    "createFirstWorkspace": "Créer votre premier espace",
+    "emptyTitle": "Aucun espace",
+    "emptyDescription": "Créez un espace pour commencer à collaborer avec votre équipe.",
+    "yourWorkspaces": "Vos espaces",
+    "memberCount": "{count, plural, =0 {Aucun membre} =1 {1 membre} other {# membres}}",
+    "members": "Membres",
+    "invite": "Inviter",
+    "inviteMember": "Inviter un membre",
+    "inviteDescription": "Il recevra un email avec un lien d'invitation valide 14 jours.",
+    "email": "Email",
+    "role": "Rôle",
+    "sendInvitation": "Envoyer l'invitation",
+    "pendingInvitations": "Invitations en attente",
+    "invitationCount": "{count, plural, =0 {Aucune invitation en attente} =1 {1 invitation en attente} other {# invitations en attente}}",
+    "noInvitationsTitle": "Aucune invitation en attente",
+    "noInvitationsDescription": "Invitez vos collègues à collaborer sur cet espace.",
+    "invitationExpiresAt": "Expire le {date}",
+    "invitationExpired": "Expirée",
+    "copyInviteLink": "Copier le lien d'invitation",
+    "revoke": "Révoquer",
+    "makeAdmin": "Promouvoir admin",
+    "makeMember": "Définir comme membre",
+    "makeViewer": "Définir comme observateur",
+    "remove": "Retirer de l'espace",
+    "you": "Vous",
+    "confirmDelete": "Supprimer cet espace ? Cette action est irréversible.",
+    "confirmRemoveMember": "Retirer ce membre de l'espace ?",
+    "gdprTitle": "Vos données, vos règles",
+    "gdprDescription": "Toutes les données sont rattachées à votre compte et chiffrées en transit. Les membres n'accèdent qu'aux données partagées avec eux. Vous pouvez supprimer un espace à tout moment — toutes les données associées sont définitivement effacées.",
+    "roles": {
+      "owner": "Propriétaire",
+      "admin": "Admin",
+      "member": "Membre",
+      "viewer": "Observateur"
+    },
+    "roleHint": {
+      "admin": "Peut inviter des membres, gérer les rôles et modifier toutes les données.",
+      "member": "Peut créer et modifier les données partagées.",
+      "viewer": "Accès en lecture seule aux données de l'espace."
+    },
+    "toasts": {
+      "workspaceCreated": "Espace créé",
+      "workspaceCreateFailed": "Impossible de créer l'espace",
+      "workspaceDeleted": "Espace supprimé",
+      "invitationSent": "Invitation envoyée à {email}",
+      "invitationRevoked": "Invitation révoquée",
+      "roleUpdated": "Rôle mis à jour",
+      "memberRemoved": "Membre retiré",
+      "linkCopied": "Lien d'invitation copié"
+    }
+  },
+  "book": {
+    "smartOverview": {
+      "title": "Vue d'ensemble intelligente",
+      "description": "Toutes vos dépenses, revenus et factures payées agrégés en un seul endroit.",
+      "income": "Total revenus",
+      "expenses": "Total dépenses",
+      "netBalance": "Solde net",
+      "pendingInvoices": "Factures en attente",
+      "latestActivity": "Activité récente",
+      "viewAll": "Voir le livre complet",
+      "source": {
+        "expense": "Dépense",
+        "income": "Revenu",
+        "invoice": "Facture"
+      },
+      "emptyTitle": "Votre livre est vide",
+      "emptyDescription": "Ajoutez une dépense, un revenu ou une facture — ils apparaîtront ici automatiquement."
+    }
   }
 }
