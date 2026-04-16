@@ -1,0 +1,239 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Users model for future authentication
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  invoices      Invoice[]
+  expenses      Expense[]
+  documents     Document[]
+  bookSheets    BookSheet[]
+  budgets       Budget[]
+  projects      Project[]
+}
+
+// Invoice model
+model Invoice {
+  id              String        @id @default(cuid())
+  number          String        @unique
+  client          String
+  clientEmail     String
+  clientAddress   String?
+  items           Json          // InvoiceItem[]
+  status          InvoiceStatus @default(draft)
+  issueDate       DateTime
+  dueDate         DateTime
+  paidDate        DateTime?
+  notes           String?
+  linkedDocuments String[]      @default([])
+  linkedBookEntries String[]    @default([])
+  taxRate         Float?
+  currency        String        @default("EUR")
+  
+  // Relations
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([issueDate])
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  paid
+  overdue
+  cancelled
+}
+
+// Expense model
+model Expense {
+  id                  String              @id @default(cuid())
+  description         String
+  amount              Float
+  category            String
+  date                DateTime
+  paymentMethod       String
+  type                ExpenseType
+  notes               String?
+  linkedDocuments     String[]            @default([])
+  linkedInvoice       String?
+  linkedBookEntries   String[]            @default([])
+  isRecurring         Boolean             @default(false)
+  recurringFrequency  RecurringFrequency?
+  tags                String[]            @default([])
+  
+  // Relations
+  userId              String
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  
+  @@index([userId])
+  @@index([category])
+  @@index([date])
+  @@index([type])
+}
+
+enum ExpenseType {
+  expense
+  income
+}
+
+enum RecurringFrequency {
+  weekly
+  monthly
+  yearly
+}
+
+// Document model for S3 file metadata
+model Document {
+  id          String        @id @default(cuid())
+  name        String
+  type        DocumentType
+  size        Int           // in bytes
+  url         String        // S3 URL
+  key         String        // S3 key
+  linkedToType  String?     // "expense" | "invoice" | "book_entry"
+  linkedToId    String?
+  
+  // Relations
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@index([userId])
+  @@index([type])
+  @@index([linkedToId])
+}
+
+enum DocumentType {
+  invoice
+  receipt
+  certificate
+  contract
+  other
+}
+
+// Book Sheet (spreadsheet) model
+model BookSheet {
+  id          String        @id @default(cuid())
+  name        String
+  icon        String?
+  color       String?
+  columns     Json          // BookColumn[]
+  isTemplate  Boolean       @default(false)
+  
+  // Relations
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries     BookEntry[]
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@index([userId])
+  @@index([isTemplate])
+}
+
+// Book Entry (row in a sheet) model
+model BookEntry {
+  id              String    @id @default(cuid())
+  cells           Json      // Record<string, string | number | boolean>
+  linkedDocuments String[]  @default([])
+  linkedExpenses  String[]  @default([])
+  linkedInvoices  String[]  @default([])
+  
+  // Relations
+  sheetId         String
+  sheet           BookSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([sheetId])
+}
+
+// Budget model
+model Budget {
+  id          String        @id @default(cuid())
+  name        String
+  amount      Float
+  spent       Float         @default(0)
+  category    String
+  period      BudgetPeriod
+  startDate   DateTime
+  endDate     DateTime?
+  color       String
+  
+  // Relations
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@index([userId])
+  @@index([category])
+  @@index([period])
+}
+
+enum BudgetPeriod {
+  monthly
+  yearly
+  custom
+}
+
+// Project model
+model Project {
+  id              String        @id @default(cuid())
+  name            String
+  client          String
+  status          ProjectStatus
+  budget          Float
+  spent           Float         @default(0)
+  startDate       DateTime
+  endDate         DateTime?
+  description     String?
+  linkedInvoices  String[]      @default([])
+  linkedExpenses  String[]      @default([])
+  
+  // Relations
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([startDate])
+}
+
+enum ProjectStatus {
+  planning
+  active
+  completed
+  on_hold
+}

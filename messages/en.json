@@ -1,0 +1,211 @@
+{
+  "metadata": {
+    "title": "Finflow - All-in-One Finance Management",
+    "description": "Streamline your finances with Finflow. Budget management, invoicing, expense tracking, and more for individuals and businesses."
+  },
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "testimonials": "Testimonials",
+    "signIn": "Sign in",
+    "getStarted": "Get Started",
+    "dashboard": "Dashboard",
+    "budget": "Budget",
+    "expenses": "Expenses",
+    "invoices": "Invoices",
+    "projects": "Projects",
+    "book": "Book",
+    "documents": "Documents",
+    "legal": "Legal",
+    "reports": "Reports",
+    "team": "Team",
+    "settings": "Settings",
+    "signOut": "Sign Out",
+    "storage": "Storage"
+  },
+  "landing": {
+    "badge": "Now available for individuals & businesses",
+    "hero": {
+      "title": "Finance management,",
+      "highlight": "simplified",
+      "description": "All-in-one platform for budgeting, invoicing, expense tracking, and financial reporting. Built for individuals, tailored for businesses. 500MB free storage included.",
+      "startFree": "Start for free",
+      "seeHowItWorks": "See how it works",
+      "benefits": {
+        "freeForever": "Free forever plan",
+        "storage": "500MB document storage",
+        "setup": "Setup in 2 minutes"
+      }
+    },
+    "profiles": {
+      "title": "Tailored for your needs",
+      "description": "Whether you're managing personal finances or running a business, Finflow adapts to you.",
+      "individual": {
+        "title": "Individual",
+        "description": "Track personal expenses, set budgets, and manage your financial goals with ease.",
+        "features": ["Personal budget tracking", "Expense categorization", "Savings goals", "Financial insights"],
+        "cta": "Get started as Individual"
+      },
+      "business": {
+        "title": "Business / Association",
+        "description": "Complete financial management with invoicing, project budgets, and legal compliance.",
+        "features": ["Professional invoicing", "Project budget sheets", "Legal compliance tools", "Multi-user access"],
+        "cta": "Get started as Business",
+        "badge": "POPULAR"
+      }
+    },
+    "features": {
+      "title": "Everything you need to manage finances",
+      "description": "Powerful features designed to give you complete control over your financial life.",
+      "items": {
+        "budget": {
+          "title": "Budget Management",
+          "description": "Create and track budgets with visual breakdowns. Set limits, get alerts, and stay on top of spending."
+        },
+        "invoice": {
+          "title": "Invoice System",
+          "description": "Create professional invoices, track payments, export to PDF, and send automated reminders."
+        },
+        "expense": {
+          "title": "Expense Tracking",
+          "description": "Log expenses instantly, categorize transactions, and attach receipts for justification."
+        },
+        "book": {
+          "title": "Smart Book System",
+          "description": "A powerful spreadsheet interface for financial data. Link entries to invoices and expenses."
+        },
+        "connected": {
+          "title": "Connected Data",
+          "description": "Link invoices to expenses to book entries. Everything connected in one place."
+        },
+        "storage": {
+          "title": "Document Storage",
+          "description": "500MB free storage for receipts, certificates, and justification documents."
+        }
+      }
+    },
+    "bookSystem": {
+      "badge": "Smart Book System",
+      "title": "Your financial data, beautifully organized",
+      "description": "A powerful, customizable spreadsheet interface designed specifically for financial management. Link entries directly to invoices, expenses, and documents.",
+      "features": [
+        "Custom columns and data types",
+        "Link entries to invoices & expenses",
+        "Automatic calculations and formulas",
+        "Export to Excel, PDF, or CSV",
+        "Attach receipts & certificates"
+      ],
+      "cta": "Try the Book System"
+    },
+    "stats": {
+      "activeUsers": { "value": "50K+", "label": "Active Users" },
+      "invoices": { "value": "2M+", "label": "Invoices Created" },
+      "uptime": { "value": "99.9%", "label": "Uptime" },
+      "rating": { "value": "4.9/5", "label": "User Rating" }
+    },
+    "pricing": {
+      "title": "Simple, transparent pricing",
+      "description": "Start free, upgrade when you need more. No hidden fees.",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "price": "0",
+          "description": "Perfect for getting started",
+          "features": ["Personal budgets", "Expense tracking", "Basic reports", "500MB storage", "1 user"],
+          "cta": "Start Free"
+        },
+        "pro": {
+          "name": "Pro",
+          "price": "19",
+          "description": "For growing businesses",
+          "features": ["Everything in Free", "Professional invoicing", "Project sheets", "5GB storage", "5 users", "Priority support"],
+          "cta": "Start Pro Trial",
+          "badge": "MOST POPULAR"
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "49",
+          "description": "For larger organizations",
+          "features": ["Everything in Pro", "Unlimited users", "Legal compliance", "50GB storage", "API access", "Custom integrations"],
+          "cta": "Contact Sales"
+        }
+      },
+      "perMonth": "/month"
+    },
+    "testimonials": {
+      "title": "Loved by thousands",
+      "description": "See what our users have to say about Finflow.",
+      "items": [
+        {
+          "quote": "Finflow completely transformed how I manage my freelance finances. The invoicing system alone saved me hours every month.",
+          "author": "Sarah Chen",
+          "role": "Freelance Designer"
+        },
+        {
+          "quote": "As an association treasurer, the legal compliance features are invaluable. Everything we need in one place.",
+          "author": "Marcus Johnson",
+          "role": "NGO Treasurer"
+        },
+        {
+          "quote": "The book system is incredible. It's like Excel but actually designed for finance. I can link everything together.",
+          "author": "Emma Rodriguez",
+          "role": "Small Business Owner"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to take control of your finances?",
+      "description": "Join thousands of individuals and businesses already using Finflow to simplify their financial management.",
+      "button": "Get Started Free"
+    },
+    "footer": {
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "contact": "Contact",
+      "copyright": "2024 Finflow. All rights reserved."
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "personalFinance": "Personal Finance",
+    "businessDashboard": "Business Dashboard",
+    "addExpense": "Add Expense",
+    "newInvoice": "New Invoice",
+    "stats": {
+      "totalBalance": "Total Balance",
+      "monthlyIncome": "Monthly Income",
+      "monthlyExpenses": "Monthly Expenses",
+      "pendingInvoices": "Pending Invoices",
+      "savingsGoal": "Savings Goal",
+      "fromLastMonth": "from last month"
+    },
+    "recentTransactions": {
+      "title": "Recent Transactions",
+      "description": "Your latest financial activity",
+      "viewAll": "View All"
+    },
+    "pendingInvoices": {
+      "title": "Pending Invoices",
+      "description": "Awaiting payment",
+      "manage": "Manage Invoices"
+    },
+    "bookEntries": {
+      "title": "Recent Book Entries",
+      "description": "Connected records",
+      "openBook": "Open Book"
+    },
+    "storage": {
+      "title": "Storage Used",
+      "of": "of 500MB"
+    },
+    "search": "Search transactions, invoices...",
+    "myAccount": "My Account",
+    "profile": "Profile"
+  },
+  "common": {
+    "income": "Income",
+    "expense": "Expense",
+    "pending": "Pending",
+    "linkedTo": "Linked to"
+  }
+}

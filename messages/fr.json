@@ -1,0 +1,211 @@
+{
+  "metadata": {
+    "title": "Finflow - Gestion Financière Tout-en-Un",
+    "description": "Simplifiez vos finances avec Finflow. Gestion de budget, facturation, suivi des dépenses et plus pour particuliers et entreprises."
+  },
+  "nav": {
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "testimonials": "Témoignages",
+    "signIn": "Connexion",
+    "getStarted": "Commencer",
+    "dashboard": "Tableau de bord",
+    "budget": "Budget",
+    "expenses": "Dépenses",
+    "invoices": "Factures",
+    "projects": "Projets",
+    "book": "Livre",
+    "documents": "Documents",
+    "legal": "Légal",
+    "reports": "Rapports",
+    "team": "Équipe",
+    "settings": "Paramètres",
+    "signOut": "Déconnexion",
+    "storage": "Stockage"
+  },
+  "landing": {
+    "badge": "Disponible pour particuliers et entreprises",
+    "hero": {
+      "title": "Gestion financière,",
+      "highlight": "simplifiée",
+      "description": "Plateforme tout-en-un pour la budgétisation, la facturation, le suivi des dépenses et les rapports financiers. Conçue pour les particuliers, adaptée aux entreprises. 500Mo de stockage gratuit inclus.",
+      "startFree": "Commencer gratuitement",
+      "seeHowItWorks": "Voir comment ça marche",
+      "benefits": {
+        "freeForever": "Plan gratuit à vie",
+        "storage": "500Mo de stockage documents",
+        "setup": "Configuration en 2 minutes"
+      }
+    },
+    "profiles": {
+      "title": "Adapté à vos besoins",
+      "description": "Que vous gériez vos finances personnelles ou dirigiez une entreprise, Finflow s'adapte à vous.",
+      "individual": {
+        "title": "Particulier",
+        "description": "Suivez vos dépenses personnelles, définissez des budgets et gérez vos objectifs financiers en toute simplicité.",
+        "features": ["Suivi budgétaire personnel", "Catégorisation des dépenses", "Objectifs d'épargne", "Insights financiers"],
+        "cta": "Commencer en tant que Particulier"
+      },
+      "business": {
+        "title": "Entreprise / Association",
+        "description": "Gestion financière complète avec facturation, budgets projet et conformité légale.",
+        "features": ["Facturation professionnelle", "Tableaux de budgets projet", "Outils de conformité légale", "Accès multi-utilisateurs"],
+        "cta": "Commencer en tant qu'Entreprise",
+        "badge": "POPULAIRE"
+      }
+    },
+    "features": {
+      "title": "Tout ce dont vous avez besoin pour gérer vos finances",
+      "description": "Fonctionnalités puissantes conçues pour vous donner un contrôle total sur votre vie financière.",
+      "items": {
+        "budget": {
+          "title": "Gestion de Budget",
+          "description": "Créez et suivez des budgets avec des visualisations. Définissez des limites, recevez des alertes et maîtrisez vos dépenses."
+        },
+        "invoice": {
+          "title": "Système de Facturation",
+          "description": "Créez des factures professionnelles, suivez les paiements, exportez en PDF et envoyez des rappels automatiques."
+        },
+        "expense": {
+          "title": "Suivi des Dépenses",
+          "description": "Enregistrez les dépenses instantanément, catégorisez les transactions et joignez des reçus pour justifier."
+        },
+        "book": {
+          "title": "Système de Livre Intelligent",
+          "description": "Une interface tableur puissante pour les données financières. Liez les entrées aux factures et dépenses."
+        },
+        "connected": {
+          "title": "Données Connectées",
+          "description": "Liez les factures aux dépenses et aux entrées de livre. Tout est connecté en un seul endroit."
+        },
+        "storage": {
+          "title": "Stockage de Documents",
+          "description": "500Mo de stockage gratuit pour reçus, certificats et documents justificatifs."
+        }
+      }
+    },
+    "bookSystem": {
+      "badge": "Système de Livre Intelligent",
+      "title": "Vos données financières, magnifiquement organisées",
+      "description": "Une interface tableur puissante et personnalisable conçue spécifiquement pour la gestion financière. Liez les entrées directement aux factures, dépenses et documents.",
+      "features": [
+        "Colonnes personnalisées et types de données",
+        "Liez les entrées aux factures & dépenses",
+        "Calculs et formules automatiques",
+        "Export vers Excel, PDF ou CSV",
+        "Joignez reçus & certificats"
+      ],
+      "cta": "Essayer le Système de Livre"
+    },
+    "stats": {
+      "activeUsers": { "value": "50K+", "label": "Utilisateurs Actifs" },
+      "invoices": { "value": "2M+", "label": "Factures Créées" },
+      "uptime": { "value": "99.9%", "label": "Disponibilité" },
+      "rating": { "value": "4.9/5", "label": "Note Utilisateurs" }
+    },
+    "pricing": {
+      "title": "Tarifs simples et transparents",
+      "description": "Commencez gratuitement, upgradez quand vous en avez besoin. Aucun frais caché.",
+      "plans": {
+        "free": {
+          "name": "Gratuit",
+          "price": "0",
+          "description": "Parfait pour commencer",
+          "features": ["Budgets personnels", "Suivi des dépenses", "Rapports basiques", "500Mo stockage", "1 utilisateur"],
+          "cta": "Commencer Gratuit"
+        },
+        "pro": {
+          "name": "Pro",
+          "price": "19",
+          "description": "Pour les entreprises en croissance",
+          "features": ["Tout du Gratuit", "Facturation professionnelle", "Tableaux de projets", "5Go stockage", "5 utilisateurs", "Support prioritaire"],
+          "cta": "Essai Pro",
+          "badge": "LE PLUS POPULAIRE"
+        },
+        "enterprise": {
+          "name": "Entreprise",
+          "price": "49",
+          "description": "Pour les grandes organisations",
+          "features": ["Tout du Pro", "Utilisateurs illimités", "Conformité légale", "50Go stockage", "Accès API", "Intégrations personnalisées"],
+          "cta": "Contacter les Ventes"
+        }
+      },
+      "perMonth": "/mois"
+    },
+    "testimonials": {
+      "title": "Adoré par des milliers",
+      "description": "Découvrez ce que nos utilisateurs pensent de Finflow.",
+      "items": [
+        {
+          "quote": "Finflow a complètement transformé ma gestion financière freelance. Le système de facturation seul m'a fait gagner des heures chaque mois.",
+          "author": "Sarah Chen",
+          "role": "Designer Freelance"
+        },
+        {
+          "quote": "En tant que trésorier d'association, les fonctionnalités de conformité légale sont inestimables. Tout ce dont nous avons besoin en un seul endroit.",
+          "author": "Marcus Johnson",
+          "role": "Trésorier ONG"
+        },
+        {
+          "quote": "Le système de livre est incroyable. C'est comme Excel mais conçu pour la finance. Je peux tout lier ensemble.",
+          "author": "Emma Rodriguez",
+          "role": "Propriétaire de PME"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Prêt à prendre le contrôle de vos finances ?",
+      "description": "Rejoignez des milliers de particuliers et d'entreprises qui utilisent déjà Finflow pour simplifier leur gestion financière.",
+      "button": "Commencer Gratuitement"
+    },
+    "footer": {
+      "privacy": "Confidentialité",
+      "terms": "Conditions",
+      "contact": "Contact",
+      "copyright": "2024 Finflow. Tous droits réservés."
+    }
+  },
+  "dashboard": {
+    "welcome": "Bon retour",
+    "personalFinance": "Finances Personnelles",
+    "businessDashboard": "Tableau de Bord Entreprise",
+    "addExpense": "Ajouter Dépense",
+    "newInvoice": "Nouvelle Facture",
+    "stats": {
+      "totalBalance": "Solde Total",
+      "monthlyIncome": "Revenus Mensuels",
+      "monthlyExpenses": "Dépenses Mensuelles",
+      "pendingInvoices": "Factures en Attente",
+      "savingsGoal": "Objectif d'Épargne",
+      "fromLastMonth": "du mois dernier"
+    },
+    "recentTransactions": {
+      "title": "Transactions Récentes",
+      "description": "Votre dernière activité financière",
+      "viewAll": "Voir Tout"
+    },
+    "pendingInvoices": {
+      "title": "Factures en Attente",
+      "description": "En attente de paiement",
+      "manage": "Gérer les Factures"
+    },
+    "bookEntries": {
+      "title": "Entrées Récentes du Livre",
+      "description": "Enregistrements connectés",
+      "openBook": "Ouvrir le Livre"
+    },
+    "storage": {
+      "title": "Stockage Utilisé",
+      "of": "sur 500Mo"
+    },
+    "search": "Rechercher transactions, factures...",
+    "myAccount": "Mon Compte",
+    "profile": "Profil"
+  },
+  "common": {
+    "income": "Revenu",
+    "expense": "Dépense",
+    "pending": "En attente",
+    "linkedTo": "Lié à"
+  }
+}
