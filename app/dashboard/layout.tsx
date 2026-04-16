@@ -153,21 +153,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         href={item.href}
         onClick={() => setMobileOpen(false)}
         className={cn(
-          "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
           active
-            ? "bg-foreground text-background"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            ? "bg-foreground text-background shadow-sm"
+            : "text-muted-foreground hover:translate-x-0.5 hover:bg-muted hover:text-foreground",
         )}
         title={collapsed && !forceExpanded ? t(item.key) : undefined}
       >
-        <Icon className={cn("h-4 w-4 shrink-0", active ? "" : "text-muted-foreground group-hover:text-foreground")} />
+        {active && (
+          <span
+            className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-accent"
+            aria-hidden
+          />
+        )}
+        <Icon
+          className={cn(
+            "h-4 w-4 shrink-0 transition-transform duration-200",
+            active ? "" : "text-muted-foreground group-hover:scale-110 group-hover:text-foreground",
+          )}
+        />
         {showLabel ? <span className="truncate">{t(item.key)}</span> : null}
       </Link>
     )
   }
 
   const sidebar = (forceExpanded = false) => (
-    <div className={cn("flex h-full flex-col", forceExpanded ? "" : collapsed ? "w-16" : "w-64")}>
+    <div
+      className={cn(
+        "flex h-full flex-col transition-[width] duration-300 ease-in-out",
+        forceExpanded ? "" : collapsed ? "w-16" : "w-64",
+      )}
+    >
       {/* Logo */}
       <div className={cn("flex h-16 items-center border-b border-border px-4", collapsed && !forceExpanded ? "justify-center" : "justify-between")}>
         <Link href="/dashboard" className="flex items-center gap-2">
@@ -268,6 +284,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {sidebar(false)}
         </aside>
 
+
         {/* Mobile sidebar */}
         <SheetComponent open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetContent side="left" className="w-72 p-0">
@@ -281,7 +298,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Main area */}
         <div className="flex min-h-screen flex-1 flex-col">
           {/* Top bar */}
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur sm:px-6">
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border/70 bg-background/80 px-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 sm:px-6">
             <Button
               variant="ghost"
               size="icon"
@@ -349,7 +366,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </header>
 
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 animate-fade-in">{children}</main>
         </div>
       </div>
 
