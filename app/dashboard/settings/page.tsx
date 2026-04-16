@@ -87,12 +87,12 @@ export default function SettingsPage() {
   const isBusiness = userProfile?.type !== "individual"
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Settings</h1>
-          <p className="text-muted-foreground font-mono text-sm">Manage your account and preferences</p>
+          <p className="text-sm text-muted-foreground">Manage your account and preferences</p>
         </div>
         <Button 
           onClick={handleSave}
@@ -135,15 +135,15 @@ export default function SettingsPage() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">Personal Information</CardTitle>
-              <CardDescription className="font-mono text-xs">Update your personal details</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Update your personal details</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="font-bold">Full Name</Label>
+                  <Label className="font-semibold">Full Name</Label>
                   <Input
                     value={settings.name}
                     onChange={(e) => setSettings({ ...settings, name: e.target.value })}
@@ -151,7 +151,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold">Email Address</Label>
+                  <Label className="font-semibold">Email Address</Label>
                   <Input
                     type="email"
                     value={settings.email}
@@ -161,7 +161,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="font-bold">Address</Label>
+                <Label className="font-semibold">Address</Label>
                 <Textarea
                   value={settings.address}
                   onChange={(e) => setSettings({ ...settings, address: e.target.value })}
@@ -176,15 +176,15 @@ export default function SettingsPage() {
         {/* Business Tab */}
         {isBusiness && (
           <TabsContent value="business" className="space-y-6">
-            <Card className="rounded-lg border border-border shadow-sm">
+            <Card className="rounded-xl border border-border shadow-sm">
               <CardHeader className="border-b border-border">
                 <CardTitle className="font-semibold">Business Information</CardTitle>
-                <CardDescription className="font-mono text-xs">Update your business details for invoices and legal documents</CardDescription>
+                <CardDescription className="text-xs text-muted-foreground">Update your business details for invoices and legal documents</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="font-bold">Business Name</Label>
+                    <Label className="font-semibold">Business Name</Label>
                     <Input
                       value={settings.businessName}
                       onChange={(e) => setSettings({ ...settings, businessName: e.target.value })}
@@ -192,15 +192,15 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-bold">Business Type</Label>
+                    <Label className="font-semibold">Business Type</Label>
                     <Select
                       value={settings.businessType}
                       onValueChange={(v) => setSettings({ ...settings, businessType: v })}
                     >
-                      <SelectTrigger className="rounded-lg border border-foreground">
+                      <SelectTrigger className="rounded-lg border border-border">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
-                      <SelectContent className="rounded-lg border border-foreground">
+                      <SelectContent className="rounded-lg border border-border">
                         <SelectItem value="company">Company</SelectItem>
                         <SelectItem value="association">Association</SelectItem>
                         <SelectItem value="freelancer">Freelancer</SelectItem>
@@ -211,7 +211,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="font-bold">Tax ID / VAT Number</Label>
+                    <Label className="font-semibold">Tax ID / VAT Number</Label>
                     <Input
                       value={settings.taxId}
                       onChange={(e) => setSettings({ ...settings, taxId: e.target.value })}
@@ -220,7 +220,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-bold">Registration Number</Label>
+                    <Label className="font-semibold">Registration Number</Label>
                     <Input
                       placeholder="SIRET, SIREN, etc."
                       className="rounded-lg border border-border font-mono"
@@ -228,7 +228,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold">Business Address</Label>
+                  <Label className="font-semibold">Business Address</Label>
                   <Textarea
                     value={settings.address}
                     onChange={(e) => setSettings({ ...settings, address: e.target.value })}
@@ -239,27 +239,27 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-lg border border-border shadow-sm">
+            <Card className="rounded-xl border border-border shadow-sm">
               <CardHeader className="border-b border-border">
                 <CardTitle className="font-semibold">Invoice Settings</CardTitle>
-                <CardDescription className="font-mono text-xs">Customize your invoice appearance</CardDescription>
+                <CardDescription className="text-xs text-muted-foreground">Customize your invoice appearance</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="font-bold">Invoice Prefix</Label>
+                    <Label className="font-semibold">Invoice Prefix</Label>
                     <Input
                       placeholder="INV-"
                       className="rounded-lg border border-border font-mono"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-bold">Default Payment Terms</Label>
+                    <Label className="font-semibold">Default Payment Terms</Label>
                     <Select defaultValue="30">
-                      <SelectTrigger className="rounded-lg border border-foreground">
+                      <SelectTrigger className="rounded-lg border border-border">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="rounded-lg border border-foreground">
+                      <SelectContent className="rounded-lg border border-border">
                         <SelectItem value="7">7 days</SelectItem>
                         <SelectItem value="14">14 days</SelectItem>
                         <SelectItem value="30">30 days</SelectItem>
@@ -270,7 +270,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold">Default Invoice Notes</Label>
+                  <Label className="font-semibold">Default Invoice Notes</Label>
                   <Textarea
                     placeholder="Thank you for your business..."
                     className="rounded-lg border border-border"
@@ -283,15 +283,15 @@ export default function SettingsPage() {
 
         {/* Preferences Tab */}
         <TabsContent value="preferences" className="space-y-6">
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">Regional Settings</CardTitle>
-              <CardDescription className="font-mono text-xs">Configure your locale and currency</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Configure your locale and currency</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="font-bold flex items-center gap-2">
+                  <Label className="font-semibold flex items-center gap-2">
                     <CreditCard className="h-4 w-4" />
                     Currency
                   </Label>
@@ -299,10 +299,10 @@ export default function SettingsPage() {
                     value={settings.currency}
                     onValueChange={(v) => setSettings({ ...settings, currency: v })}
                   >
-                    <SelectTrigger className="rounded-lg border border-foreground">
+                    <SelectTrigger className="rounded-lg border border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="rounded-lg border border-foreground">
+                    <SelectContent className="rounded-lg border border-border">
                       <SelectItem value="EUR">EUR - Euro</SelectItem>
                       <SelectItem value="USD">USD - US Dollar</SelectItem>
                       <SelectItem value="GBP">GBP - British Pound</SelectItem>
@@ -312,7 +312,7 @@ export default function SettingsPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold flex items-center gap-2">
+                  <Label className="font-semibold flex items-center gap-2">
                     <Globe className="h-4 w-4" />
                     Language
                   </Label>
@@ -320,10 +320,10 @@ export default function SettingsPage() {
                     value={settings.language}
                     onValueChange={(v) => setSettings({ ...settings, language: v })}
                   >
-                    <SelectTrigger className="rounded-lg border border-foreground">
+                    <SelectTrigger className="rounded-lg border border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="rounded-lg border border-foreground">
+                    <SelectContent className="rounded-lg border border-border">
                       <SelectItem value="en">English</SelectItem>
                       <SelectItem value="fr">Français</SelectItem>
                       <SelectItem value="de">Deutsch</SelectItem>
@@ -335,14 +335,14 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">Appearance</CardTitle>
-              <CardDescription className="font-mono text-xs">Customize the look and feel</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Customize the look and feel</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-2">
-                <Label className="font-bold">Theme</Label>
+                <Label className="font-semibold">Theme</Label>
                 <div className="flex gap-4">
                   <Button
                     variant={settings.theme === "light" ? "default" : "outline"}
@@ -368,15 +368,15 @@ export default function SettingsPage() {
 
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-6">
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">Notification Preferences</CardTitle>
-              <CardDescription className="font-mono text-xs">Choose what updates you want to receive</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Choose what updates you want to receive</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-bold">Email Notifications</p>
+                  <p className="font-semibold">Email Notifications</p>
                   <p className="text-sm text-muted-foreground font-mono">Receive updates via email</p>
                 </div>
                 <Switch
@@ -389,7 +389,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-bold">Invoice Reminders</p>
+                  <p className="font-semibold">Invoice Reminders</p>
                   <p className="text-sm text-muted-foreground font-mono">Get notified about overdue invoices</p>
                 </div>
                 <Switch
@@ -402,7 +402,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-bold">Budget Alerts</p>
+                  <p className="font-semibold">Budget Alerts</p>
                   <p className="text-sm text-muted-foreground font-mono">Alert when approaching budget limits</p>
                 </div>
                 <Switch
@@ -415,7 +415,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-bold">Weekly Summary</p>
+                  <p className="font-semibold">Weekly Summary</p>
                   <p className="text-sm text-muted-foreground font-mono">Receive weekly financial summary</p>
                 </div>
                 <Switch
@@ -432,15 +432,15 @@ export default function SettingsPage() {
 
         {/* Security Tab */}
         <TabsContent value="security" className="space-y-6">
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">Security Settings</CardTitle>
-              <CardDescription className="font-mono text-xs">Protect your account</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Protect your account</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-bold flex items-center gap-2">
+                  <p className="font-semibold flex items-center gap-2">
                     <Key className="h-4 w-4" />
                     Two-Factor Authentication
                   </p>
@@ -455,7 +455,7 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="font-bold">Session Timeout</Label>
+                <Label className="font-semibold">Session Timeout</Label>
                 <Select
                   value={settings.privacy.sessionTimeout}
                   onValueChange={(v) => setSettings({
@@ -463,10 +463,10 @@ export default function SettingsPage() {
                     privacy: { ...settings.privacy, sessionTimeout: v }
                   })}
                 >
-                  <SelectTrigger className="rounded-lg border border-foreground">
+                  <SelectTrigger className="rounded-lg border border-border">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="rounded-lg border border-foreground">
+                  <SelectContent className="rounded-lg border border-border">
                     <SelectItem value="15">15 minutes</SelectItem>
                     <SelectItem value="30">30 minutes</SelectItem>
                     <SelectItem value="60">1 hour</SelectItem>
@@ -484,10 +484,10 @@ export default function SettingsPage() {
 
         {/* Data Tab */}
         <TabsContent value="data" className="space-y-6">
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">Export Data</CardTitle>
-              <CardDescription className="font-mono text-xs">Download your financial data</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Download your financial data</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <p className="text-muted-foreground">
@@ -513,10 +513,10 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">Import Data</CardTitle>
-              <CardDescription className="font-mono text-xs">Import data from other sources</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Import data from other sources</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <p className="text-muted-foreground">
@@ -532,10 +532,10 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg border border-destructive shadow-brutal">
+          <Card className="rounded-xl border border-destructive shadow-md">
             <CardHeader className="border-b-2 border-destructive">
               <CardTitle className="font-semibold text-destructive">Danger Zone</CardTitle>
-              <CardDescription className="font-mono text-xs">Irreversible actions</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Irreversible actions</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <p className="text-muted-foreground">

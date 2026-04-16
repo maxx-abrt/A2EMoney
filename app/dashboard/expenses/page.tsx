@@ -184,11 +184,11 @@ export default function ExpensesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Expenses</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Expenses</h1>
           <p className="text-muted-foreground">Track and manage your income and expenses</p>
         </div>
         <div className="flex gap-2">
@@ -203,9 +203,9 @@ export default function ExpensesPage() {
                 Add Transaction
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-lg border">
+            <DialogContent className="rounded-xl border">
               <DialogHeader>
-                <DialogTitle className="font-bold">Add Transaction</DialogTitle>
+                <DialogTitle className="font-semibold">Add Transaction</DialogTitle>
                 <DialogDescription>Record a new income or expense</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -311,49 +311,49 @@ export default function ExpensesPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-lg border shadow-sm">
+        <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Total Income</span>
               <TrendingUp className="h-5 w-5 text-accent" />
             </div>
-            <div className="mt-2 font-mono text-2xl font-bold text-accent">
+            <div className="mt-2 font-mono text-2xl font-semibold text-accent">
               +{formatCurrency(stats.totalIncome)}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">All time</p>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border shadow-sm">
+        <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Total Expenses</span>
               <TrendingDown className="h-5 w-5 text-destructive" />
             </div>
-            <div className="mt-2 font-mono text-2xl font-bold">
+            <div className="mt-2 font-mono text-2xl font-semibold">
               -{formatCurrency(stats.totalExpenses)}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">All time</p>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border shadow-sm">
+        <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">This Month</span>
               <Calendar className="h-5 w-5 text-muted-foreground" />
             </div>
-            <div className="mt-2 font-mono text-2xl font-bold">
+            <div className="mt-2 font-mono text-2xl font-semibold">
               {formatCurrency(stats.thisMonth)}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">In expenses</p>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border shadow-sm">
+        <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Net Balance</span>
               <CreditCard className="h-5 w-5 text-muted-foreground" />
             </div>
-            <div className={`mt-2 font-mono text-2xl font-bold ${stats.totalIncome - stats.totalExpenses >= 0 ? "text-accent" : "text-destructive"}`}>
+            <div className={`mt-2 font-mono text-2xl font-semibold ${stats.totalIncome - stats.totalExpenses >= 0 ? "text-accent" : "text-destructive"}`}>
               {formatCurrency(stats.totalIncome - stats.totalExpenses)}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">Income - Expenses</p>
@@ -362,7 +362,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* Filters */}
-      <Card className="rounded-lg border">
+      <Card className="rounded-xl border">
         <CardContent className="p-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
@@ -396,9 +396,9 @@ export default function ExpensesPage() {
       </Card>
 
       {/* Transactions List */}
-      <Card className="rounded-lg border shadow-sm">
+      <Card className="rounded-xl border shadow-sm">
         <CardHeader className="border-b border-border">
-          <CardTitle className="font-bold">Transactions</CardTitle>
+          <CardTitle className="font-semibold">Transactions</CardTitle>
           <CardDescription>
             {filteredExpenses.length} transaction{filteredExpenses.length !== 1 ? "s" : ""}
           </CardDescription>
@@ -468,7 +468,7 @@ export default function ExpensesPage() {
                             </div>
                             <div className="flex items-center justify-between sm:justify-end gap-4">
                               <div className="text-right sm:text-right">
-                                <p className={`font-mono text-base sm:text-lg font-bold ${expense.type === "income" ? "text-accent" : ""}`}>
+                                <p className={`font-mono text-base sm:text-lg font-semibold ${expense.type === "income" ? "text-accent" : ""}`}>
                                   {expense.type === "income" ? "+" : "-"}{formatCurrency(expense.amount)}
                                 </p>
                                 <p className="text-xs text-muted-foreground">{expense.paymentMethod}</p>
@@ -514,7 +514,7 @@ export default function ExpensesPage() {
                     <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg border border-border bg-muted">
                       <Sparkles className="h-8 w-8 text-muted-foreground" />
                     </div>
-                    <h3 className="font-bold">No transactions found</h3>
+                    <h3 className="font-semibold">No transactions found</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {searchQuery || categoryFilter !== "all" ? "Try adjusting your filters" : "Add your first transaction"}
                     </p>
@@ -528,9 +528,9 @@ export default function ExpensesPage() {
 
       {/* Link to Invoice Dialog */}
       <Dialog open={!!linkDialog} onOpenChange={(open) => !open && setLinkDialog(null)}>
-        <DialogContent className="rounded-lg border">
+        <DialogContent className="rounded-xl border">
           <DialogHeader>
-            <DialogTitle className="font-bold">Link to Invoice</DialogTitle>
+            <DialogTitle className="font-semibold">Link to Invoice</DialogTitle>
             <DialogDescription>Connect this income to an invoice for tracking</DialogDescription>
           </DialogHeader>
           <div className="max-h-64 overflow-y-auto space-y-2 py-4">
@@ -548,7 +548,7 @@ export default function ExpensesPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-mono font-bold">{formatCurrency(invoice.items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0))}</p>
+                  <p className="font-mono font-semibold">{formatCurrency(invoice.items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0))}</p>
                   <Badge className={invoice.status === "paid" ? "bg-accent text-accent-foreground" : "bg-chart-3 text-white"}>
                     {invoice.status}
                   </Badge>
@@ -564,9 +564,9 @@ export default function ExpensesPage() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingExpense} onOpenChange={(open) => !open && setEditingExpense(null)}>
-        <DialogContent className="rounded-lg border">
+        <DialogContent className="rounded-xl border">
           <DialogHeader>
-            <DialogTitle className="font-bold">Edit Transaction</DialogTitle>
+            <DialogTitle className="font-semibold">Edit Transaction</DialogTitle>
             <DialogDescription>Update transaction details</DialogDescription>
           </DialogHeader>
           {editingExpense && (

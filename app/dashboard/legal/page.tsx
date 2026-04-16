@@ -120,11 +120,11 @@ export default function LegalPage() {
   const categories = ["all", ...new Set(duties.map(d => d.category))]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Legal Duties</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Legal Duties</h1>
           <p className="text-muted-foreground">
             Manage compliance requirements and legal obligations
           </p>
@@ -143,7 +143,7 @@ export default function LegalPage() {
 
       {/* Alert for overdue items */}
       {overdueDuties.length > 0 && (
-        <Card className="rounded-lg border border-destructive bg-destructive/5">
+        <Card className="rounded-xl border border-destructive bg-destructive/5">
           <CardContent className="flex items-center gap-4 py-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-destructive text-destructive-foreground">
               <AlertTriangle className="h-5 w-5" />
@@ -165,56 +165,56 @@ export default function LegalPage() {
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-lg border border-border">
+        <Card className="rounded-xl border border-border">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-destructive/10">
                 <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{overdueDuties.length}</p>
+                <p className="text-2xl font-semibold">{overdueDuties.length}</p>
                 <p className="text-sm text-muted-foreground">Overdue</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="rounded-lg border border-border">
+        <Card className="rounded-xl border border-border">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-warning/10">
                 <Clock className="h-6 w-6 text-warning" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{upcomingDuties.length}</p>
+                <p className="text-2xl font-semibold">{upcomingDuties.length}</p>
                 <p className="text-sm text-muted-foreground">Upcoming</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="rounded-lg border border-border">
+        <Card className="rounded-xl border border-border">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
                 <FileText className="h-6 w-6 text-muted-foreground" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{pendingDuties.length}</p>
+                <p className="text-2xl font-semibold">{pendingDuties.length}</p>
                 <p className="text-sm text-muted-foreground">Pending</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="rounded-lg border border-border">
+        <Card className="rounded-xl border border-border">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10">
                 <CheckCircle2 className="h-6 w-6 text-accent" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{completedDuties.length}</p>
+                <p className="text-2xl font-semibold">{completedDuties.length}</p>
                 <p className="text-sm text-muted-foreground">Completed</p>
               </div>
             </div>
@@ -223,11 +223,11 @@ export default function LegalPage() {
       </div>
 
       {/* Completion Progress */}
-      <Card className="rounded-lg border border-border">
+      <Card className="rounded-xl border border-border">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Compliance Progress</span>
-            <span className="text-sm font-mono font-bold">{completionRate}%</span>
+            <span className="text-sm font-mono font-semibold">{completionRate}%</span>
           </div>
           <Progress value={completionRate} className="h-3" />
           <p className="mt-2 text-xs text-muted-foreground">
@@ -321,7 +321,7 @@ export default function LegalPage() {
         </TabsContent>
 
         <TabsContent value="calendar" className="mt-6">
-          <Card className="rounded-lg border border-border">
+          <Card className="rounded-xl border border-border">
             <CardHeader>
               <CardTitle>Compliance Calendar</CardTitle>
               <CardDescription>Visual timeline of upcoming legal obligations</CardDescription>
@@ -364,7 +364,7 @@ export default function LegalPage() {
         <TabsContent value="templates" className="mt-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {templates.map((template) => (
-              <Card key={template.id} className="rounded-lg border border-border hover:shadow-sm hover:-translate-y-0.5 transition-all">
+              <Card key={template.id} className="rounded-xl border border-border hover:shadow-sm hover:-translate-y-0.5 transition-all">
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">

@@ -282,11 +282,11 @@ export default function BookPage() {
   const SheetIcon = sheetIcons.find(i => i.id === activeSheet?.icon)?.icon || FileSpreadsheet
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Financial Book</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Financial Book</h1>
           <p className="text-muted-foreground">Smart spreadsheets connected to your invoices and expenses</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -318,9 +318,9 @@ export default function BookPage() {
                 New Sheet
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-lg border">
+            <DialogContent className="rounded-xl border">
               <DialogHeader>
-                <DialogTitle className="font-bold">Create New Sheet</DialogTitle>
+                <DialogTitle className="font-semibold">Create New Sheet</DialogTitle>
                 <DialogDescription>Add a new spreadsheet to your book</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -434,7 +434,7 @@ export default function BookPage() {
 
       {/* Spreadsheet */}
       {activeSheet && (
-        <Card className="rounded-lg border shadow-sm">
+        <Card className="rounded-xl border shadow-sm">
           <CardHeader className="pb-4 border-b border-border">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
@@ -445,7 +445,7 @@ export default function BookPage() {
                   <SheetIcon className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="font-bold">{activeSheet.name}</CardTitle>
+                  <CardTitle className="font-semibold">{activeSheet.name}</CardTitle>
                   <CardDescription>
                     {activeSheet.entries.length} entries · {activeSheet.columns.length} columns
                   </CardDescription>
@@ -468,9 +468,9 @@ export default function BookPage() {
                       Column
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="rounded-lg border">
+                  <DialogContent className="rounded-xl border">
                     <DialogHeader>
-                      <DialogTitle className="font-bold">Add Column</DialogTitle>
+                      <DialogTitle className="font-semibold">Add Column</DialogTitle>
                       <DialogDescription>Add a new column to your sheet</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
@@ -532,7 +532,7 @@ export default function BookPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border bg-muted">
-                    <th className="w-12 border-r-2 border-border px-3 py-3 text-center text-xs font-bold text-muted-foreground">#</th>
+                    <th className="w-12 border-r-2 border-border px-3 py-3 text-center text-xs font-semibold text-muted-foreground">#</th>
                     {activeSheet.columns.map((column) => (
                       <th
                         key={column.id}
@@ -540,7 +540,7 @@ export default function BookPage() {
                         style={{ minWidth: column.width }}
                       >
                         <button
-                          className="flex items-center gap-1 font-bold hover:text-accent"
+                          className="flex items-center gap-1 font-semibold hover:text-accent"
                           onClick={() => handleSort(column.id)}
                         >
                           {column.name}
@@ -657,7 +657,7 @@ export default function BookPage() {
                                 {column.type === "currency" ? (
                                   <span className="font-mono font-medium">{formatCurrency(Number(value) || 0)}</span>
                                 ) : column.type === "date" && value ? (
-                                  <span className="font-mono text-xs">{formatDate(String(value))}</span>
+                                  <span className="text-xs text-muted-foreground">{formatDate(String(value))}</span>
                                 ) : column.type === "select" && value ? (
                                   <Badge variant="outline" className="rounded border font-medium text-xs">{String(value)}</Badge>
                                 ) : (
@@ -701,13 +701,13 @@ export default function BookPage() {
                 {/* Totals row */}
                 <tfoot>
                   <tr className="border-t border-border bg-secondary/50">
-                    <td className="border-r-2 border-border px-3 py-3 text-center text-xs font-bold">Σ</td>
+                    <td className="border-r-2 border-border px-3 py-3 text-center text-xs font-semibold">Σ</td>
                     {activeSheet.columns.map((column) => {
                       const total = getColumnTotal(column.id)
                       return (
                         <td key={column.id} className="border-r border-border px-4 py-3">
                           {total !== null ? (
-                            <span className="font-mono font-bold text-accent">
+                            <span className="font-mono font-semibold text-accent">
                               {column.type === "currency" ? formatCurrency(total) : total.toLocaleString()}
                             </span>
                           ) : null}
@@ -725,7 +725,7 @@ export default function BookPage() {
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg border border-border bg-muted">
                   <Sparkles className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <h3 className="font-bold">No entries yet</h3>
+                <h3 className="font-semibold">No entries yet</h3>
                 <p className="mt-1 text-sm text-muted-foreground">Add your first row to get started</p>
                 <Button onClick={handleAddRow} className="mt-4 shadow-sm font-semibold">
                   <Plus className="mr-2 h-4 w-4" />
@@ -739,9 +739,9 @@ export default function BookPage() {
 
       {/* Link Dialog */}
       <Dialog open={!!linkDialog} onOpenChange={(open) => !open && setLinkDialog(null)}>
-        <DialogContent className="rounded-lg border">
+        <DialogContent className="rounded-xl border">
           <DialogHeader>
-            <DialogTitle className="font-bold">
+            <DialogTitle className="font-semibold">
               Link {linkDialog?.type === "invoice" ? "Invoice" : linkDialog?.type === "expense" ? "Expense" : "Document"}
             </DialogTitle>
             <DialogDescription>
@@ -762,7 +762,7 @@ export default function BookPage() {
                     <p className="text-sm text-muted-foreground">{invoice.client}</p>
                   </div>
                 </div>
-                <span className="font-mono font-bold">{formatCurrency(invoice.items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0))}</span>
+                <span className="font-mono font-semibold">{formatCurrency(invoice.items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0))}</span>
               </button>
             ))}
             {linkDialog?.type === "expense" && expenses.map((expense) => (
@@ -778,7 +778,7 @@ export default function BookPage() {
                     <p className="text-sm text-muted-foreground">{expense.category}</p>
                   </div>
                 </div>
-                <span className={`font-mono font-bold ${expense.type === "income" ? "text-accent" : ""}`}>
+                <span className={`font-mono font-semibold ${expense.type === "income" ? "text-accent" : ""}`}>
                   {expense.type === "income" ? "+" : "-"}{formatCurrency(expense.amount)}
                 </span>
               </button>

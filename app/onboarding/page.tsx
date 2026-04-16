@@ -123,8 +123,9 @@ export default function OnboardingPage() {
   const stepLabels = ["Profile", "Details", "Features", "Review"]
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/80 backdrop-blur">
+    <div className="relative min-h-screen bg-background">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-surface-grid" aria-hidden />
+      <header className="relative border-b border-border/70 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background">
@@ -173,9 +174,13 @@ export default function OnboardingPage() {
           })}
         </ol>
 
-        <div className="rounded-2xl border border-border bg-card p-6 sm:p-10">
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm ring-1 ring-foreground/5 sm:p-10">
+          <div
+            className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-accent/10 blur-3xl"
+            aria-hidden
+          />
           {step === 1 && (
-            <div className="space-y-6">
+            <div key="step-1" className="relative animate-fade-up space-y-6">
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Who's this for?</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -223,7 +228,7 @@ export default function OnboardingPage() {
           )}
 
           {step === 2 && (
-            <div className="space-y-6">
+            <div key="step-2" className="relative animate-fade-up space-y-6">
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">A few details</h1>
                 <p className="mt-1 text-sm text-muted-foreground">We'll personalise your workspace with this info.</p>
@@ -281,7 +286,7 @@ export default function OnboardingPage() {
           )}
 
           {step === 3 && (
-            <div className="space-y-6">
+            <div key="step-3" className="relative animate-fade-up space-y-6">
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Choose your tools</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -333,7 +338,7 @@ export default function OnboardingPage() {
           )}
 
           {step === 4 && (
-            <div className="space-y-6">
+            <div key="step-4" className="relative animate-fade-up space-y-6">
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">You're all set</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -377,7 +382,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          <div className="mt-10 flex items-center justify-between border-t border-border pt-6">
+          <div className="relative mt-10 flex items-center justify-between border-t border-border pt-6">
             <Button
               variant="ghost"
               size="sm"
@@ -387,14 +392,23 @@ export default function OnboardingPage() {
               <ArrowLeft className="mr-1 h-4 w-4" /> Back
             </Button>
             {step < 4 ? (
-              <Button size="sm" disabled={!canContinue} onClick={() => setStep(s => s + 1)} className="rounded-full">
+              <Button
+                size="sm"
+                disabled={!canContinue}
+                onClick={() => setStep(s => s + 1)}
+                className="group rounded-full shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              >
                 Continue
-                <ArrowRight className="ml-1 h-4 w-4" />
+                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
             ) : (
-              <Button size="sm" onClick={handleComplete} className="rounded-full">
+              <Button
+                size="sm"
+                onClick={handleComplete}
+                className="group rounded-full shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              >
                 Go to {tNav("dashboard")}
-                <ArrowRight className="ml-1 h-4 w-4" />
+                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
             )}
           </div>

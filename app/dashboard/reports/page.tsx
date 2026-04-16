@@ -98,12 +98,12 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Reports</h1>
-          <p className="text-muted-foreground font-mono text-sm">Analyze your financial performance</p>
+          <p className="text-sm text-muted-foreground">Analyze your financial performance</p>
         </div>
         <div className="flex gap-2">
           <Select value={period} onValueChange={setPeriod}>
@@ -127,10 +127,10 @@ export default function ReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground text-xs font-medium">Total {isBusiness ? "Revenue" : "Income"}</span>
+              <span className="text-xs font-medium text-muted-foreground">Total {isBusiness ? "Revenue" : "Income"}</span>
               <TrendingUp className="h-5 w-5 text-accent" />
             </div>
             <div className="mt-2 text-2xl font-semibold">{formatCurrency(totalIncome, currency)}</div>
@@ -140,10 +140,10 @@ export default function ReportsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground text-xs font-medium">Total Expenses</span>
+              <span className="text-xs font-medium text-muted-foreground">Total Expenses</span>
               <TrendingDown className="h-5 w-5 text-destructive" />
             </div>
             <div className="mt-2 text-2xl font-semibold">{formatCurrency(totalExpenses, currency)}</div>
@@ -153,7 +153,7 @@ export default function ReportsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border border-border shadow-sm bg-accent text-accent-foreground">
+        <Card className="rounded-xl border border-border shadow-sm bg-accent text-accent-foreground">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm opacity-80 text-xs font-medium">Net {isBusiness ? "Profit" : "Savings"}</span>
@@ -168,10 +168,10 @@ export default function ReportsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground text-xs font-medium">{isBusiness ? "Profit" : "Savings"} Rate</span>
+              <span className="text-xs font-medium text-muted-foreground">{isBusiness ? "Profit" : "Savings"} Rate</span>
               <PieChart className="h-5 w-5" />
             </div>
             <div className="mt-2 text-2xl font-semibold">{savingsRate}%</div>
@@ -194,10 +194,10 @@ export default function ReportsPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Monthly Chart */}
-            <Card className="lg:col-span-2 rounded-lg border border-border shadow-sm">
+            <Card className="lg:col-span-2 rounded-xl border border-border shadow-sm">
               <CardHeader className="border-b border-border">
                 <CardTitle className="font-semibold">Income vs Expenses</CardTitle>
-                <CardDescription className="font-mono text-xs">Monthly comparison over the selected period</CardDescription>
+                <CardDescription className="text-xs text-muted-foreground">Monthly comparison over the selected period</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-4">
@@ -239,17 +239,17 @@ export default function ReportsPage() {
             </Card>
 
             {/* Category Breakdown */}
-            <Card className="rounded-lg border border-border shadow-sm">
+            <Card className="rounded-xl border border-border shadow-sm">
               <CardHeader className="border-b border-border">
                 <CardTitle className="font-semibold">Expense Breakdown</CardTitle>
-                <CardDescription className="font-mono text-xs">By category</CardDescription>
+                <CardDescription className="text-xs text-muted-foreground">By category</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   {categoryBreakdown.map((cat) => (
                     <div key={cat.name} className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="font-bold">{cat.name}</span>
+                        <span className="font-semibold">{cat.name}</span>
                         <span className="text-muted-foreground font-mono">{cat.percentage}%</span>
                       </div>
                       <div className="h-3 rounded-lg border border-border bg-muted">
@@ -269,10 +269,10 @@ export default function ReportsPage() {
           </div>
 
           {/* Top Expenses */}
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">Top Expenses</CardTitle>
-              <CardDescription className="font-mono text-xs">Largest transactions this period</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Largest transactions this period</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <div className="divide-y divide-border">
@@ -283,7 +283,7 @@ export default function ReportsPage() {
                         {i + 1}
                       </div>
                       <div>
-                        <p className="font-bold">{expense.description}</p>
+                        <p className="font-semibold">{expense.description}</p>
                         <p className="text-sm text-muted-foreground font-mono">{expense.category}</p>
                       </div>
                     </div>
@@ -299,10 +299,10 @@ export default function ReportsPage() {
         </TabsContent>
 
         <TabsContent value="income" className="space-y-6">
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">{isBusiness ? "Revenue" : "Income"} Trend</CardTitle>
-              <CardDescription className="font-mono text-xs">Monthly {isBusiness ? "revenue" : "income"} over time</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Monthly {isBusiness ? "revenue" : "income"} over time</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="flex h-64 items-end gap-2">
@@ -312,7 +312,7 @@ export default function ReportsPage() {
                       className="w-full bg-accent rounded-lg border border-border transition-all hover:bg-accent/80"
                       style={{ height: `${(data.income / maxValue) * 200}px` }}
                     />
-                    <span className="text-xs text-muted-foreground font-mono font-bold">{data.month}</span>
+                    <span className="text-xs text-muted-foreground font-mono font-semibold">{data.month}</span>
                   </div>
                 ))}
               </div>
@@ -321,10 +321,10 @@ export default function ReportsPage() {
         </TabsContent>
 
         <TabsContent value="expenses" className="space-y-6">
-          <Card className="rounded-lg border border-border shadow-sm">
+          <Card className="rounded-xl border border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="font-semibold">Expense Trend</CardTitle>
-              <CardDescription className="font-mono text-xs">Monthly expenses over time</CardDescription>
+              <CardDescription className="text-xs text-muted-foreground">Monthly expenses over time</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="flex h-64 items-end gap-2">
@@ -334,7 +334,7 @@ export default function ReportsPage() {
                       className="w-full bg-destructive/70 rounded-lg border border-border transition-all hover:bg-destructive"
                       style={{ height: `${(data.expenses / maxValue) * 200}px` }}
                     />
-                    <span className="text-xs text-muted-foreground font-mono font-bold">{data.month}</span>
+                    <span className="text-xs text-muted-foreground font-mono font-semibold">{data.month}</span>
                   </div>
                 ))}
               </div>
@@ -344,10 +344,10 @@ export default function ReportsPage() {
 
         <TabsContent value="trends" className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
-            <Card className="rounded-lg border border-border shadow-sm">
+            <Card className="rounded-xl border border-border shadow-sm">
               <CardHeader className="border-b border-border">
                 <CardTitle className="font-semibold">Key Insights</CardTitle>
-                <CardDescription className="font-mono text-xs">AI-powered analysis of your finances</CardDescription>
+                <CardDescription className="text-xs text-muted-foreground">AI-powered analysis of your finances</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
                 <div className="flex items-start gap-3 rounded-lg border border-accent bg-accent/10 p-4">
@@ -380,26 +380,26 @@ export default function ReportsPage() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-lg border border-border shadow-sm">
+            <Card className="rounded-xl border border-border shadow-sm">
               <CardHeader className="border-b border-border">
                 <CardTitle className="font-semibold">Projections</CardTitle>
-                <CardDescription className="font-mono text-xs">Forecast based on current trends</CardDescription>
+                <CardDescription className="text-xs text-muted-foreground">Forecast based on current trends</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
                 <div className="rounded-lg border border-border p-4 bg-accent/10">
-                  <p className="text-sm text-muted-foreground text-xs font-medium">Projected Year-End {isBusiness ? "Profit" : "Savings"}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Projected Year-End {isBusiness ? "Profit" : "Savings"}</p>
                   <p className="mt-1 text-2xl font-semibold text-accent">
                     {formatCurrency(netSavings * 2, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border p-4">
-                  <p className="text-sm text-muted-foreground text-xs font-medium">Average Monthly {isBusiness ? "Revenue" : "Income"}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Average Monthly {isBusiness ? "Revenue" : "Income"}</p>
                   <p className="mt-1 text-2xl font-semibold">
                     {formatCurrency(totalIncome / monthlyData.length, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border p-4">
-                  <p className="text-sm text-muted-foreground text-xs font-medium">Average Monthly Expenses</p>
+                  <p className="text-xs font-medium text-muted-foreground">Average Monthly Expenses</p>
                   <p className="mt-1 text-2xl font-semibold">
                     {formatCurrency(totalExpenses / monthlyData.length, currency)}
                   </p>
@@ -411,10 +411,10 @@ export default function ReportsPage() {
       </Tabs>
 
       {/* Export Options */}
-      <Card className="rounded-lg border border-border shadow-sm">
+      <Card className="rounded-xl border border-border shadow-sm">
         <CardHeader className="border-b border-border">
           <CardTitle className="font-semibold">Export Reports</CardTitle>
-          <CardDescription className="font-mono text-xs">Download your financial data in various formats</CardDescription>
+          <CardDescription className="text-xs text-muted-foreground">Download your financial data in various formats</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <div className="grid gap-4 sm:grid-cols-3">

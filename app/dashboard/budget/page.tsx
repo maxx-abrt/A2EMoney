@@ -169,33 +169,33 @@ export default function BudgetPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <div className="space-y-8 p-4 sm:p-8">
+      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1.5">
+          <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Workspace</div>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Budget</h1>
-          <p className="text-muted-foreground font-mono text-sm">Manage your spending limits and track progress</p>
+          <p className="max-w-2xl text-sm text-muted-foreground">Manage your spending limits and track progress across every category.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={exportBudget} className="rounded-lg border border-border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+          <Button variant="outline" onClick={exportBudget} className="rounded-full transition-all hover:-translate-y-0.5 hover:shadow-md">
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="rounded-lg border border-border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+              <Button className="rounded-full shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Category
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-lg border border-foreground shadow-brutal">
+            <DialogContent className="rounded-xl border border-border shadow-lg">
               <DialogHeader>
                 <DialogTitle className="font-semibold">Add Budget Category</DialogTitle>
                 <DialogDescription className="font-mono text-sm">Create a new category to track your spending</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label className="font-bold">Category Name</Label>
+                  <Label className="font-semibold">Category Name</Label>
                   <Input
                     placeholder="e.g., Groceries"
                     value={newCategory.name}
@@ -204,7 +204,7 @@ export default function BudgetPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold">Monthly Budget</Label>
+                  <Label className="font-semibold">Monthly Budget</Label>
                   <Input
                     type="number"
                     placeholder="500"
@@ -215,15 +215,15 @@ export default function BudgetPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="font-bold">Icon</Label>
+                    <Label className="font-semibold">Icon</Label>
                     <Select
                       value={newCategory.icon}
                       onValueChange={(v) => setNewCategory({ ...newCategory, icon: v })}
                     >
-                      <SelectTrigger className="rounded-lg border border-foreground">
+                      <SelectTrigger className="rounded-lg border border-border">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="rounded-lg border border-foreground">
+                      <SelectContent className="rounded-lg border border-border">
                         {iconOptions.map((icon) => (
                           <SelectItem key={icon.name} value={icon.name}>
                             <div className="flex items-center gap-2">
@@ -236,19 +236,19 @@ export default function BudgetPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-bold">Color</Label>
+                    <Label className="font-semibold">Color</Label>
                     <Select
                       value={newCategory.color}
                       onValueChange={(v) => setNewCategory({ ...newCategory, color: v })}
                     >
-                      <SelectTrigger className="rounded-lg border border-foreground">
+                      <SelectTrigger className="rounded-lg border border-border">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="rounded-lg border border-foreground">
+                      <SelectContent className="rounded-lg border border-border">
                         {colorOptions.map((color) => (
                           <SelectItem key={color.value} value={color.value}>
                             <div className="flex items-center gap-2">
-                              <div className={`h-4 w-4 border border-foreground ${color.value}`} />
+                              <div className={`h-4 w-4 border border-border ${color.value}`} />
                               {color.name}
                             </div>
                           </SelectItem>
@@ -269,20 +269,20 @@ export default function BudgetPage() {
 
       {/* Overview Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground text-xs font-medium">Total Budget</span>
+              <span className="text-xs font-medium text-muted-foreground">Total Budget</span>
               <PieChart className="h-5 w-5" />
             </div>
             <div className="mt-2 text-3xl font-semibold">{formatCurrency(totalBudget, currency)}</div>
             <p className="mt-1 text-sm text-muted-foreground font-mono">Monthly allocation</p>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground text-xs font-medium">Total Spent</span>
+              <span className="text-xs font-medium text-muted-foreground">Total Spent</span>
               <TrendingDown className="h-5 w-5" />
             </div>
             <div className="mt-2 text-3xl font-semibold">{formatCurrency(totalSpent, currency)}</div>
@@ -299,7 +299,7 @@ export default function BudgetPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border border-border shadow-sm bg-accent text-accent-foreground">
+        <Card className="rounded-xl border border-border shadow-sm bg-accent text-accent-foreground">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm opacity-80 text-xs font-medium">Remaining</span>
@@ -331,7 +331,7 @@ export default function BudgetPage() {
               const percentage = Math.round((category.spent / category.budget) * 100)
               const Icon = category.icon
               return (
-                <Card key={category.id} className="rounded-lg border border-border shadow-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
+                <Card key={category.id} className="group rounded-xl border border-border shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
@@ -339,7 +339,7 @@ export default function BudgetPage() {
                           <Icon className="h-6 w-6" />
                         </div>
                         <div>
-                          <h3 className="font-bold">{category.name}</h3>
+                          <h3 className="font-semibold">{category.name}</h3>
                           <p className="text-sm text-muted-foreground font-mono">
                             {formatCurrency(category.spent, currency)} / {formatCurrency(category.budget, currency)}
                           </p>
@@ -400,19 +400,19 @@ export default function BudgetPage() {
                 const percentage = Math.round((category.spent / category.budget) * 100)
                 const Icon = category.icon
                 return (
-                  <Card key={category.id} className="rounded-lg border border-border shadow-sm">
+                  <Card key={category.id} className="rounded-xl border border-border shadow-sm">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
                         <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-accent bg-accent/10">
                           <Icon className="h-6 w-6 text-accent" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-bold">{category.name}</h3>
+                          <h3 className="font-semibold">{category.name}</h3>
                           <div className="mt-2 flex items-center gap-2">
                             <div className="flex-1 h-3 bg-muted rounded-lg border border-border">
                               <div className="h-full bg-accent" style={{ width: `${percentage}%` }} />
                             </div>
-                            <span className="text-sm font-mono text-accent font-bold">{percentage}%</span>
+                            <span className="text-sm font-mono text-accent font-semibold">{percentage}%</span>
                           </div>
                         </div>
                       </div>
@@ -431,19 +431,19 @@ export default function BudgetPage() {
                 const percentage = Math.round((category.spent / category.budget) * 100)
                 const Icon = category.icon
                 return (
-                  <Card key={category.id} className="rounded-lg border border-warning shadow-sm">
+                  <Card key={category.id} className="rounded-xl border border-warning shadow-sm">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
                         <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-warning bg-warning/10">
                           <Icon className="h-6 w-6 text-warning" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-bold">{category.name}</h3>
+                          <h3 className="font-semibold">{category.name}</h3>
                           <div className="mt-2 flex items-center gap-2">
                             <div className="flex-1 h-3 bg-muted rounded-lg border border-border">
                               <div className="h-full bg-warning" style={{ width: `${percentage}%` }} />
                             </div>
-                            <span className="text-sm font-mono text-warning font-bold">{percentage}%</span>
+                            <span className="text-sm font-mono text-warning font-semibold">{percentage}%</span>
                           </div>
                         </div>
                       </div>
@@ -462,19 +462,19 @@ export default function BudgetPage() {
                 const percentage = Math.round((category.spent / category.budget) * 100)
                 const Icon = category.icon
                 return (
-                  <Card key={category.id} className="rounded-lg border border-destructive shadow-sm">
+                  <Card key={category.id} className="rounded-xl border border-destructive shadow-sm">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
                         <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-destructive bg-destructive/10">
                           <Icon className="h-6 w-6 text-destructive" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-bold">{category.name}</h3>
+                          <h3 className="font-semibold">{category.name}</h3>
                           <div className="mt-2 flex items-center gap-2">
                             <div className="flex-1 h-3 bg-muted rounded-lg border border-border">
                               <div className="h-full bg-destructive" style={{ width: `100%` }} />
                             </div>
-                            <span className="text-sm font-mono text-destructive font-bold">{percentage}%</span>
+                            <span className="text-sm font-mono text-destructive font-semibold">{percentage}%</span>
                           </div>
                         </div>
                       </div>
@@ -488,7 +488,7 @@ export default function BudgetPage() {
 
       {/* Edit Category Dialog */}
       <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
-        <DialogContent className="rounded-lg border border-foreground shadow-brutal">
+        <DialogContent className="rounded-xl border border-border shadow-md">
           <DialogHeader>
             <DialogTitle className="font-semibold">Edit Category</DialogTitle>
             <DialogDescription className="font-mono text-sm">Update your budget category settings</DialogDescription>
@@ -496,7 +496,7 @@ export default function BudgetPage() {
           {editingCategory && (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label className="font-bold">Category Name</Label>
+                <Label className="font-semibold">Category Name</Label>
                 <Input
                   value={editingCategory.name}
                   onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
@@ -504,7 +504,7 @@ export default function BudgetPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="font-bold">Monthly Budget</Label>
+                <Label className="font-semibold">Monthly Budget</Label>
                 <Input
                   type="number"
                   value={editingCategory.budget}
