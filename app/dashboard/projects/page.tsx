@@ -215,12 +215,12 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Projects</h1>
-          <p className="text-muted-foreground font-mono text-sm">Manage project budgets and track spending</p>
+          <p className="text-sm text-muted-foreground">Manage project budgets and track spending</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportProjects} className="rounded-lg border border-border shadow-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all">
@@ -234,14 +234,14 @@ export default function ProjectsPage() {
                 New Project
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-lg border border-border shadow-sm">
+            <DialogContent className="rounded-xl border border-border shadow-sm">
               <DialogHeader>
                 <DialogTitle className="font-semibold">Create Project</DialogTitle>
                 <DialogDescription className="font-mono text-sm">Set up a new project with budget tracking</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label className="font-bold">Project Name</Label>
+                  <Label className="font-semibold">Project Name</Label>
                   <Input
                     placeholder="e.g., Website Redesign"
                     value={newProject.name}
@@ -250,7 +250,7 @@ export default function ProjectsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold">Client (optional)</Label>
+                  <Label className="font-semibold">Client (optional)</Label>
                   <Input
                     placeholder="Client name"
                     value={newProject.client}
@@ -260,7 +260,7 @@ export default function ProjectsPage() {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="font-bold">Start Date</Label>
+                    <Label className="font-semibold">Start Date</Label>
                     <Input
                       type="date"
                       value={newProject.startDate}
@@ -269,7 +269,7 @@ export default function ProjectsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-bold">End Date</Label>
+                    <Label className="font-semibold">End Date</Label>
                     <Input
                       type="date"
                       value={newProject.endDate}
@@ -279,15 +279,15 @@ export default function ProjectsPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold">Status</Label>
+                  <Label className="font-semibold">Status</Label>
                   <Select
                     value={newProject.status}
                     onValueChange={(v) => setNewProject({ ...newProject, status: v as Project["status"] })}
                   >
-                    <SelectTrigger className="rounded-lg border border-foreground">
+                    <SelectTrigger className="rounded-lg border border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="rounded-lg border border-foreground">
+                    <SelectContent className="rounded-lg border border-border">
                       <SelectItem value="planning">Planning</SelectItem>
                       <SelectItem value="active">Active</SelectItem>
                       <SelectItem value="on-hold">On Hold</SelectItem>
@@ -296,7 +296,7 @@ export default function ProjectsPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold">Description</Label>
+                  <Label className="font-semibold">Description</Label>
                   <Textarea
                     placeholder="Project description..."
                     value={newProject.description}
@@ -316,30 +316,30 @@ export default function ProjectsPage() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground text-xs font-medium">Total Projects</span>
+              <span className="text-xs font-medium text-muted-foreground">Total Projects</span>
               <Briefcase className="h-5 w-5" />
             </div>
             <div className="mt-2 text-2xl font-semibold">{stats.total}</div>
             <p className="mt-1 text-sm text-muted-foreground font-mono">{stats.active} active</p>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground text-xs font-medium">Total Budget</span>
+              <span className="text-xs font-medium text-muted-foreground">Total Budget</span>
               <Target className="h-5 w-5" />
             </div>
             <div className="mt-2 text-2xl font-semibold">{formatCurrency(stats.totalBudget, currency)}</div>
             <p className="mt-1 text-sm text-muted-foreground font-mono">Across all projects</p>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground text-xs font-medium">Total Spent</span>
+              <span className="text-xs font-medium text-muted-foreground">Total Spent</span>
               <TrendingDown className="h-5 w-5" />
             </div>
             <div className="mt-2 text-2xl font-semibold">{formatCurrency(stats.totalSpent, currency)}</div>
@@ -356,7 +356,7 @@ export default function ProjectsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border border-border shadow-sm bg-accent text-accent-foreground">
+        <Card className="rounded-xl border border-border shadow-sm bg-accent text-accent-foreground">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm opacity-80 text-xs font-medium">Remaining</span>
@@ -401,7 +401,7 @@ export default function ProjectsPage() {
                   const percentage = estimated > 0 ? Math.round((actual / estimated) * 100) : 0
                   
                   return (
-                    <Card key={project.id} className="flex flex-col rounded-lg border border-border shadow-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
+                    <Card key={project.id} className="flex flex-col rounded-xl border border-border shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-foreground/15 transition-all">
                       <CardHeader className="pb-3 border-b border-border">
                         <div className="flex items-start justify-between">
                           <div>
@@ -472,11 +472,11 @@ export default function ProjectsPage() {
                           <div className="flex justify-between text-sm font-mono">
                             <div>
                               <span className="text-muted-foreground">Est: </span>
-                              <span className="font-bold">{formatCurrency(estimated, currency)}</span>
+                              <span className="font-semibold">{formatCurrency(estimated, currency)}</span>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Spent: </span>
-                              <span className="font-bold">{formatCurrency(actual, currency)}</span>
+                              <span className="font-semibold">{formatCurrency(actual, currency)}</span>
                             </div>
                           </div>
                           {project.startDate && (
@@ -503,7 +503,7 @@ export default function ProjectsPage() {
 
       {/* Project Details Dialog */}
       <Dialog open={!!viewingProject} onOpenChange={(open) => !open && setViewingProject(null)}>
-        <DialogContent className="max-w-2xl rounded-lg border border-border shadow-sm">
+        <DialogContent className="max-w-2xl rounded-xl border border-border shadow-sm">
           <DialogHeader>
             <DialogTitle className="font-semibold">{viewingProject?.name}</DialogTitle>
             <DialogDescription className="font-mono text-sm">Project budget breakdown</DialogDescription>
@@ -526,14 +526,14 @@ export default function ProjectsPage() {
                   <tbody>
                     {viewingProject.budgetItems.map((item, idx) => (
                       <tr key={item.id} className={idx % 2 === 0 ? "bg-muted/50" : ""}>
-                        <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold">{item.name}</td>
+                        <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-semibold">{item.name}</td>
                         <td className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono">
                           {formatCurrency(item.estimated, currency)}
                         </td>
                         <td className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono">
                           {formatCurrency(item.actual, currency)}
                         </td>
-                        <td className={`px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-bold ${
+                        <td className={`px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-semibold ${
                           item.estimated - item.actual >= 0 ? "text-accent" : "text-destructive"
                         }`}>
                           {item.estimated - item.actual >= 0 ? "+" : ""}
@@ -545,10 +545,10 @@ export default function ProjectsPage() {
                   <tfoot className="border-t border-border bg-secondary">
                     <tr>
                       <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-semibold">TOTAL</td>
-                      <td className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-bold">
+                      <td className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-semibold">
                         {formatCurrency(getProjectTotal(viewingProject, "estimated"), currency)}
                       </td>
-                      <td className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-bold">
+                      <td className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-semibold">
                         {formatCurrency(getProjectTotal(viewingProject, "actual"), currency)}
                       </td>
                       <td className={`px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-semibold ${
@@ -572,33 +572,33 @@ export default function ProjectsPage() {
 
       {/* Link Records Dialog */}
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
-        <DialogContent className="rounded-lg border border-border shadow-sm">
+        <DialogContent className="rounded-xl border border-border shadow-sm">
           <DialogHeader>
             <DialogTitle className="font-semibold">Link Records</DialogTitle>
             <DialogDescription className="font-mono text-sm">Connect invoices and expenses to {linkingProject?.name}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="font-bold">Available Invoices</Label>
+              <Label className="font-semibold">Available Invoices</Label>
               <div className="space-y-2 max-h-40 overflow-y-auto rounded-lg border border-border p-2">
                 {invoices.map(inv => (
                   <label key={inv.id} className="flex items-center gap-2 p-2 hover:bg-muted cursor-pointer">
                     <input type="checkbox" className="h-4 w-4 rounded border border-border" />
                     <span className="font-mono text-sm">{inv.invoiceNumber}</span>
                     <span className="text-sm text-muted-foreground">- {inv.clientName}</span>
-                    <span className="ml-auto font-mono text-sm font-bold">{formatCurrency(inv.total, currency)}</span>
+                    <span className="ml-auto font-mono text-sm font-semibold">{formatCurrency(inv.total, currency)}</span>
                   </label>
                 ))}
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="font-bold">Available Expenses</Label>
+              <Label className="font-semibold">Available Expenses</Label>
               <div className="space-y-2 max-h-40 overflow-y-auto rounded-lg border border-border p-2">
                 {expenses.slice(0, 5).map(exp => (
                   <label key={exp.id} className="flex items-center gap-2 p-2 hover:bg-muted cursor-pointer">
                     <input type="checkbox" className="h-4 w-4 rounded border border-border" />
                     <span className="text-sm">{exp.description}</span>
-                    <span className="ml-auto font-mono text-sm font-bold">{formatCurrency(exp.amount, currency)}</span>
+                    <span className="ml-auto font-mono text-sm font-semibold">{formatCurrency(exp.amount, currency)}</span>
                   </label>
                 ))}
               </div>

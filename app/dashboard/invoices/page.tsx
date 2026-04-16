@@ -197,11 +197,11 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Invoices</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Invoices</h1>
           <p className="text-muted-foreground">Create, send, and track your invoices</p>
         </div>
         <div className="flex gap-2">
@@ -216,9 +216,9 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
                 New Invoice
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl rounded-lg border">
+            <DialogContent className="max-w-2xl rounded-xl border">
               <DialogHeader>
-                <DialogTitle className="font-bold">Create Invoice</DialogTitle>
+                <DialogTitle className="font-semibold">Create Invoice</DialogTitle>
                 <DialogDescription>Fill in the details to create a new invoice</DialogDescription>
               </DialogHeader>
               <div className="max-h-[60vh] space-y-6 overflow-y-auto py-4">
@@ -355,8 +355,8 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
                       <span className="font-mono font-medium">{formatCurrency(calculateTax(newInvoice.items, newInvoice.taxRate))}</span>
                     </div>
                     <div className="flex justify-between text-lg border-t border-border pt-2">
-                      <span className="font-bold">Total</span>
-                      <span className="font-mono font-bold text-accent">
+                      <span className="font-semibold">Total</span>
+                      <span className="font-mono font-semibold text-accent">
                         {formatCurrency(calculateTotal(newInvoice.items, newInvoice.taxRate))}
                       </span>
                     </div>
@@ -384,47 +384,47 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-lg border shadow-sm">
+        <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Total Invoiced</span>
               <FileText className="h-5 w-5 text-muted-foreground" />
             </div>
-            <div className="mt-2 font-mono text-2xl font-bold">{formatCurrency(stats.total)}</div>
+            <div className="mt-2 font-mono text-2xl font-semibold">{formatCurrency(stats.total)}</div>
             <p className="mt-1 text-sm text-muted-foreground">{invoices.length} invoices</p>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border shadow-sm">
+        <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Paid</span>
               <CheckCircle2 className="h-5 w-5 text-accent" />
             </div>
-            <div className="mt-2 font-mono text-2xl font-bold text-accent">{formatCurrency(stats.paid)}</div>
+            <div className="mt-2 font-mono text-2xl font-semibold text-accent">{formatCurrency(stats.paid)}</div>
             <p className="mt-1 text-sm text-muted-foreground">
               {invoices.filter(inv => inv.status === "paid").length} invoices
             </p>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border shadow-sm">
+        <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Pending</span>
               <Clock className="h-5 w-5 text-chart-3" />
             </div>
-            <div className="mt-2 font-mono text-2xl font-bold">{formatCurrency(stats.pending)}</div>
+            <div className="mt-2 font-mono text-2xl font-semibold">{formatCurrency(stats.pending)}</div>
             <p className="mt-1 text-sm text-muted-foreground">
               {invoices.filter(inv => inv.status === "sent").length} invoices
             </p>
           </CardContent>
         </Card>
-        <Card className="rounded-lg border shadow-sm">
+        <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Overdue</span>
               <AlertCircle className="h-5 w-5 text-destructive" />
             </div>
-            <div className="mt-2 font-mono text-2xl font-bold text-destructive">{formatCurrency(stats.overdue)}</div>
+            <div className="mt-2 font-mono text-2xl font-semibold text-destructive">{formatCurrency(stats.overdue)}</div>
             <p className="mt-1 text-sm text-muted-foreground">
               {invoices.filter(inv => inv.status === "overdue").length} invoices
             </p>
@@ -433,11 +433,11 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
       </div>
 
       {/* Invoices Table */}
-      <Card className="rounded-lg border shadow-sm">
+      <Card className="rounded-xl border shadow-sm">
         <CardHeader className="border-b border-border">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="font-bold">All Invoices</CardTitle>
+              <CardTitle className="font-semibold">All Invoices</CardTitle>
               <CardDescription>Manage and track all your invoices</CardDescription>
             </div>
             <div className="relative w-full sm:w-64">
@@ -482,7 +482,7 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
                               </div>
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <p className="font-bold">{invoice.number}</p>
+                                  <p className="font-semibold">{invoice.number}</p>
                                   {linkedExpense && (
                                     <Badge variant="secondary" className="border text-xs">
                                       <Link2 className="mr-1 h-3 w-3" />
@@ -496,7 +496,7 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
                             </div>
                             <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                               <div className="text-right">
-                                <p className="font-mono text-lg font-bold">
+                                <p className="font-mono text-lg font-semibold">
                                   {formatCurrency(calculateTotal(invoice.items, invoice.taxRate))}
                                 </p>
                                 <p className="text-xs text-muted-foreground">Due {formatDate(invoice.dueDate)}</p>
@@ -562,7 +562,7 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
                     <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg border border-border bg-muted">
                       <Sparkles className="h-8 w-8 text-muted-foreground" />
                     </div>
-                    <h3 className="font-bold">No invoices found</h3>
+                    <h3 className="font-semibold">No invoices found</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {searchQuery ? "Try adjusting your search" : "Create your first invoice to get started"}
                     </p>
@@ -576,13 +576,13 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
 
       {/* View Invoice Dialog */}
       <Dialog open={!!viewingInvoice} onOpenChange={(open) => !open && setViewingInvoice(null)}>
-        <DialogContent className="max-w-2xl rounded-lg border">
+        <DialogContent className="max-w-2xl rounded-xl border">
           {viewingInvoice && (
             <>
               <DialogHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <DialogTitle className="font-bold text-2xl">{viewingInvoice.number}</DialogTitle>
+                    <DialogTitle className="font-semibold text-2xl">{viewingInvoice.number}</DialogTitle>
                     <DialogDescription>Invoice for {viewingInvoice.client}</DialogDescription>
                   </div>
                   <Badge className={`${getStatusColor(viewingInvoice.status)} font-medium`}>
@@ -595,7 +595,7 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="rounded-lg border border-border p-4">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Bill To</p>
-                    <p className="font-bold">{viewingInvoice.client}</p>
+                    <p className="font-semibold">{viewingInvoice.client}</p>
                     <p className="text-sm text-muted-foreground">{viewingInvoice.clientEmail}</p>
                     {viewingInvoice.clientAddress && (
                       <p className="text-sm text-muted-foreground mt-1">{viewingInvoice.clientAddress}</p>
@@ -625,10 +625,10 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-border bg-muted">
-                        <th className="px-4 py-3 text-left text-sm font-bold">Description</th>
-                        <th className="px-4 py-3 text-right text-sm font-bold">Qty</th>
-                        <th className="px-4 py-3 text-right text-sm font-bold">Price</th>
-                        <th className="px-4 py-3 text-right text-sm font-bold">Total</th>
+                        <th className="px-4 py-3 text-left text-sm font-semibold">Description</th>
+                        <th className="px-4 py-3 text-right text-sm font-semibold">Qty</th>
+                        <th className="px-4 py-3 text-right text-sm font-semibold">Price</th>
+                        <th className="px-4 py-3 text-right text-sm font-semibold">Total</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -651,8 +651,8 @@ ${invoice.notes ? `Notes: ${invoice.notes}` : ""}
                         <td className="px-4 py-2 text-right font-mono font-medium">{formatCurrency(calculateTax(viewingInvoice.items, viewingInvoice.taxRate || 0))}</td>
                       </tr>
                       <tr className="bg-secondary">
-                        <td colSpan={3} className="px-4 py-3 text-right font-bold">Total</td>
-                        <td className="px-4 py-3 text-right font-mono text-xl font-bold text-accent">{formatCurrency(calculateTotal(viewingInvoice.items, viewingInvoice.taxRate))}</td>
+                        <td colSpan={3} className="px-4 py-3 text-right font-semibold">Total</td>
+                        <td className="px-4 py-3 text-right font-mono text-xl font-semibold text-accent">{formatCurrency(calculateTotal(viewingInvoice.items, viewingInvoice.taxRate))}</td>
                       </tr>
                     </tfoot>
                   </table>

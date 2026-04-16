@@ -125,11 +125,11 @@ export default function DocumentsPage() {
   }, {} as Record<string, number>)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Documents</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Documents</h1>
           <p className="text-muted-foreground">Store and manage your financial documents</p>
         </div>
         <Dialog open={uploadDialog} onOpenChange={setUploadDialog}>
@@ -139,9 +139,9 @@ export default function DocumentsPage() {
               Upload Document
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-lg border">
+          <DialogContent className="rounded-xl border">
             <DialogHeader>
-              <DialogTitle className="font-bold">Upload Document</DialogTitle>
+              <DialogTitle className="font-semibold">Upload Document</DialogTitle>
               <DialogDescription>Add a new document to your storage</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -191,7 +191,7 @@ export default function DocumentsPage() {
 
       {/* Storage Overview */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-lg border border-border shadow-sm sm:col-span-2">
+        <Card className="rounded-xl border border-border shadow-sm sm:col-span-2">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -199,12 +199,12 @@ export default function DocumentsPage() {
                   <HardDrive className="h-6 w-6 text-accent" />
                 </div>
                 <div>
-                  <h3 className="font-bold">Storage</h3>
+                  <h3 className="font-semibold">Storage</h3>
                   <p className="text-sm text-muted-foreground">100 MB Free Plan</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-mono text-2xl font-bold">{formatBytes(storage.used)}</p>
+                <p className="font-mono text-2xl font-semibold">{formatBytes(storage.used)}</p>
                 <p className="text-sm text-muted-foreground">of {formatBytes(storage.total)}</p>
               </div>
             </div>
@@ -220,24 +220,24 @@ export default function DocumentsPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Total Documents</span>
               <FolderOpen className="h-5 w-5 text-muted-foreground" />
             </div>
-            <div className="mt-2 font-mono text-3xl font-bold">{storage.documents.length}</div>
+            <div className="mt-2 font-mono text-3xl font-semibold">{storage.documents.length}</div>
             <p className="mt-1 text-sm text-muted-foreground">Files stored</p>
           </CardContent>
         </Card>
 
-        <Card className="rounded-lg border border-border shadow-sm">
+        <Card className="rounded-xl border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Linked</span>
               <Link2 className="h-5 w-5 text-accent" />
             </div>
-            <div className="mt-2 font-mono text-3xl font-bold text-accent">
+            <div className="mt-2 font-mono text-3xl font-semibold text-accent">
               {storage.documents.filter(d => d.linkedTo).length}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">Connected documents</p>
@@ -264,7 +264,7 @@ export default function DocumentsPage() {
               <div className={`flex h-8 w-8 items-center justify-center ${color} mb-2`}>
                 <Icon className="h-4 w-4 text-white" />
               </div>
-              <p className="font-mono text-xl font-bold">{count}</p>
+              <p className="font-mono text-xl font-semibold">{count}</p>
               <p className="text-xs font-medium text-muted-foreground capitalize">{type}s</p>
             </button>
           )
@@ -272,7 +272,7 @@ export default function DocumentsPage() {
       </div>
 
       {/* Search & Filters */}
-      <Card className="rounded-lg border">
+      <Card className="rounded-xl border">
         <CardContent className="p-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
@@ -303,9 +303,9 @@ export default function DocumentsPage() {
       </Card>
 
       {/* Documents List */}
-      <Card className="rounded-lg border border-border shadow-sm">
+      <Card className="rounded-xl border border-border shadow-sm">
         <CardHeader className="border-b border-border">
-          <CardTitle className="font-bold">All Documents</CardTitle>
+          <CardTitle className="font-semibold">All Documents</CardTitle>
           <CardDescription>
             {filteredDocuments.length} document{filteredDocuments.length !== 1 ? "s" : ""}
           </CardDescription>
@@ -394,7 +394,7 @@ export default function DocumentsPage() {
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg border border-border bg-muted">
                 <FolderOpen className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="font-bold">No documents found</h3>
+              <h3 className="font-semibold">No documents found</h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 {searchQuery || typeFilter !== "all" 
                   ? "Try adjusting your search or filters" 
@@ -413,9 +413,9 @@ export default function DocumentsPage() {
 
       {/* Link Dialog */}
       <Dialog open={!!linkDialog} onOpenChange={(open) => !open && setLinkDialog(null)}>
-        <DialogContent className="rounded-lg border max-w-md">
+        <DialogContent className="rounded-xl border max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-bold">Link Document</DialogTitle>
+            <DialogTitle className="font-semibold">Link Document</DialogTitle>
             <DialogDescription>Connect this document to an invoice or expense</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
