@@ -91,7 +91,7 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Settings</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Settings</h1>
           <p className="text-muted-foreground font-mono text-sm">Manage your account and preferences</p>
         </div>
         <Button 
@@ -136,8 +136,8 @@ export default function SettingsPage() {
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
           <Card className="rounded-lg border border-border shadow-sm">
-            <CardHeader className="border-b-2 border-foreground">
-              <CardTitle className="font-black">Personal Information</CardTitle>
+            <CardHeader className="border-b border-border">
+              <CardTitle className="font-semibold">Personal Information</CardTitle>
               <CardDescription className="font-mono text-xs">Update your personal details</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
@@ -177,8 +177,8 @@ export default function SettingsPage() {
         {isBusiness && (
           <TabsContent value="business" className="space-y-6">
             <Card className="rounded-lg border border-border shadow-sm">
-              <CardHeader className="border-b-2 border-foreground">
-                <CardTitle className="font-black">Business Information</CardTitle>
+              <CardHeader className="border-b border-border">
+                <CardTitle className="font-semibold">Business Information</CardTitle>
                 <CardDescription className="font-mono text-xs">Update your business details for invoices and legal documents</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
@@ -240,8 +240,8 @@ export default function SettingsPage() {
             </Card>
 
             <Card className="rounded-lg border border-border shadow-sm">
-              <CardHeader className="border-b-2 border-foreground">
-                <CardTitle className="font-black">Invoice Settings</CardTitle>
+              <CardHeader className="border-b border-border">
+                <CardTitle className="font-semibold">Invoice Settings</CardTitle>
                 <CardDescription className="font-mono text-xs">Customize your invoice appearance</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
@@ -284,8 +284,8 @@ export default function SettingsPage() {
         {/* Preferences Tab */}
         <TabsContent value="preferences" className="space-y-6">
           <Card className="rounded-lg border border-border shadow-sm">
-            <CardHeader className="border-b-2 border-foreground">
-              <CardTitle className="font-black">Regional Settings</CardTitle>
+            <CardHeader className="border-b border-border">
+              <CardTitle className="font-semibold">Regional Settings</CardTitle>
               <CardDescription className="font-mono text-xs">Configure your locale and currency</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
@@ -336,8 +336,8 @@ export default function SettingsPage() {
           </Card>
 
           <Card className="rounded-lg border border-border shadow-sm">
-            <CardHeader className="border-b-2 border-foreground">
-              <CardTitle className="font-black">Appearance</CardTitle>
+            <CardHeader className="border-b border-border">
+              <CardTitle className="font-semibold">Appearance</CardTitle>
               <CardDescription className="font-mono text-xs">Customize the look and feel</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
@@ -369,8 +369,8 @@ export default function SettingsPage() {
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-6">
           <Card className="rounded-lg border border-border shadow-sm">
-            <CardHeader className="border-b-2 border-foreground">
-              <CardTitle className="font-black">Notification Preferences</CardTitle>
+            <CardHeader className="border-b border-border">
+              <CardTitle className="font-semibold">Notification Preferences</CardTitle>
               <CardDescription className="font-mono text-xs">Choose what updates you want to receive</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
@@ -433,8 +433,8 @@ export default function SettingsPage() {
         {/* Security Tab */}
         <TabsContent value="security" className="space-y-6">
           <Card className="rounded-lg border border-border shadow-sm">
-            <CardHeader className="border-b-2 border-foreground">
-              <CardTitle className="font-black">Security Settings</CardTitle>
+            <CardHeader className="border-b border-border">
+              <CardTitle className="font-semibold">Security Settings</CardTitle>
               <CardDescription className="font-mono text-xs">Protect your account</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
@@ -485,8 +485,8 @@ export default function SettingsPage() {
         {/* Data Tab */}
         <TabsContent value="data" className="space-y-6">
           <Card className="rounded-lg border border-border shadow-sm">
-            <CardHeader className="border-b-2 border-foreground">
-              <CardTitle className="font-black">Export Data</CardTitle>
+            <CardHeader className="border-b border-border">
+              <CardTitle className="font-semibold">Export Data</CardTitle>
               <CardDescription className="font-mono text-xs">Download your financial data</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
@@ -514,8 +514,8 @@ export default function SettingsPage() {
           </Card>
 
           <Card className="rounded-lg border border-border shadow-sm">
-            <CardHeader className="border-b-2 border-foreground">
-              <CardTitle className="font-black">Import Data</CardTitle>
+            <CardHeader className="border-b border-border">
+              <CardTitle className="font-semibold">Import Data</CardTitle>
               <CardDescription className="font-mono text-xs">Import data from other sources</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
@@ -534,7 +534,7 @@ export default function SettingsPage() {
 
           <Card className="rounded-lg border border-destructive shadow-brutal">
             <CardHeader className="border-b-2 border-destructive">
-              <CardTitle className="font-black text-destructive">Danger Zone</CardTitle>
+              <CardTitle className="font-semibold text-destructive">Danger Zone</CardTitle>
               <CardDescription className="font-mono text-xs">Irreversible actions</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">

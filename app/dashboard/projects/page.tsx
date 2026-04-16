@@ -219,7 +219,7 @@ export default function ProjectsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Projects</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Projects</h1>
           <p className="text-muted-foreground font-mono text-sm">Manage project budgets and track spending</p>
         </div>
         <div className="flex gap-2">
@@ -236,7 +236,7 @@ export default function ProjectsPage() {
             </DialogTrigger>
             <DialogContent className="rounded-lg border border-border shadow-sm">
               <DialogHeader>
-                <DialogTitle className="font-black">Create Project</DialogTitle>
+                <DialogTitle className="font-semibold">Create Project</DialogTitle>
                 <DialogDescription className="font-mono text-sm">Set up a new project with budget tracking</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -319,30 +319,30 @@ export default function ProjectsPage() {
         <Card className="rounded-lg border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Total Projects</span>
+              <span className="text-sm text-muted-foreground text-xs font-medium">Total Projects</span>
               <Briefcase className="h-5 w-5" />
             </div>
-            <div className="mt-2 text-2xl font-black">{stats.total}</div>
+            <div className="mt-2 text-2xl font-semibold">{stats.total}</div>
             <p className="mt-1 text-sm text-muted-foreground font-mono">{stats.active} active</p>
           </CardContent>
         </Card>
         <Card className="rounded-lg border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Total Budget</span>
+              <span className="text-sm text-muted-foreground text-xs font-medium">Total Budget</span>
               <Target className="h-5 w-5" />
             </div>
-            <div className="mt-2 text-2xl font-black">{formatCurrency(stats.totalBudget, currency)}</div>
+            <div className="mt-2 text-2xl font-semibold">{formatCurrency(stats.totalBudget, currency)}</div>
             <p className="mt-1 text-sm text-muted-foreground font-mono">Across all projects</p>
           </CardContent>
         </Card>
         <Card className="rounded-lg border border-border shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground font-mono uppercase tracking-wider">Total Spent</span>
+              <span className="text-sm text-muted-foreground text-xs font-medium">Total Spent</span>
               <TrendingDown className="h-5 w-5" />
             </div>
-            <div className="mt-2 text-2xl font-black">{formatCurrency(stats.totalSpent, currency)}</div>
+            <div className="mt-2 text-2xl font-semibold">{formatCurrency(stats.totalSpent, currency)}</div>
             <div className="mt-2 flex items-center gap-2">
               <div className="flex-1 h-2 bg-muted rounded-full border border-border overflow-hidden">
                 <div 
@@ -359,10 +359,10 @@ export default function ProjectsPage() {
         <Card className="rounded-lg border border-border shadow-sm bg-accent text-accent-foreground">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm opacity-80 font-mono uppercase tracking-wider">Remaining</span>
+              <span className="text-sm opacity-80 text-xs font-medium">Remaining</span>
               <TrendingUp className="h-5 w-5" />
             </div>
-            <div className="mt-2 text-2xl font-black">
+            <div className="mt-2 text-2xl font-semibold">
               {formatCurrency(stats.totalBudget - stats.totalSpent, currency)}
             </div>
             <p className="mt-1 text-sm opacity-80 font-mono">Available budget</p>
@@ -402,10 +402,10 @@ export default function ProjectsPage() {
                   
                   return (
                     <Card key={project.id} className="flex flex-col rounded-lg border border-border shadow-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
-                      <CardHeader className="pb-3 border-b-2 border-foreground">
+                      <CardHeader className="pb-3 border-b border-border">
                         <div className="flex items-start justify-between">
                           <div>
-                            <CardTitle className="text-lg font-black">{project.name}</CardTitle>
+                            <CardTitle className="text-lg font-semibold">{project.name}</CardTitle>
                             {project.client && (
                               <CardDescription className="flex items-center gap-1 font-mono text-xs">
                                 <Users className="h-3 w-3" />
@@ -460,7 +460,7 @@ export default function ProjectsPage() {
                           <div>
                             <div className="mb-2 flex items-center justify-between text-sm">
                               <span className="font-mono">Budget Progress</span>
-                              <span className="font-black font-mono">{percentage}%</span>
+                              <span className="font-semibold font-mono">{percentage}%</span>
                             </div>
                             <div className="h-3 bg-muted rounded-full border border-border overflow-hidden">
                               <div 
@@ -505,7 +505,7 @@ export default function ProjectsPage() {
       <Dialog open={!!viewingProject} onOpenChange={(open) => !open && setViewingProject(null)}>
         <DialogContent className="max-w-2xl rounded-lg border border-border shadow-sm">
           <DialogHeader>
-            <DialogTitle className="font-black">{viewingProject?.name}</DialogTitle>
+            <DialogTitle className="font-semibold">{viewingProject?.name}</DialogTitle>
             <DialogDescription className="font-mono text-sm">Project budget breakdown</DialogDescription>
           </DialogHeader>
           {viewingProject && (
@@ -517,10 +517,10 @@ export default function ProjectsPage() {
                 <table className="w-full min-w-[400px]">
                   <thead className="bg-foreground text-background">
                     <tr>
-                      <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-black">ITEM</th>
-                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-black">ESTIMATED</th>
-                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-black">ACTUAL</th>
-                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-black">VARIANCE</th>
+                      <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold">ITEM</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-semibold">ESTIMATED</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-semibold">ACTUAL</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-semibold">VARIANCE</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -542,16 +542,16 @@ export default function ProjectsPage() {
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="border-t-2 border-foreground bg-secondary">
+                  <tfoot className="border-t border-border bg-secondary">
                     <tr>
-                      <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-black">TOTAL</td>
+                      <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-semibold">TOTAL</td>
                       <td className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-bold">
                         {formatCurrency(getProjectTotal(viewingProject, "estimated"), currency)}
                       </td>
                       <td className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-bold">
                         {formatCurrency(getProjectTotal(viewingProject, "actual"), currency)}
                       </td>
-                      <td className={`px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-black ${
+                      <td className={`px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-mono font-semibold ${
                         getProjectTotal(viewingProject, "estimated") - getProjectTotal(viewingProject, "actual") >= 0
                           ? "text-accent" : "text-destructive"
                       }`}>
@@ -574,7 +574,7 @@ export default function ProjectsPage() {
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
         <DialogContent className="rounded-lg border border-border shadow-sm">
           <DialogHeader>
-            <DialogTitle className="font-black">Link Records</DialogTitle>
+            <DialogTitle className="font-semibold">Link Records</DialogTitle>
             <DialogDescription className="font-mono text-sm">Connect invoices and expenses to {linkingProject?.name}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">

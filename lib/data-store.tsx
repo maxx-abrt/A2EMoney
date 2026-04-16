@@ -1,7 +1,8 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react"
 import { invoicesAPI, expensesAPI, documentsAPI, bookSheetsAPI, bookEntriesAPI, budgetsAPI, projectsAPI, initAPI } from "./api-client"
+import { useUser, type UserProfile } from "./user-context"
 
 // Types
 export interface Document {
@@ -125,55 +126,75 @@ export interface StorageInfo {
   documents: Document[]
 }
 
+// Derived transaction shape used by the dashboard widgets
+export interface Transaction {
+  id: string
+  description: string
+  amount: number
+  category: string
+  date: string
+  type: "expense" | "income"
+}
+
 // Context
 interface DataStoreContextType {
   isLoading: boolean
   error: string | null
   refresh: () => Promise<void>
-  
+
+  /** User profile, surfaced here so pages can read it without a second hook. */
+  userProfile: UserProfile | null
+  updateUserProfile: (updates: Partial<UserProfile>) => void
+
   invoices: Invoice[]
   addInvoice: (invoice: Omit<Invoice, "id" | "number" | "linkedDocuments" | "linkedBookEntries">) => Promise<string>
   updateInvoice: (id: string, updates: Partial<Invoice>) => Promise<void>
   deleteInvoice: (id: string) => Promise<void>
-  
+
   expenses: Expense[]
+  /** Derived: income + expense rows sorted by date desc. */
+  transactions: Transaction[]
   addExpense: (expense: Omit<Expense, "id" | "linkedDocuments" | "linkedBookEntries">) => Promise<string>
   updateExpense: (id: string, updates: Partial<Expense>) => Promise<void>
   deleteExpense: (id: string) => Promise<void>
-  
+
   sheets: BookSheet[]
+  /** Derived: flat book entries across all sheets (newest first). */
+  bookEntries: Array<BookEntry & { sheetId: string }>
   addSheet: (sheet: Omit<BookSheet, "id" | "createdAt" | "updatedAt">) => Promise<string>
   updateSheet: (id: string, updates: Partial<BookSheet>) => Promise<void>
   deleteSheet: (id: string) => Promise<void>
   addBookEntry: (sheetId: string, entry: Omit<BookEntry, "id" | "createdAt" | "updatedAt">) => Promise<string>
   updateBookEntry: (sheetId: string, entryId: string, updates: Partial<BookEntry>) => Promise<void>
   deleteBookEntry: (sheetId: string, entryId: string) => Promise<void>
-  
+
   budgets: Budget[]
   addBudget: (budget: Omit<Budget, "id">) => Promise<string>
   updateBudget: (id: string, updates: Partial<Budget>) => Promise<void>
   deleteBudget: (id: string) => Promise<void>
-  
+
   projects: Project[]
   addProject: (project: Omit<Project, "id">) => Promise<string>
   updateProject: (id: string, updates: Partial<Project>) => Promise<void>
   deleteProject: (id: string) => Promise<void>
-  
+
   storage: StorageInfo
+  /** Alias for storage.documents to make pages more readable. */
+  documents: Document[]
   addDocument: (doc: Omit<Document, "id" | "uploadDate">) => Promise<string>
   deleteDocument: (id: string) => Promise<void>
   linkDocument: (docId: string, targetType: "expense" | "invoice" | "book_entry", targetId: string) => Promise<void>
-  
+
   linkExpenseToInvoice: (expenseId: string, invoiceId: string) => Promise<void>
   linkToBook: (type: "expense" | "invoice", itemId: string, sheetId: string, entryId: string) => Promise<void>
-  
+
   exportData: (type: "all" | "invoices" | "expenses" | "book") => string
   importData: (jsonData: string, type: "invoices" | "expenses" | "book") => boolean
 }
 
 const DataStoreContext = createContext<DataStoreContextType | null>(null)
 
-const STORAGE_LIMIT = 104857600 // 100MB
+const STORAGE_LIMIT = 524288000 // 500MB
 
 // Transform API data to frontend format
 const transformInvoice = (inv: Record<string, unknown>): Invoice => ({
@@ -274,6 +295,7 @@ const transformSheet = (sheet: Record<string, unknown>): BookSheet => ({
 })
 
 export function DataStoreProvider({ children }: { children: ReactNode }) {
+  const { profile: userProfile, updateProfile: updateUserProfile } = useUser()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -584,17 +606,40 @@ export function DataStoreProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Derived: transactions from expenses (sorted newest first)
+  const transactions: Transaction[] = useMemo(() => {
+    return expenses
+      .map(exp => ({
+        id: exp.id,
+        description: exp.description,
+        amount: exp.type === "income" ? Math.abs(exp.amount) : -Math.abs(exp.amount),
+        category: exp.category,
+        date: exp.date,
+        type: exp.type,
+      }))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  }, [expenses])
+
+  // Derived: flat book entries across sheets, newest first
+  const bookEntries = useMemo(() => {
+    return sheets
+      .flatMap(sheet => sheet.entries.map(entry => ({ ...entry, sheetId: sheet.id })))
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+  }, [sheets])
+
   return (
     <DataStoreContext.Provider value={{
       isLoading,
       error,
       refresh: fetchAllData,
+      userProfile,
+      updateUserProfile,
       invoices, addInvoice, updateInvoice, deleteInvoice,
-      expenses, addExpense, updateExpense, deleteExpense,
-      sheets, addSheet, updateSheet, deleteSheet, addBookEntry, updateBookEntry, deleteBookEntry,
+      expenses, transactions, addExpense, updateExpense, deleteExpense,
+      sheets, bookEntries, addSheet, updateSheet, deleteSheet, addBookEntry, updateBookEntry, deleteBookEntry,
       budgets, addBudget, updateBudget, deleteBudget,
       projects, addProject, updateProject, deleteProject,
-      storage, addDocument, deleteDocument, linkDocument,
+      storage, documents, addDocument, deleteDocument, linkDocument,
       linkExpenseToInvoice, linkToBook,
       exportData, importData,
     }}>
@@ -620,16 +665,33 @@ export function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
 }
 
-export function formatCurrency(amount: number, currency = "EUR"): string {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(amount)
+/**
+ * Locale-aware currency formatter. Picks browser locale by default, or the provided one.
+ * This is the single source of truth for currency display across the app.
+ */
+export function formatCurrency(amount: number, currency = "EUR", locale?: string): string {
+  const targetLocale =
+    locale ||
+    (typeof navigator !== "undefined" ? navigator.language : undefined) ||
+    "en-US"
+  try {
+    return new Intl.NumberFormat(targetLocale, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount)
+  } catch {
+    return `${currency} ${amount.toFixed(2)}`
+  }
 }
 
-export function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString("fr-FR", {
+export function formatDate(date: string, locale?: string): string {
+  const targetLocale =
+    locale ||
+    (typeof navigator !== "undefined" ? navigator.language : undefined) ||
+    "en-US"
+  return new Date(date).toLocaleDateString(targetLocale, {
     day: "2-digit",
     month: "short",
     year: "numeric",

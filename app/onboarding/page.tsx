@@ -1,434 +1,404 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { useUser, type ProfileType } from "@/lib/user-context"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   ArrowLeft,
   ArrowRight,
   Building2,
   CheckCircle2,
-  CreditCard,
-  Euro,
-  DollarSign,
-  PoundSterling,
-  PiggyBank,
-  Briefcase,
-  Receipt,
   FileText,
-  Scale,
-  BarChart3,
-  Users,
+  HeartHandshake,
+  Receipt,
+  Sparkles,
+  Target,
   User,
   Wallet,
-  Sparkles,
-  BookOpen,
-  FolderOpen,
 } from "lucide-react"
-import { useDataStore } from "@/lib/data-store"
+import { cn } from "@/lib/utils"
 
-type ProfileType = "individual" | "company" | "association" | null
-type Step = "profile" | "details" | "features" | "complete"
-
-const currencies = [
-  { code: "USD", symbol: "$", icon: DollarSign, name: "US Dollar" },
-  { code: "EUR", symbol: "€", icon: Euro, name: "Euro" },
-  { code: "GBP", symbol: "£", icon: PoundSterling, name: "British Pound" },
+const profileTypes: Array<{
+  value: ProfileType
+  title: string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+}> = [
+  {
+    value: "individual",
+    title: "Individual",
+    description: "Personal budgets, expenses, and financial goals.",
+    icon: User,
+  },
+  {
+    value: "business",
+    title: "Business",
+    description: "Invoicing, projects, and team-ready finance tools.",
+    icon: Building2,
+  },
+  {
+    value: "association",
+    title: "Association",
+    description: "NGO-friendly bookkeeping, legal, and compliance.",
+    icon: HeartHandshake,
+  },
 ]
 
+const currencies = ["EUR", "USD", "GBP", "CHF", "CAD", "AUD", "JPY"]
+
 const individualFeatures = [
-  { id: "budgeting", name: "Budget Tracking", icon: PiggyBank, description: "Set and monitor spending limits" },
-  { id: "expenses", name: "Expense Tracking", icon: Receipt, description: "Log and categorize expenses" },
-  { id: "book", name: "Financial Book", icon: BookOpen, description: "Smart interconnected ledger" },
-  { id: "reports", name: "Financial Reports", icon: BarChart3, description: "Visual spending insights" },
-  { id: "documents", name: "Document Storage", icon: FolderOpen, description: "100MB free storage" },
+  { id: "budgeting", title: "Budgeting", description: "Category budgets & alerts", icon: Target },
+  { id: "expenses", title: "Expense tracking", description: "Quick logging & receipts", icon: Receipt },
+  { id: "book", title: "Book", description: "Spreadsheet-style records", icon: FileText },
+  { id: "reports", title: "Reports", description: "Monthly & yearly analytics", icon: Sparkles },
 ]
 
 const businessFeatures = [
-  { id: "invoicing", name: "Invoicing", icon: FileText, description: "Create and send invoices" },
-  { id: "projects", name: "Project Budgets", icon: Briefcase, description: "Track project finances" },
-  { id: "expenses", name: "Expense Management", icon: Receipt, description: "Team expense tracking" },
-  { id: "book", name: "Financial Book", icon: BookOpen, description: "Smart interconnected ledger" },
-  { id: "legal", name: "Legal Compliance", icon: Scale, description: "Regulatory documentation" },
-  { id: "reports", name: "Financial Reports", icon: BarChart3, description: "Business analytics" },
-  { id: "documents", name: "Document Storage", icon: FolderOpen, description: "100MB free storage" },
-  { id: "team", name: "Team Management", icon: Users, description: "Multi-user access" },
+  { id: "invoicing", title: "Invoicing", description: "Professional invoices & reminders", icon: FileText },
+  { id: "expenses", title: "Expense tracking", description: "Receipts & categorisation", icon: Receipt },
+  { id: "projects", title: "Projects", description: "Per-project budgets", icon: Target },
+  { id: "book", title: "Book", description: "Linked financial records", icon: FileText },
+  { id: "legal", title: "Legal", description: "Compliance & document vault", icon: Sparkles },
+  { id: "reports", title: "Reports", description: "Cashflow & P&L reports", icon: Sparkles },
 ]
 
 export default function OnboardingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const initialType = searchParams.get("type") as ProfileType
-  const { updateUserProfile } = useDataStore()
+  const { profile, updateProfile } = useUser()
+  const tNav = useTranslations("nav")
 
-  const [step, setStep] = useState<Step>(initialType ? "details" : "profile")
-  const [profileType, setProfileType] = useState<ProfileType>(initialType)
-  const [formData, setFormData] = useState({
+  const urlType = searchParams.get("type") as ProfileType | null
+  const [step, setStep] = useState(1)
+  const [profileType, setProfileType] = useState<ProfileType>(urlType || "individual")
+  const [form, setForm] = useState({
     name: "",
     email: "",
     organizationName: "",
     currency: "EUR",
-    selectedFeatures: [] as string[],
   })
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([])
 
-  const getProgress = () => {
-    switch (step) {
-      case "profile": return 25
-      case "details": return 50
-      case "features": return 75
-      case "complete": return 100
-      default: return 0
-    }
-  }
+  useEffect(() => {
+    if (profile?.onboardingComplete) router.replace("/dashboard")
+  }, [profile, router])
 
-  const handleProfileSelect = (type: ProfileType) => {
-    setProfileType(type)
-    setStep("details")
-  }
+  const isBusiness = profileType !== "individual"
+  const availableFeatures = isBusiness ? businessFeatures : individualFeatures
 
-  const handleDetailsNext = () => {
-    setStep("features")
-  }
+  // Seed defaults based on profile type
+  useEffect(() => {
+    setSelectedFeatures(availableFeatures.map(f => f.id))
+  }, [profileType]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleFeaturesNext = () => {
-    setStep("complete")
-  }
-
-  const toggleFeature = (featureId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      selectedFeatures: prev.selectedFeatures.includes(featureId)
-        ? prev.selectedFeatures.filter(f => f !== featureId)
-        : [...prev.selectedFeatures, featureId]
-    }))
-  }
+  const canContinue = useMemo(() => {
+    if (step === 1) return Boolean(profileType)
+    if (step === 2) return form.name.trim() && form.email.trim() && (!isBusiness || form.organizationName.trim())
+    if (step === 3) return selectedFeatures.length > 0
+    return true
+  }, [step, profileType, form, selectedFeatures, isBusiness])
 
   const handleComplete = () => {
-    updateUserProfile({
-      name: formData.name,
-      email: formData.email,
-      type: profileType || "individual",
-      businessName: formData.organizationName,
-      currency: formData.currency,
+    updateProfile({
+      name: form.name,
+      email: form.email,
+      organizationName: isBusiness ? form.organizationName : undefined,
+      businessName: isBusiness ? form.organizationName : undefined,
+      currency: form.currency,
+      type: profileType,
+      profileType,
+      selectedFeatures,
+      onboardingComplete: true,
     })
     router.push("/dashboard")
   }
 
+  const stepLabels = ["Profile", "Details", "Features", "Review"]
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4">
+      <header className="border-b border-border bg-background/80 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-accent">
-              <Wallet className="h-5 w-5 text-accent-foreground" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background">
+              <Wallet className="h-4 w-4" />
             </div>
-            <span className="text-xl font-black tracking-tight">FINFLOW</span>
+            <span className="text-lg font-semibold tracking-tight">Finflow</span>
           </Link>
-          <div className="text-sm text-muted-foreground font-mono">
-            STEP {step === "profile" ? 1 : step === "details" ? 2 : step === "features" ? 3 : 4}/4
-          </div>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/">Skip</Link>
+          </Button>
         </div>
       </header>
 
-      {/* Progress */}
-      <div className="mx-auto max-w-4xl px-4 pt-6">
-        <div className="h-4 rounded-lg border border-border bg-muted">
-          <div 
-            className="h-full bg-accent transition-all duration-500"
-            style={{ width: `${getProgress()}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Content */}
-      <main className="mx-auto max-w-4xl px-4 py-12">
-        {/* Step 1: Profile Selection */}
-        {step === "profile" && (
-          <div className="mx-auto max-w-2xl">
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Welcome to Finflow</h1>
-              <p className="mt-2 text-lg text-muted-foreground font-mono">
-                Let&apos;s set up your account. First, tell us who you are.
-              </p>
-            </div>
-
-            <div className="grid gap-6 sm:grid-cols-3">
-              <Card
-                className={`cursor-pointer transition-all rounded-lg border border-border shadow-sm hover:-translate-y-1 ${
-                  profileType === "individual" ? "bg-accent text-accent-foreground" : ""
-                }`}
-                onClick={() => handleProfileSelect("individual")}
-              >
-                <CardContent className="p-6 text-center">
-                  <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg border border-border ${
-                    profileType === "individual" ? "bg-background" : "bg-secondary"
-                  }`}>
-                    <User className="h-8 w-8" />
-                  </div>
-                  <h3 className="text-xl font-black">Individual</h3>
-                  <p className="mt-2 text-sm opacity-80 font-mono">
-                    Personal finance tracking
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card
-                className={`cursor-pointer transition-all rounded-lg border border-border shadow-sm hover:-translate-y-1 ${
-                  profileType === "company" ? "bg-accent text-accent-foreground" : ""
-                }`}
-                onClick={() => handleProfileSelect("company")}
-              >
-                <CardContent className="p-6 text-center">
-                  <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg border border-border ${
-                    profileType === "company" ? "bg-background" : "bg-secondary"
-                  }`}>
-                    <Building2 className="h-8 w-8" />
-                  </div>
-                  <h3 className="text-xl font-black">Company</h3>
-                  <p className="mt-2 text-sm opacity-80 font-mono">
-                    Business finance management
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card
-                className={`cursor-pointer transition-all rounded-lg border border-border shadow-sm hover:-translate-y-1 ${
-                  profileType === "association" ? "bg-accent text-accent-foreground" : ""
-                }`}
-                onClick={() => handleProfileSelect("association")}
-              >
-                <CardContent className="p-6 text-center">
-                  <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg border border-border ${
-                    profileType === "association" ? "bg-background" : "bg-secondary"
-                  }`}>
-                    <Users className="h-8 w-8" />
-                  </div>
-                  <h3 className="text-xl font-black">Association</h3>
-                  <p className="mt-2 text-sm opacity-80 font-mono">
-                    Non-profit organization
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Account Details */}
-        {step === "details" && (
-          <div className="mx-auto max-w-md">
-            <button
-              onClick={() => setStep("profile")}
-              className="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground font-mono"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              BACK
-            </button>
-
-            <div className="mb-8">
-              <h1 className="text-3xl font-black tracking-tight">
-                {profileType === "individual" ? "Personal Details" : "Organization Details"}
-              </h1>
-              <p className="mt-2 text-muted-foreground font-mono">
-                Tell us a bit more about {profileType === "individual" ? "yourself" : "your organization"}.
-              </p>
-            </div>
-
-            <Card className="rounded-lg border border-border shadow-sm">
-              <CardContent className="p-6">
-                <form onSubmit={(e) => { e.preventDefault(); handleDetailsNext(); }} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="font-bold">Your Name</Label>
-                    <Input
-                      id="name"
-                      placeholder="John Doe"
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      required
-                      className="rounded-lg border border-border"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="font-bold">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="john@example.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      required
-                      className="rounded-lg border border-border"
-                    />
-                  </div>
-
-                  {profileType !== "individual" && (
-                    <div className="space-y-2">
-                      <Label htmlFor="org" className="font-bold">Organization Name</Label>
-                      <Input
-                        id="org"
-                        placeholder={profileType === "company" ? "Acme Inc." : "My Association"}
-                        value={formData.organizationName}
-                        onChange={(e) => setFormData(prev => ({ ...prev, organizationName: e.target.value }))}
-                        required
-                        className="rounded-lg border border-border"
-                      />
-                    </div>
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-16">
+        {/* Stepper */}
+        <ol className="mb-10 flex items-center justify-center gap-2 text-xs">
+          {stepLabels.map((label, idx) => {
+            const n = idx + 1
+            const active = n === step
+            const completed = n < step
+            return (
+              <li key={label} className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    "flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors",
+                    active
+                      ? "bg-foreground text-background"
+                      : completed
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-muted text-muted-foreground",
                   )}
-
-                  <div className="space-y-2">
-                    <Label className="font-bold">Primary Currency</Label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {currencies.map((currency) => (
-                        <button
-                          key={currency.code}
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, currency: currency.code }))}
-                          className={`flex flex-col items-center gap-2 rounded-lg border border-border p-4 transition-all ${
-                            formData.currency === currency.code 
-                              ? "bg-accent text-accent-foreground shadow-sm -translate-y-0.5" 
-                              : "hover:bg-muted"
-                          }`}
-                        >
-                          <currency.icon className="h-5 w-5" />
-                          <span className="text-sm font-black">{currency.code}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Button type="submit" className="w-full rounded-lg border border-border shadow-sm hover:-translate-y-0.5 transition-all">
-                    Continue
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Step 3: Feature Selection */}
-        {step === "features" && (
-          <div className="mx-auto max-w-2xl">
-            <button
-              onClick={() => setStep("details")}
-              className="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground font-mono"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              BACK
-            </button>
-
-            <div className="mb-8">
-              <h1 className="text-3xl font-black tracking-tight">Customize Your Experience</h1>
-              <p className="mt-2 text-muted-foreground font-mono">
-                Select the features you want to use. You can always change this later.
-              </p>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {(profileType === "individual" ? individualFeatures : businessFeatures).map((feature) => (
-                <Card
-                  key={feature.id}
-                  className={`cursor-pointer transition-all rounded-lg border border-border ${
-                    formData.selectedFeatures.includes(feature.id) 
-                      ? "bg-accent text-accent-foreground shadow-sm -translate-y-0.5" 
-                      : "hover:bg-muted"
-                  }`}
-                  onClick={() => toggleFeature(feature.id)}
                 >
-                  <CardContent className="flex items-start gap-4 p-4">
-                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-border ${
-                      formData.selectedFeatures.includes(feature.id) ? "bg-background text-foreground" : "bg-secondary"
-                    }`}>
-                      <feature.icon className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-black">{feature.name}</h3>
-                        {formData.selectedFeatures.includes(feature.id) && (
-                          <CheckCircle2 className="h-5 w-5" />
+                  {completed ? <CheckCircle2 className="h-3.5 w-3.5" /> : n}
+                </div>
+                <span
+                  className={cn(
+                    "hidden text-xs font-medium sm:inline",
+                    active ? "text-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {label}
+                </span>
+                {n < stepLabels.length && <span className="mx-1 h-px w-6 bg-border sm:w-10" />}
+              </li>
+            )
+          })}
+        </ol>
+
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-10">
+          {step === 1 && (
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Who's this for?</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Pick the profile that fits — you can change it later in settings.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {profileTypes.map(pt => {
+                  const Icon = pt.icon
+                  const selected = profileType === pt.value
+                  return (
+                    <button
+                      key={pt.value}
+                      type="button"
+                      onClick={() => setProfileType(pt.value)}
+                      className={cn(
+                        "flex flex-col items-start rounded-xl border p-5 text-left transition-all",
+                        selected
+                          ? "border-foreground bg-foreground text-background shadow-md"
+                          : "border-border bg-card hover:border-foreground/30 hover:shadow-sm",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "flex h-10 w-10 items-center justify-center rounded-lg",
+                          selected ? "bg-background/10" : "bg-accent/10 text-accent",
                         )}
+                      >
+                        <Icon className="h-5 w-5" />
                       </div>
-                      <p className="mt-1 text-sm opacity-80 font-mono">{feature.description}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      <h3 className="mt-4 text-base font-semibold">{pt.title}</h3>
+                      <p
+                        className={cn(
+                          "mt-1 text-xs",
+                          selected ? "text-background/70" : "text-muted-foreground",
+                        )}
+                      >
+                        {pt.description}
+                      </p>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
+          )}
 
-            <div className="mt-8 flex justify-end">
-              <Button 
-                onClick={handleFeaturesNext} 
-                disabled={formData.selectedFeatures.length === 0}
-                className="rounded-lg border border-border shadow-sm hover:-translate-y-0.5 transition-all"
-              >
-                Continue
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Complete */}
-        {step === "complete" && (
-          <div className="mx-auto max-w-md text-center">
-            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-lg border border-border bg-accent">
-              <Sparkles className="h-12 w-12 text-accent-foreground" />
-            </div>
-            <h1 className="text-3xl font-black tracking-tight">You&apos;re all set!</h1>
-            <p className="mt-4 text-lg text-muted-foreground font-mono">
-              Your Finflow account is ready. Let&apos;s start managing your finances.
-            </p>
-
-            <Card className="mt-8 text-left rounded-lg border border-border shadow-sm">
-              <CardHeader className="border-b border-border">
-                <CardTitle className="text-lg font-black">Account Summary</CardTitle>
-                <CardDescription className="font-mono text-xs">Review your setup</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-4">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground font-mono">Account Type</span>
-                  <span className="font-black capitalize">{profileType}</span>
+          {step === 2 && (
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">A few details</h1>
+                <p className="mt-1 text-sm text-muted-foreground">We'll personalise your workspace with this info.</p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="name">Full name</Label>
+                  <Input
+                    id="name"
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    placeholder="Jane Doe"
+                  />
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground font-mono">Name</span>
-                  <span className="font-bold">{formData.name}</span>
+                <div className="space-y-1.5">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={form.email}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    placeholder="jane@company.com"
+                  />
                 </div>
-                {profileType !== "individual" && formData.organizationName && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground font-mono">Organization</span>
-                    <span className="font-bold">{formData.organizationName}</span>
+                {isBusiness && (
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="organization">
+                      {profileType === "association" ? "Association name" : "Organisation name"}
+                    </Label>
+                    <Input
+                      id="organization"
+                      value={form.organizationName}
+                      onChange={e => setForm(f => ({ ...f, organizationName: e.target.value }))}
+                      placeholder="Acme Inc."
+                    />
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground font-mono">Currency</span>
-                  <span className="font-black">{formData.currency}</span>
+                <div className="space-y-1.5">
+                  <Label htmlFor="currency">Currency</Label>
+                  <Select value={form.currency} onValueChange={v => setForm(f => ({ ...f, currency: v }))}>
+                    <SelectTrigger id="currency">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currencies.map(c => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground font-mono">Features</span>
-                  <span className="font-bold">{formData.selectedFeatures.length} selected</span>
-                </div>
-                <div className="flex justify-between border-t-2 border-foreground pt-4">
-                  <span className="text-muted-foreground font-mono">Free Storage</span>
-                  <span className="font-black text-accent">100 MB</span>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          )}
 
-            <Button 
-              size="lg" 
-              className="mt-8 w-full rounded-lg border border-border shadow-sm hover:-translate-y-0.5 transition-all" 
-              onClick={handleComplete}
+          {step === 3 && (
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Choose your tools</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Enable the modules you need now. You can always switch these on later.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {availableFeatures.map(feat => {
+                  const Icon = feat.icon
+                  const selected = selectedFeatures.includes(feat.id)
+                  return (
+                    <button
+                      key={feat.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedFeatures(prev =>
+                          prev.includes(feat.id) ? prev.filter(id => id !== feat.id) : [...prev, feat.id],
+                        )
+                      }
+                      className={cn(
+                        "flex items-start gap-3 rounded-xl border p-4 text-left transition-all",
+                        selected
+                          ? "border-foreground bg-muted/50"
+                          : "border-border bg-card hover:border-foreground/30",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg",
+                          selected ? "bg-accent/10 text-accent" : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">{feat.title}</p>
+                          <CheckCircle2
+                            className={cn("h-4 w-4", selected ? "text-accent" : "text-muted-foreground/30")}
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground">{feat.description}</p>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">You're all set</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Review and jump into your workspace — nothing is locked in, everything is editable later.
+                </p>
+              </div>
+              <dl className="grid gap-3 rounded-xl border border-border bg-muted/30 p-5 text-sm">
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">Profile</dt>
+                  <dd className="font-medium capitalize">{profileType}</dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">Name</dt>
+                  <dd className="font-medium">{form.name || "—"}</dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">Email</dt>
+                  <dd className="font-medium">{form.email || "—"}</dd>
+                </div>
+                {isBusiness && (
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">Organisation</dt>
+                    <dd className="font-medium">{form.organizationName || "—"}</dd>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">Currency</dt>
+                  <dd className="font-medium">{form.currency}</dd>
+                </div>
+                <div className="flex items-start justify-between">
+                  <dt className="text-muted-foreground">Features</dt>
+                  <dd className="flex flex-wrap justify-end gap-1">
+                    {selectedFeatures.map(id => (
+                      <Badge key={id} variant="secondary" className="rounded-full text-xs">
+                        {id}
+                      </Badge>
+                    ))}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          )}
+
+          <div className="mt-10 flex items-center justify-between border-t border-border pt-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStep(s => Math.max(1, s - 1))}
+              disabled={step === 1}
             >
-              Go to Dashboard
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowLeft className="mr-1 h-4 w-4" /> Back
             </Button>
+            {step < 4 ? (
+              <Button size="sm" disabled={!canContinue} onClick={() => setStep(s => s + 1)} className="rounded-full">
+                Continue
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button size="sm" onClick={handleComplete} className="rounded-full">
+                Go to {tNav("dashboard")}
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            )}
           </div>
-        )}
+        </div>
       </main>
     </div>
   )
