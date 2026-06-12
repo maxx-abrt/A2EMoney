@@ -1,16 +1,15 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import * as React from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { formatDistanceToNowStrict } from "date-fns"
+import { useMutation, useQuery } from "convex/react"
+import { useConvexAuth } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import type { Id } from "@/convex/_generated/dataModel"
 import { Button } from "@/components/ui/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { notificationsAPI } from "@/lib/api-client"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   Bell,
   BellOff,
@@ -27,16 +26,6 @@ import {
   X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-export interface NotificationItem {
-  id: string
-  type: string
-  title: string
-  message: string
-  read: boolean
-  link: string | null
-  createdAt: string
-}
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   info: Info,
@@ -70,73 +59,22 @@ const TONES: Record<string, string> = {
 
 export function NotificationsDropdown() {
   const t = useTranslations("notifications")
-  const [open, setOpen] = useState(false)
-  const [items, setItems] = useState<NotificationItem[]>([])
-  const [loading, setLoading] = useState(false)
-
-  const load = useCallback(async () => {
-    setLoading(true)
-    try {
-      const data = (await notificationsAPI.getAll()) as NotificationItem[]
-      setItems(Array.isArray(data) ? data : [])
-    } catch {
-      // Silent — DB may not be available yet
-      setItems([])
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  // Initial load + poll every 60s
-  useEffect(() => {
-    void load()
-    const id = setInterval(() => void load(), 60000)
-    return () => clearInterval(id)
-  }, [load])
-
-  // Refresh when the popover opens
-  useEffect(() => {
-    if (open) void load()
-  }, [open, load])
-
-  const unreadCount = useMemo(
-    () => items.filter(n => !n.read).length,
-    [items],
+  const { isAuthenticated } = useConvexAuth()
+  const [open, setOpen] = React.useState(false)
+  const items = useQuery(
+    api.notifications.listMine,
+    isAuthenticated ? {} : "skip",
   )
+  const markRead = useMutation(api.notifications.markRead)
+  const markAllRead = useMutation(api.notifications.markAllRead)
+  const remove = useMutation(api.notifications.remove)
+  const clearAll = useMutation(api.notifications.clearAll)
 
-  const handleMarkAllRead = async () => {
-    if (unreadCount === 0) return
-    setItems(prev => prev.map(n => ({ ...n, read: true })))
-    try {
-      await notificationsAPI.markAllRead()
-    } catch {}
-  }
-
-  const handleItemClick = async (n: NotificationItem) => {
-    if (!n.read) {
-      setItems(prev => prev.map(x => (x.id === n.id ? { ...x, read: true } : x)))
-      try {
-        await notificationsAPI.markRead(n.id)
-      } catch {}
-    }
-    if (n.link) setOpen(false)
-  }
-
-  const handleRemove = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation()
-    e.preventDefault()
-    setItems(prev => prev.filter(n => n.id !== id))
-    try {
-      await notificationsAPI.delete(id)
-    } catch {}
-  }
-
-  const handleClearAll = async () => {
-    setItems([])
-    try {
-      await notificationsAPI.clearAll()
-    } catch {}
-  }
+  const list = items ?? []
+  const unreadCount = React.useMemo(
+    () => list.filter((n) => !n.read).length,
+    [list],
+  )
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -174,7 +112,7 @@ export function NotificationsDropdown() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleMarkAllRead}
+              onClick={() => markAllRead({})}
               className="h-8 gap-1.5 text-xs"
             >
               <CheckCheck className="h-3.5 w-3.5" />
@@ -184,11 +122,11 @@ export function NotificationsDropdown() {
         </div>
 
         <div className="max-h-[380px] overflow-y-auto">
-          {loading && items.length === 0 ? (
+          {items === undefined ? (
             <div className="flex items-center justify-center py-10">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
             </div>
-          ) : items.length === 0 ? (
+          ) : list.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
                 <BellOff className="h-5 w-5" />
@@ -200,7 +138,7 @@ export function NotificationsDropdown() {
             </div>
           ) : (
             <ul className="divide-y divide-border">
-              {items.map(n => {
+              {list.map((n) => {
                 const Icon = ICONS[n.type] ?? Info
                 const tone = TONES[n.type] ?? TONES.info
                 const content = (
@@ -238,7 +176,11 @@ export function NotificationsDropdown() {
                     </div>
                     <button
                       type="button"
-                      onClick={(e) => handleRemove(e, n.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                        remove({ id: n._id as Id<"notifications"> })
+                      }}
                       className="opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
                       aria-label={t("dismiss")}
                     >
@@ -246,20 +188,20 @@ export function NotificationsDropdown() {
                     </button>
                   </div>
                 )
+                const onClick = () => {
+                  if (!n.read) markRead({ id: n._id as Id<"notifications"> })
+                  if (n.link) setOpen(false)
+                }
                 return (
-                  <li key={n.id}>
+                  <li key={n._id}>
                     {n.link ? (
-                      <Link
-                        href={n.link}
-                        onClick={() => handleItemClick(n)}
-                        className="block"
-                      >
+                      <Link href={n.link} onClick={onClick} className="block">
                         {content}
                       </Link>
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleItemClick(n)}
+                        onClick={onClick}
                         className="block w-full"
                       >
                         {content}
@@ -272,11 +214,11 @@ export function NotificationsDropdown() {
           )}
         </div>
 
-        {items.length > 0 && (
+        {list.length > 0 && (
           <div className="flex items-center justify-between border-t border-border px-4 py-2">
             <button
               type="button"
-              onClick={handleClearAll}
+              onClick={() => clearAll({})}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
               {t("clearAll")}

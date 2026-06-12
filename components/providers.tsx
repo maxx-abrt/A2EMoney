@@ -1,25 +1,27 @@
 "use client"
 
 import * as React from "react"
+import { ConvexReactClient } from "convex/react"
+import { ConvexAuthNextjsProvider } from "@convex-dev/auth/nextjs"
 import { ThemeProvider } from "@/components/theme-provider"
-import { UserProvider } from "@/lib/user-context"
-import { DataStoreProvider } from "@/lib/data-store"
 import { Toaster } from "@/components/ui/toaster"
+import { Toaster as SonnerToaster } from "sonner"
+import { WorkspaceProvider } from "@/lib/workspace-context"
 
-/**
- * Client-side provider stack for the entire app. Must be mounted inside the
- * root server layout so hooks like `useUser()` / `useDataStore()` always have
- * a surrounding provider.
- */
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
+  unsavedChangesWarning: false,
+})
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-      <UserProvider>
-        <DataStoreProvider>
+    <ConvexAuthNextjsProvider client={convex}>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <WorkspaceProvider>
           {children}
           <Toaster />
-        </DataStoreProvider>
-      </UserProvider>
-    </ThemeProvider>
+          <SonnerToaster position="top-right" richColors closeButton />
+        </WorkspaceProvider>
+      </ThemeProvider>
+    </ConvexAuthNextjsProvider>
   )
 }

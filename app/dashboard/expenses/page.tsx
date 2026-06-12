@@ -1,662 +1,280 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import * as React from "react"
+import { useTranslations } from "next-intl"
+import { useMutation, useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import type { Id } from "@/convex/_generated/dataModel"
+import { useWorkspace } from "@/lib/workspace-context"
+import { formatCurrency, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useDataStore, formatCurrency, formatDate, type Expense } from "@/lib/data-store"
-import { AttachmentsField, AttachmentsBadge, type LocalAttachment } from "@/components/attachments-field"
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  Calendar,
-  Car,
-  Coffee,
-  CreditCard,
-  Download,
-  Edit2,
-  Film,
-  Filter,
-  Home,
-  Lightbulb,
-  Link2,
-  MoreVertical,
-  Paperclip,
-  Plus,
-  Receipt,
-  RefreshCw,
-  Search,
-  ShoppingBag,
-  Sparkles,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  Upload,
-  Utensils,
-  Wifi,
-} from "lucide-react"
+import { EmptyState } from "@/components/empty-state"
+import { AttachmentsField } from "@/components/attachments-field"
+import { Plus, Receipt, Trash2, Loader2, ArrowDownRight, ArrowUpRight } from "lucide-react"
+import { toast } from "sonner"
+import { useSearchParams } from "next/navigation"
 
-const categories = [
-  { name: "Office", icon: Home, color: "bg-purple-500" },
-  { name: "Software", icon: Lightbulb, color: "bg-blue-500" },
-  { name: "Travel", icon: Car, color: "bg-cyan-500" },
-  { name: "Meals", icon: Utensils, color: "bg-orange-500" },
-  { name: "Marketing", icon: TrendingUp, color: "bg-pink-500" },
-  { name: "Internet", icon: Wifi, color: "bg-teal-500" },
-  { name: "Entertainment", icon: Film, color: "bg-red-500" },
-  { name: "Shopping", icon: ShoppingBag, color: "bg-green-500" },
-  { name: "Income", icon: TrendingUp, color: "bg-accent" },
-  { name: "Other", icon: CreditCard, color: "bg-gray-500" },
-]
-
-const paymentMethods = [
-  "Credit Card",
-  "Debit Card",
-  "Cash",
-  "Bank Transfer",
-  "PayPal",
+const CATEGORIES = [
+  "Food",
+  "Transport",
+  "Housing",
+  "Office",
+  "Marketing",
+  "Software",
+  "Travel",
+  "Salaries",
+  "Taxes",
+  "Utilities",
   "Other",
 ]
 
+const PAYMENT_METHODS = ["Card", "Bank transfer", "Cash", "PayPal", "Other"]
+
 export default function ExpensesPage() {
-  const { expenses, invoices, addExpense, updateExpense, deleteExpense, linkExpenseToInvoice, linkDocument, storage } = useDataStore()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
-  const [linkDialog, setLinkDialog] = useState<string | null>(null)
-  const [newExpense, setNewExpense] = useState({
-    description: "",
-    amount: "",
-    category: "",
-    date: new Date().toISOString().split("T")[0],
-    paymentMethod: "Credit Card",
-    notes: "",
-    type: "expense" as "expense" | "income",
-    tags: [] as string[],
-  })
-  const [attachments, setAttachments] = useState<LocalAttachment[]>([])
+  const t = useTranslations("common")
+  const { activeWorkspace } = useWorkspace()
+  const wsId = activeWorkspace?._id
+  const currency = activeWorkspace?.currency ?? "EUR"
+  const searchParams = useSearchParams()
+  const expenses = useQuery(api.a2e_expenses.list, wsId ? { workspaceId: wsId } : "skip")
+  const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
+  const create = useMutation(api.a2e_expenses.create)
+  const remove = useMutation(api.a2e_expenses.remove)
 
-  const getCategoryIcon = (categoryName: string) => {
-    const cat = categories.find(c => c.name === categoryName)
-    return cat?.icon || CreditCard
-  }
+  const [open, setOpen] = React.useState(false)
+  const [type, setType] = React.useState<"expense" | "income">("expense")
+  const [description, setDescription] = React.useState("")
+  const [amount, setAmount] = React.useState<string>("")
+  const [category, setCategory] = React.useState("Other")
+  const [date, setDate] = React.useState(new Date().toISOString().split("T")[0])
+  const [paymentMethod, setPaymentMethod] = React.useState("Card")
+  const [projectId, setProjectId] = React.useState<string>("")
+  const [notes, setNotes] = React.useState("")
+  const [savedId, setSavedId] = React.useState<Id<"a2e_expenses"> | null>(null)
+  const [saving, setSaving] = React.useState(false)
 
-  const getCategoryColor = (categoryName: string) => {
-    const cat = categories.find(c => c.name === categoryName)
-    return cat?.color || "bg-gray-500"
-  }
+  React.useEffect(() => {
+    if (searchParams.get("new")) setOpen(true)
+  }, [searchParams])
 
-  const filteredExpenses = expenses.filter(expense => {
-    const matchesSearch = expense.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = categoryFilter === "all" || expense.category === categoryFilter
-    return matchesSearch && matchesCategory
-  })
-
-  const stats = {
-    totalExpenses: expenses.filter(e => e.type === "expense").reduce((sum, e) => sum + e.amount, 0),
-    totalIncome: expenses.filter(e => e.type === "income").reduce((sum, e) => sum + e.amount, 0),
-    thisMonth: expenses.filter(e => {
-      const expenseDate = new Date(e.date)
-      const now = new Date()
-      return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear()
-    }).reduce((sum, e) => e.type === "expense" ? sum + e.amount : sum, 0),
-    recurring: expenses.filter(e => e.isRecurring).length,
-  }
-
-  const handleAddExpense = async () => {
-    if (!newExpense.description || !newExpense.amount || !newExpense.category) return
-
-    const expenseId = await addExpense({
-      description: newExpense.description,
-      amount: parseFloat(newExpense.amount),
-      category: newExpense.category,
-      date: newExpense.date,
-      paymentMethod: newExpense.paymentMethod,
-      notes: newExpense.notes,
-      type: newExpense.type,
-      tags: newExpense.tags,
-    })
-
-    // Link uploaded attachments to the new expense
-    for (const att of attachments) {
-      try {
-        await linkDocument(att.id, "expense", expenseId)
-      } catch {}
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    if (!wsId) return
+    if (!description.trim() || !amount) return
+    try {
+      setSaving(true)
+      const id = await create({
+        workspaceId: wsId,
+        description: description.trim(),
+        amount: parseFloat(amount),
+        category,
+        date: new Date(date).getTime(),
+        paymentMethod,
+        type,
+        notes: notes.trim() || undefined,
+        currency,
+        projectId: projectId ? (projectId as Id<"projects">) : undefined,
+      })
+      setSavedId(id)
+      toast.success(type === "income" ? "Income added" : "Expense added")
+    } catch (err: any) {
+      toast.error(err?.message || "Could not save")
+    } finally {
+      setSaving(false)
     }
-
-    setNewExpense({
-      description: "",
-      amount: "",
-      category: "",
-      date: new Date().toISOString().split("T")[0],
-      paymentMethod: "Credit Card",
-      notes: "",
-      type: "expense",
-      tags: [],
-    })
-    setAttachments([])
-    setDialogOpen(false)
   }
 
-  const handleLinkToInvoice = (expenseId: string, invoiceId: string) => {
-    linkExpenseToInvoice(expenseId, invoiceId)
-    setLinkDialog(null)
+  function resetForm() {
+    setDescription("")
+    setAmount("")
+    setCategory("Other")
+    setNotes("")
+    setProjectId("")
+    setSavedId(null)
+    setType("expense")
   }
 
-  const getLinkedInvoice = (invoiceId?: string) => {
-    if (!invoiceId) return null
-    return invoices.find(i => i.id === invoiceId)
+  function closeDialog() {
+    setOpen(false)
+    setTimeout(resetForm, 200)
   }
 
-  const getLinkedDocument = (expense: Expense) => {
-    if (expense.linkedDocuments.length === 0) return null
-    return storage.documents.find(d => d.id === expense.linkedDocuments[0])
-  }
-
-  const handleExport = () => {
-    const headers = "Date,Description,Category,Amount,Type,Payment Method,Notes"
-    const rows = expenses.map(e => 
-      `${e.date},"${e.description}",${e.category},${e.amount},${e.type},${e.paymentMethod},"${e.notes || ""}"`
-    ).join("\n")
-    const csv = `${headers}\n${rows}`
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "expenses.csv"
-    a.click()
-  }
+  const totals = React.useMemo(() => {
+    const list = expenses ?? []
+    const income = list.filter((e) => e.type === "income").reduce((a, b) => a + b.amount, 0)
+    const out = list.filter((e) => e.type === "expense").reduce((a, b) => a + b.amount, 0)
+    return { income, out, net: income - out }
+  }, [expenses])
 
   return (
-    <div className="space-y-8 p-4 sm:p-8">
-      {/* Header */}
-      <div className="animate-fade-up flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Expenses</h1>
-          <p className="text-muted-foreground">Track and manage your income and expenses</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExport} className="rounded-lg border font-medium">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <div className="px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Expenses & Income</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Track money in and out, attach receipts, link to projects.
+            </p>
+          </div>
+          <Dialog open={open} onOpenChange={(o) => (o ? setOpen(o) : closeDialog())}>
             <DialogTrigger asChild>
-              <Button className="shadow-sm font-semibold">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Transaction
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add transaction
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-xl border">
+            <DialogContent className="max-w-xl">
               <DialogHeader>
-                <DialogTitle className="font-semibold">Add Transaction</DialogTitle>
-                <DialogDescription>Record a new income or expense</DialogDescription>
+                <DialogTitle>{savedId ? "Attach receipts" : "Add a transaction"}</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="flex gap-2">
-                  <Button
-                    variant={newExpense.type === "expense" ? "default" : "outline"}
-                    className={`flex-1 rounded-lg border font-medium ${newExpense.type === "expense" ? "shadow-sm" : ""}`}
-                    onClick={() => setNewExpense({ ...newExpense, type: "expense", category: "" })}
-                  >
-                    <ArrowDownRight className="mr-2 h-4 w-4" />
-                    Expense
-                  </Button>
-                  <Button
-                    variant={newExpense.type === "income" ? "default" : "outline"}
-                    className={`flex-1 rounded-lg border font-medium ${newExpense.type === "income" ? "shadow-sm" : ""}`}
-                    onClick={() => setNewExpense({ ...newExpense, type: "income", category: "Income" })}
-                  >
-                    <ArrowUpRight className="mr-2 h-4 w-4" />
-                    Income
-                  </Button>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="font-medium">Description</Label>
-                  <Input
-                    className="rounded-lg border"
-                    placeholder="What was this for?"
-                    value={newExpense.description}
-                    onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
-                  />
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label className="font-medium">Amount</Label>
-                    <Input
-                      type="number"
-                      className="rounded-lg border"
-                      placeholder="0.00"
-                      value={newExpense.amount}
-                      onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
-                    />
+              {!savedId ? (
+                <form onSubmit={handleSave} className="space-y-4">
+                  <div className="flex gap-2">
+                    {(["expense", "income"] as const).map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => setType(opt)}
+                        className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                          type === opt
+                            ? "border-foreground bg-foreground text-background"
+                            : "border-border hover:bg-muted"
+                        }`}
+                      >
+                        {opt === "expense" ? "Expense" : "Income"}
+                      </button>
+                    ))}
                   </div>
-                  <div className="space-y-2">
-                    <Label className="font-medium">Date</Label>
-                    <Input
-                      type="date"
-                      className="rounded-lg border"
-                      value={newExpense.date}
-                      onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
-                    />
+                  <div>
+                    <Label htmlFor="desc">{t("description")}</Label>
+                    <Input id="desc" value={description} onChange={(e) => setDescription(e.target.value)} required />
                   </div>
-                </div>
-
-                {newExpense.type === "expense" && (
-                  <div className="space-y-2">
-                    <Label className="font-medium">Category</Label>
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                      {categories.filter(c => c.name !== "Income").map((cat) => (
-                        <button
-                          key={cat.name}
-                          onClick={() => setNewExpense({ ...newExpense, category: cat.name })}
-                          className={`flex flex-col items-center gap-1 rounded-lg border p-2 transition-all ${
-                            newExpense.category === cat.name
-                              ? "border-accent bg-accent/10 shadow-sm"
-                              : "border-border hover:bg-muted"
-                          }`}
-                          title={cat.name}
-                        >
-                          <cat.icon className="h-5 w-5" />
-                          <span className="text-[10px] font-medium truncate w-full text-center">{cat.name}</span>
-                        </button>
-                      ))}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="amt">{t("amount")} ({currency})</Label>
+                      <Input id="amt" type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+                    </div>
+                    <div>
+                      <Label htmlFor="date">{t("date")}</Label>
+                      <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
                     </div>
                   </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label className="font-medium">Payment Method</Label>
-                  <Select
-                    value={newExpense.paymentMethod}
-                    onValueChange={(v) => setNewExpense({ ...newExpense, paymentMethod: v })}
-                  >
-                    <SelectTrigger className="rounded-lg border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-lg border">
-                      {paymentMethods.map((method) => (
-                        <SelectItem key={method} value={method}>{method}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="cat">{t("category")}</Label>
+                      <select id="cat" value={category} onChange={(e) => setCategory(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                        {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <Label htmlFor="pay">Payment method</Label>
+                      <select id="pay" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                        {PAYMENT_METHODS.map((c) => <option key={c}>{c}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  {(projects ?? []).length > 0 && (
+                    <div>
+                      <Label htmlFor="proj">Project (optional)</Label>
+                      <select id="proj" value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                        <option value="">— No project —</option>
+                        {(projects ?? []).map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
+                      </select>
+                    </div>
+                  )}
+                  <div>
+                    <Label htmlFor="notes">{t("notes")}</Label>
+                    <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={closeDialog}>{t("cancel")}</Button>
+                    <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("save")}</Button>
+                  </DialogFooter>
+                </form>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">Add receipts or supporting documents. They'll be linked automatically.</p>
+                  <AttachmentsField linkedTo={{ type: "expense", id: savedId }} documentType="receipt" />
+                  <DialogFooter>
+                    <Button onClick={closeDialog}>Done</Button>
+                  </DialogFooter>
                 </div>
-
-                <div className="space-y-2">
-                  <Label className="font-medium">
-                    Justification documents
-                    <span className="ml-1 font-normal text-muted-foreground">(optional)</span>
-                  </Label>
-                  <AttachmentsField
-                    value={attachments}
-                    onChange={setAttachments}
-                    documentType={newExpense.type === "income" ? "invoice" : "receipt"}
-                    linkedTo={{ type: "expense" }}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-lg border font-medium">Cancel</Button>
-                <Button onClick={handleAddExpense} className="shadow-sm font-semibold">Add Transaction</Button>
-              </DialogFooter>
+              )}
             </DialogContent>
           </Dialog>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-xl border shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Total Income</span>
-              <TrendingUp className="h-5 w-5 text-accent" />
-            </div>
-            <div className="mt-2 font-mono text-2xl font-semibold text-accent">
-              +{formatCurrency(stats.totalIncome)}
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">All time</p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-xl border shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Total Expenses</span>
-              <TrendingDown className="h-5 w-5 text-destructive" />
-            </div>
-            <div className="mt-2 font-mono text-2xl font-semibold">
-              -{formatCurrency(stats.totalExpenses)}
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">All time</p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-xl border shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">This Month</span>
-              <Calendar className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div className="mt-2 font-mono text-2xl font-semibold">
-              {formatCurrency(stats.thisMonth)}
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">In expenses</p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-xl border shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Net Balance</span>
-              <CreditCard className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div className={`mt-2 font-mono text-2xl font-semibold ${stats.totalIncome - stats.totalExpenses >= 0 ? "text-accent" : "text-destructive"}`}>
-              {formatCurrency(stats.totalIncome - stats.totalExpenses)}
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">Income - Expenses</p>
-          </CardContent>
-        </Card>
-      </div>
+        {/* Totals */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <SummaryCard label="Total income" value={formatCurrency(totals.income, currency)} tone="positive" />
+          <SummaryCard label="Total expenses" value={formatCurrency(totals.out, currency)} tone="negative" />
+          <SummaryCard label="Net" value={formatCurrency(totals.net, currency)} tone={totals.net >= 0 ? "positive" : "negative"} />
+        </div>
 
-      {/* Filters */}
-      <Card className="rounded-xl border">
-        <CardContent className="p-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search transactions..."
-                className="pl-9 rounded-lg border"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+        {/* List */}
+        <div className="rounded-2xl border border-border bg-card">
+          {expenses === undefined ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-48 rounded-lg border">
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Filter by category" />
-              </SelectTrigger>
-              <SelectContent className="rounded-lg border">
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.name} value={cat.name}>
-                    <div className="flex items-center gap-2">
-                      <cat.icon className="h-4 w-4" />
-                      {cat.name}
+          ) : expenses.length === 0 ? (
+            <EmptyState
+              icon={Receipt}
+              title="No transactions yet"
+              description="Log your first expense or income to see it here."
+              action={{ onClick: () => setOpen(true), label: "Add transaction" }}
+            />
+          ) : (
+            <ul className="divide-y divide-border">
+              {expenses.map((e) => (
+                <li key={e._id} className="flex items-center justify-between gap-3 px-5 py-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${e.type === "income" ? "bg-accent/10 text-accent" : "bg-muted"}`}>
+                      {e.type === "income" ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
                     </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Transactions List */}
-      <Card className="rounded-xl border shadow-sm">
-        <CardHeader className="border-b border-border">
-          <CardTitle className="font-semibold">Transactions</CardTitle>
-          <CardDescription>
-            {filteredExpenses.length} transaction{filteredExpenses.length !== 1 ? "s" : ""}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Tabs defaultValue="all">
-            <div className="border-b border-border px-4 pt-4 overflow-x-auto">
-              <TabsList className="bg-muted rounded-lg border border-border inline-flex w-auto">
-                <TabsTrigger value="all" className="font-medium">All</TabsTrigger>
-                <TabsTrigger value="expenses" className="font-medium">Expenses</TabsTrigger>
-                <TabsTrigger value="income" className="font-medium">Income</TabsTrigger>
-              </TabsList>
-            </div>
-
-            {["all", "expenses", "income"].map((tab) => (
-              <TabsContent key={tab} value={tab} className="m-0">
-                {filteredExpenses.filter(e => tab === "all" || (tab === "expenses" && e.type === "expense") || (tab === "income" && e.type === "income")).length > 0 ? (
-                  <div className="divide-y-2 divide-border">
-                    {filteredExpenses
-                      .filter(e => tab === "all" || (tab === "expenses" && e.type === "expense") || (tab === "income" && e.type === "income"))
-                      .map((expense) => {
-                        const Icon = getCategoryIcon(expense.category)
-                        const color = getCategoryColor(expense.category)
-                        const linkedInvoice = getLinkedInvoice(expense.linkedInvoice)
-                        const linkedDoc = getLinkedDocument(expense)
-                        
-                        return (
-                          <div
-                            key={expense.id}
-                            className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 hover:bg-muted/50 transition-colors group gap-3"
-                          >
-                            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                              <div className={`flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center ${color}`}>
-                                <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="font-semibold truncate">{expense.description}</p>
-                                  {expense.isRecurring && (
-                                    <Badge variant="secondary" className="border text-xs shrink-0">
-                                      <RefreshCw className="mr-1 h-3 w-3" />
-                                      {expense.recurringFrequency}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
-                                  <span>{expense.category}</span>
-                                  <span>·</span>
-                                  <span className="font-mono">{formatDate(expense.date)}</span>
-                                  {linkedInvoice && (
-                                    <>
-                                      <span>·</span>
-                                      <Badge variant="outline" className="text-xs border">
-                                        <Link2 className="mr-1 h-3 w-3" />
-                                        {linkedInvoice.number}
-                                      </Badge>
-                                    </>
-                                  )}
-                                  {linkedDoc && (
-                                    <>
-                                      <span>·</span>
-                                      <Paperclip className="h-3 w-3" />
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between sm:justify-end gap-4">
-                              <div className="text-right sm:text-right">
-                                <p className={`font-mono text-base sm:text-lg font-semibold ${expense.type === "income" ? "text-accent" : ""}`}>
-                                  {expense.type === "income" ? "+" : "-"}{formatCurrency(expense.amount)}
-                                </p>
-                                <p className="text-xs text-muted-foreground">{expense.paymentMethod}</p>
-                              </div>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="rounded-lg border border-transparent hover:border-border">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="rounded-lg border">
-                                  <DropdownMenuItem onClick={() => setEditingExpense(expense)} className="font-medium">
-                                    <Edit2 className="mr-2 h-4 w-4" />
-                                    Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem className="font-medium">
-                                    <Upload className="mr-2 h-4 w-4" />
-                                    Attach Receipt
-                                  </DropdownMenuItem>
-                                  {expense.type === "income" && !expense.linkedInvoice && (
-                                    <DropdownMenuItem onClick={() => setLinkDialog(expense.id)} className="font-medium">
-                                      <Link2 className="mr-2 h-4 w-4" />
-                                      Link to Invoice
-                                    </DropdownMenuItem>
-                                  )}
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="text-destructive font-medium"
-                                    onClick={() => deleteExpense(expense.id)}
-                                  >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          </div>
-                        )
-                      })}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg border border-border bg-muted">
-                      <Sparkles className="h-8 w-8 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{e.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(e.date)} · {e.category} · {e.paymentMethod}
+                      </p>
                     </div>
-                    <h3 className="font-semibold">No transactions found</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {searchQuery || categoryFilter !== "all" ? "Try adjusting your filters" : "Add your first transaction"}
-                    </p>
                   </div>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Link to Invoice Dialog */}
-      <Dialog open={!!linkDialog} onOpenChange={(open) => !open && setLinkDialog(null)}>
-        <DialogContent className="rounded-xl border">
-          <DialogHeader>
-            <DialogTitle className="font-semibold">Link to Invoice</DialogTitle>
-            <DialogDescription>Connect this income to an invoice for tracking</DialogDescription>
-          </DialogHeader>
-          <div className="max-h-64 overflow-y-auto space-y-2 py-4">
-            {invoices.filter(i => i.status === "sent" || i.status === "paid").map((invoice) => (
-              <button
-                key={invoice.id}
-                onClick={() => linkDialog && handleLinkToInvoice(linkDialog, invoice.id)}
-                className="flex w-full items-center justify-between rounded-lg border border-border p-3 hover:bg-muted transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Receipt className="h-5 w-5 text-accent" />
-                  <div className="text-left">
-                    <p className="font-semibold">{invoice.number}</p>
-                    <p className="text-sm text-muted-foreground">{invoice.client}</p>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className={`font-numeric text-sm font-medium ${e.type === "income" ? "text-accent" : "text-foreground"}`}>
+                      {e.type === "income" ? "+" : "-"}{formatCurrency(e.amount, e.currency ?? currency)}
+                    </span>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => remove({ expenseId: e._id })}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-mono font-semibold">{formatCurrency(invoice.items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0))}</p>
-                  <Badge className={invoice.status === "paid" ? "bg-accent text-accent-foreground" : "bg-chart-3 text-white"}>
-                    {invoice.status}
-                  </Badge>
-                </div>
-              </button>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setLinkDialog(null)} className="rounded-lg border font-medium">Cancel</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Dialog */}
-      <Dialog open={!!editingExpense} onOpenChange={(open) => !open && setEditingExpense(null)}>
-        <DialogContent className="rounded-xl border">
-          <DialogHeader>
-            <DialogTitle className="font-semibold">Edit Transaction</DialogTitle>
-            <DialogDescription>Update transaction details</DialogDescription>
-          </DialogHeader>
-          {editingExpense && (
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label className="font-medium">Description</Label>
-                <Input
-                  className="rounded-lg border"
-                  value={editingExpense.description}
-                  onChange={(e) => setEditingExpense({ ...editingExpense, description: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="font-medium">Amount</Label>
-                  <Input
-                    type="number"
-                    className="rounded-lg border"
-                    value={editingExpense.amount}
-                    onChange={(e) => setEditingExpense({ ...editingExpense, amount: parseFloat(e.target.value) || 0 })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-medium">Date</Label>
-                  <Input
-                    type="date"
-                    className="rounded-lg border"
-                    value={editingExpense.date}
-                    onChange={(e) => setEditingExpense({ ...editingExpense, date: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="font-medium">Category</Label>
-                <Select
-                  value={editingExpense.category}
-                  onValueChange={(v) => setEditingExpense({ ...editingExpense, category: v })}
-                >
-                  <SelectTrigger className="rounded-lg border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-lg border">
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                </li>
+              ))}
+            </ul>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingExpense(null)} className="rounded-lg border font-medium">Cancel</Button>
-            <Button 
-              onClick={() => {
-                if (editingExpense) {
-                  updateExpense(editingExpense.id, editingExpense)
-                  setEditingExpense(null)
-                }
-              }} 
-              className="shadow-sm font-semibold"
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SummaryCard({ label, value, tone }: { label: string; value: string; tone: "positive" | "negative" | "neutral" }) {
+  const toneCls = tone === "positive" ? "text-accent" : tone === "negative" ? "text-destructive" : "text-foreground"
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className={`mt-2 font-numeric text-2xl font-semibold ${toneCls}`}>{value}</p>
     </div>
   )
 }

@@ -3,8 +3,12 @@
 import { useCallback, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
+import { useAction, useMutation, useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import type { Id } from "@/convex/_generated/dataModel"
 import { Button } from "@/components/ui/button"
-import { useDataStore, formatBytes } from "@/lib/data-store"
+import { useWorkspace } from "@/lib/workspace-context"
+import { formatBytes, cn } from "@/lib/utils"
 import {
   Download,
   FileImage,
@@ -13,30 +17,21 @@ import {
   Paperclip,
   Trash2,
   UploadCloud,
-  X,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
-
-export interface LocalAttachment {
-  id: string
-  name: string
-  size: number
-  type: string
-  url?: string
-  key?: string
-}
 
 interface AttachmentsFieldProps {
-  value: LocalAttachment[]
-  onChange: (next: LocalAttachment[]) => void
-  linkedTo?: { type: "expense" | "invoice" | "book_entry"; id?: string }
+  linkedTo: {
+    type: "expense" | "invoice" | "book_entry" | "project"
+    id?: string
+  }
   documentType?: "receipt" | "invoice" | "certificate" | "contract" | "other"
   max?: number
   className?: string
   compact?: boolean
+  onUploaded?: (documentId: string) => void
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB per file
+const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB per file
 
 function fileIcon(type: string) {
   if (type.startsWith("image/")) return FileImage
@@ -44,208 +39,198 @@ function fileIcon(type: string) {
 }
 
 export function AttachmentsField({
-  value,
-  onChange,
   linkedTo,
   documentType = "receipt",
-  max = 5,
+  max = 10,
   className,
   compact = false,
+  onUploaded,
 }: AttachmentsFieldProps) {
   const t = useTranslations("attachments")
-  const { addDocument } = useDataStore()
+  const { activeWorkspace } = useWorkspace()
+  const wsId = activeWorkspace?._id
+
+  const docs = useQuery(
+    api.a2e_documents.list,
+    wsId && linkedTo.id
+      ? {
+          workspaceId: wsId,
+          linkedToType: linkedTo.type,
+          linkedToId: linkedTo.id,
+        }
+      : "skip",
+  )
+
+  const presignUpload = useAction(api.a2e_documents.presignUpload)
+  const createDoc = useMutation(api.a2e_documents.create)
+  const removeDoc = useAction(api.a2e_documents.remove)
+  const presignDownload = useAction(api.a2e_documents.presignDownload)
+
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
 
   const handleFiles = useCallback(
     async (files: FileList | File[]) => {
+      if (!wsId) {
+        toast.error("Select a workspace first")
+        return
+      }
       const arr = Array.from(files)
       if (!arr.length) return
-      if (value.length + arr.length > max) {
+      const current = docs?.length ?? 0
+      if (current + arr.length > max) {
         toast.error(t("tooMany", { max }))
         return
       }
       setUploading(true)
-      const added: LocalAttachment[] = []
       for (const file of arr) {
         if (file.size > MAX_FILE_SIZE) {
           toast.error(t("fileTooLarge", { name: file.name }))
           continue
         }
         try {
-          const fd = new FormData()
-          fd.append("file", file)
-          fd.append("documentType", documentType)
-          if (linkedTo?.type) fd.append("linkedToType", linkedTo.type)
-          if (linkedTo?.id) fd.append("linkedToId", linkedTo.id)
-
-          const res = await fetch("/api/upload", { method: "POST", body: fd })
-          const data = await res.json()
-          if (!res.ok) {
-            // Fall back to local (browser) storage if S3 unavailable
-            if (res.status === 413) {
-              toast.error(data?.message ?? t("quotaExceeded"))
-              continue
-            }
-            throw new Error(data?.error ?? "Upload failed")
-          }
-          const att: LocalAttachment = {
-            id: data.documentId ?? crypto.randomUUID(),
-            name: data.name,
-            size: data.size,
-            type: data.type ?? file.type,
-            url: data.url,
-            key: data.key,
-          }
-          added.push(att)
-        } catch (err) {
-          // Local fallback — shove into DataStore so the row has something to show
-          try {
-            const id = await addDocument({
-              name: file.name,
-              type: documentType,
-              size: file.size,
-              linkedTo: linkedTo?.type && linkedTo.id
-                ? { type: linkedTo.type, id: linkedTo.id }
-                : undefined,
-            })
-            added.push({
-              id,
-              name: file.name,
-              size: file.size,
-              type: file.type,
-            })
-            toast.message(t("fallbackLocal", { name: file.name }))
-          } catch {
-            toast.error(
-              err instanceof Error ? err.message : t("uploadFailed"),
-            )
-          }
+          // 1. presign
+          const { uploadUrl, key, publicUrl } = await presignUpload({
+            workspaceId: wsId,
+            fileName: file.name,
+            contentType: file.type || "application/octet-stream",
+            size: file.size,
+          })
+          // 2. PUT to S3
+          const res = await fetch(uploadUrl, {
+            method: "PUT",
+            headers: { "Content-Type": file.type || "application/octet-stream" },
+            body: file,
+          })
+          if (!res.ok) throw new Error(`S3 upload failed (${res.status})`)
+          // 3. record
+          const docId = await createDoc({
+            workspaceId: wsId,
+            name: file.name,
+            type: documentType,
+            size: file.size,
+            contentType: file.type || "application/octet-stream",
+            url: publicUrl,
+            s3Key: key,
+            linkedToType: linkedTo.type,
+            linkedToId: linkedTo.id,
+          })
+          onUploaded?.(docId)
+        } catch (err: any) {
+          console.error("Upload failed", err)
+          toast.error(err?.message || t("uploadFailed"))
         }
       }
-      if (added.length) onChange([...value, ...added])
       setUploading(false)
     },
-    [value, onChange, max, documentType, linkedTo, addDocument, t],
+    [wsId, docs, max, t, presignUpload, createDoc, documentType, linkedTo, onUploaded],
   )
 
-  const removeAttachment = async (att: LocalAttachment) => {
-    if (att.key) {
-      try {
-        await fetch(`/api/upload?key=${encodeURIComponent(att.key)}`, {
-          method: "DELETE",
-        })
-      } catch {}
+  const handleDelete = async (id: string) => {
+    try {
+      await removeDoc({ documentId: id as Id<"a2e_documents"> })
+    } catch (err: any) {
+      toast.error(err?.message || "Delete failed")
     }
-    onChange(value.filter(a => a.id !== att.id))
   }
+
+  const handleDownload = async (id: string) => {
+    try {
+      const res = await presignDownload({ documentId: id as Id<"a2e_documents"> })
+      if (res?.url) window.open(res.url, "_blank")
+    } catch (err: any) {
+      toast.error(err?.message || "Download failed")
+    }
+  }
+
+  const list = docs ?? []
 
   return (
     <div className={cn("space-y-2", className)}>
-      <input
-        ref={inputRef}
-        type="file"
-        multiple
-        accept="application/pdf,image/*,.doc,.docx"
-        className="hidden"
-        onChange={e => {
-          if (e.target.files) void handleFiles(e.target.files)
-          if (inputRef.current) inputRef.current.value = ""
-        }}
-      />
-
-      <div
+      <button
+        type="button"
         onClick={() => inputRef.current?.click()}
-        onDragOver={e => {
+        onDragOver={(e) => {
           e.preventDefault()
           setDragOver(true)
         }}
         onDragLeave={() => setDragOver(false)}
-        onDrop={e => {
+        onDrop={(e) => {
           e.preventDefault()
           setDragOver(false)
-          if (e.dataTransfer.files.length) void handleFiles(e.dataTransfer.files)
+          if (e.dataTransfer.files?.length) handleFiles(e.dataTransfer.files)
         }}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-5 text-center transition-colors",
-          dragOver && "border-accent bg-accent/5",
-          compact && "py-3",
+          "flex w-full items-center gap-2 rounded-lg border border-dashed bg-muted/30 px-3 py-3 text-left text-sm transition-colors",
+          dragOver ? "border-foreground bg-muted/60" : "border-border hover:bg-muted/50",
+          compact && "py-2",
         )}
       >
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 text-accent">
-          {uploading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <UploadCloud className="h-4 w-4" />
-          )}
-        </div>
-        <div>
-          <p className="text-sm font-medium">
-            {uploading ? t("uploading") : t("cta")}
-          </p>
-          <p className="text-xs text-muted-foreground">{t("hint")}</p>
-        </div>
-      </div>
-
-      {value.length > 0 && (
-        <ul className="space-y-1.5">
-          {value.map(att => {
-            const Icon = fileIcon(att.type)
+        {uploading ? (
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        ) : (
+          <UploadCloud className="h-4 w-4 text-muted-foreground" />
+        )}
+        <span className="flex-1">
+          <span className="font-medium">{uploading ? t("uploading") : t("cta")}</span>
+          <span className="ml-2 text-xs text-muted-foreground">{t("hint")}</span>
+        </span>
+        {list.length > 0 && (
+          <span className="text-xs text-muted-foreground">
+            {t("countLabel", { count: list.length })}
+          </span>
+        )}
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files?.length) handleFiles(e.target.files)
+          e.target.value = ""
+        }}
+      />
+      {list.length > 0 && (
+        <ul className="space-y-1">
+          {list.map((d) => {
+            const Icon = fileIcon(d.contentType || "")
             return (
               <li
-                key={att.id}
-                className="group flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-2"
+                key={d._id}
+                className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted">
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{att.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatBytes(att.size)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1 opacity-60 transition-opacity group-hover:opacity-100">
-                  {att.url && (
-                    <a
-                      href={att.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-                      title={t("download")}
-                    >
-                      <Download className="h-3.5 w-3.5" />
-                    </a>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => void removeAttachment(att)}
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    title={t("remove")}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+                <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1 truncate">{d.name}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {formatBytes(d.size)}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  type="button"
+                  onClick={() => handleDownload(d._id)}
+                  aria-label={t("download")}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-destructive"
+                  type="button"
+                  onClick={() => handleDelete(d._id)}
+                  aria-label={t("remove")}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
               </li>
             )
           })}
         </ul>
       )}
     </div>
-  )
-}
-
-export function AttachmentsBadge({ count }: { count: number }) {
-  const t = useTranslations("attachments")
-  if (!count) return null
-  return (
-    <span
-      className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
-      title={t("countLabel", { count })}
-    >
-      <Paperclip className="h-3 w-3" />
-      {count}
-    </span>
   )
 }

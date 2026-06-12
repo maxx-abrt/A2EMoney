@@ -1,7 +1,135 @@
 {
   "metadata": {
-    "title": "Finflow - All-in-One Finance Management",
-    "description": "Streamline your finances with Finflow. Budget management, invoicing, expense tracking, and more for individuals and businesses."
+    "title": "A2EMoney — All-in-One Money Management",
+    "description": "Streamline your finances with A2EMoney. Budgets, invoicing, expense tracking, books and team collaboration for individuals, businesses and associations."
+  },
+  "brand": {
+    "name": "A2EMoney",
+    "suite": "A2E Suite"
+  },
+  "auth": {
+    "title": "Welcome to A2EMoney",
+    "subtitle": "Sign in to your workspace or create a new one.",
+    "continueWithGoogle": "Continue with Google",
+    "or": "or",
+    "emailLabel": "Email address",
+    "sendMagicLink": "Send sign-in code",
+    "verifyCodeLabel": "Verification code",
+    "verifyCodeHint": "Check your inbox — the code expires in 15 minutes.",
+    "verifyCta": "Verify and sign in",
+    "useDifferentEmail": "Use a different email",
+    "legal": "By continuing you agree to our",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "toasts": {
+      "codeSent": "We sent you a sign-in code.",
+      "signedIn": "Signed in"
+    },
+    "errors": {
+      "google": "Could not sign in with Google",
+      "email": "Could not send the sign-in code",
+      "code": "Invalid or expired code"
+    }
+  },
+  "onboarding": {
+    "title": "Create your first workspace",
+    "subtitle": "A workspace groups members, projects and finances. You can create more later.",
+    "typeLabel": "What best describes you?",
+    "types": {
+      "individual": {
+        "title": "Individual",
+        "description": "Personal money management"
+      },
+      "business": {
+        "title": "Business",
+        "description": "Company or freelance"
+      },
+      "association": {
+        "title": "Association",
+        "description": "Non-profit, NGO, charity"
+      }
+    },
+    "nameLabel": "Workspace name",
+    "namePlaceholder": "e.g. Acme Inc., My Personal, Save The Whales",
+    "currencyLabel": "Default currency",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What is this workspace for?",
+    "submit": "Create workspace",
+    "toasts": {
+      "created": "Workspace created!",
+      "failed": "Could not create workspace"
+    }
+  },
+  "workspace": {
+    "switcher": {
+      "label": "Workspace",
+      "create": "Create new workspace",
+      "manage": "Manage workspaces",
+      "noWorkspace": "No workspace selected",
+      "members": "{count, plural, =0 {No members} =1 {1 member} other {# members}}",
+      "currentRole": "Your role: {role}"
+    },
+    "empty": {
+      "title": "No workspace yet",
+      "description": "Create your first workspace to start using A2EMoney.",
+      "cta": "Create workspace"
+    }
+  },
+  "legalPages": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: {date}"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: {date}"
+    }
+  },
+  "common": {
+    "income": "Income",
+    "expense": "Expense",
+    "pending": "Pending",
+    "linkedTo": "Linked to",
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "remove": "Remove",
+    "confirm": "Confirm",
+    "loading": "Loading…",
+    "search": "Search…",
+    "all": "All",
+    "actions": "Actions",
+    "details": "Details",
+    "back": "Back",
+    "next": "Next",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
+    "view": "View",
+    "open": "Open",
+    "export": "Export",
+    "import": "Import",
+    "download": "Download",
+    "upload": "Upload",
+    "amount": "Amount",
+    "date": "Date",
+    "status": "Status",
+    "name": "Name",
+    "description": "Description",
+    "category": "Category",
+    "currency": "Currency",
+    "client": "Client",
+    "project": "Project",
+    "notes": "Notes",
+    "settings": "Settings",
+    "today": "Today",
+    "thisMonth": "This month",
+    "thisYear": "This year",
+    "noResults": "No results found",
+    "errorOccurred": "An error occurred",
+    "tryAgain": "Try again"
   },
   "nav": {
     "features": "Features",
@@ -162,7 +290,7 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "contact": "Contact",
-      "copyright": "2024 Finflow. All rights reserved."
+      "copyright": "2026 A2EMoney. Part of the A2E Suite."
     }
   },
   "dashboard": {

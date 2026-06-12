@@ -1,7 +1,135 @@
 {
   "metadata": {
-    "title": "Finflow - Gestion Financière Tout-en-Un",
-    "description": "Simplifiez vos finances avec Finflow. Gestion de budget, facturation, suivi des dépenses et plus pour particuliers et entreprises."
+    "title": "A2EMoney — Gestion d'argent tout-en-un",
+    "description": "Simplifiez vos finances avec A2EMoney. Budgets, facturation, suivi des dépenses, livres et collaboration d'équipe pour particuliers, entreprises et associations."
+  },
+  "brand": {
+    "name": "A2EMoney",
+    "suite": "Suite A2E"
+  },
+  "auth": {
+    "title": "Bienvenue sur A2EMoney",
+    "subtitle": "Connectez-vous à votre espace de travail ou créez-en un nouveau.",
+    "continueWithGoogle": "Continuer avec Google",
+    "or": "ou",
+    "emailLabel": "Adresse e-mail",
+    "sendMagicLink": "Envoyer le code de connexion",
+    "verifyCodeLabel": "Code de vérification",
+    "verifyCodeHint": "Vérifiez votre boîte de réception — le code expire dans 15 minutes.",
+    "verifyCta": "Vérifier et se connecter",
+    "useDifferentEmail": "Utiliser un autre e-mail",
+    "legal": "En continuant, vous acceptez nos",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "toasts": {
+      "codeSent": "Nous vous avons envoyé un code de connexion.",
+      "signedIn": "Connecté"
+    },
+    "errors": {
+      "google": "Connexion Google impossible",
+      "email": "Impossible d'envoyer le code de connexion",
+      "code": "Code invalide ou expiré"
+    }
+  },
+  "onboarding": {
+    "title": "Créez votre premier espace de travail",
+    "subtitle": "Un espace de travail regroupe membres, projets et finances. Vous pourrez en créer d'autres plus tard.",
+    "typeLabel": "Comment vous décririez-vous ?",
+    "types": {
+      "individual": {
+        "title": "Particulier",
+        "description": "Gestion d'argent personnel"
+      },
+      "business": {
+        "title": "Entreprise",
+        "description": "Société ou freelance"
+      },
+      "association": {
+        "title": "Association",
+        "description": "Association, ONG, organisation caritative"
+      }
+    },
+    "nameLabel": "Nom de l'espace de travail",
+    "namePlaceholder": "ex. Acme Inc., Personnel, Save The Whales",
+    "currencyLabel": "Devise par défaut",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "À quoi sert cet espace de travail ?",
+    "submit": "Créer l'espace de travail",
+    "toasts": {
+      "created": "Espace de travail créé !",
+      "failed": "Impossible de créer l'espace de travail"
+    }
+  },
+  "workspace": {
+    "switcher": {
+      "label": "Espace de travail",
+      "create": "Créer un nouvel espace",
+      "manage": "Gérer les espaces",
+      "noWorkspace": "Aucun espace sélectionné",
+      "members": "{count, plural, =0 {Aucun membre} =1 {1 membre} other {# membres}}",
+      "currentRole": "Votre rôle : {role}"
+    },
+    "empty": {
+      "title": "Aucun espace de travail",
+      "description": "Créez votre premier espace de travail pour commencer à utiliser A2EMoney.",
+      "cta": "Créer un espace"
+    }
+  },
+  "legalPages": {
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "lastUpdated": "Dernière mise à jour : {date}"
+    },
+    "terms": {
+      "title": "Conditions d'utilisation",
+      "lastUpdated": "Dernière mise à jour : {date}"
+    }
+  },
+  "common": {
+    "income": "Revenu",
+    "expense": "Dépense",
+    "pending": "En attente",
+    "linkedTo": "Lié à",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "create": "Créer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "remove": "Retirer",
+    "confirm": "Confirmer",
+    "loading": "Chargement…",
+    "search": "Rechercher…",
+    "all": "Tout",
+    "actions": "Actions",
+    "details": "Détails",
+    "back": "Retour",
+    "next": "Suivant",
+    "yes": "Oui",
+    "no": "Non",
+    "close": "Fermer",
+    "view": "Voir",
+    "open": "Ouvrir",
+    "export": "Exporter",
+    "import": "Importer",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "amount": "Montant",
+    "date": "Date",
+    "status": "Statut",
+    "name": "Nom",
+    "description": "Description",
+    "category": "Catégorie",
+    "currency": "Devise",
+    "client": "Client",
+    "project": "Projet",
+    "notes": "Notes",
+    "settings": "Paramètres",
+    "today": "Aujourd'hui",
+    "thisMonth": "Ce mois-ci",
+    "thisYear": "Cette année",
+    "noResults": "Aucun résultat",
+    "errorOccurred": "Une erreur est survenue",
+    "tryAgain": "Réessayer"
   },
   "nav": {
     "features": "Fonctionnalités",
@@ -39,7 +167,7 @@
     },
     "profiles": {
       "title": "Adapté à vos besoins",
-      "description": "Que vous gériez vos finances personnelles ou dirigiez une entreprise, Finflow s'adapte à vous.",
+      "description": "Que vous gériez vos finances personnelles ou dirigiez une entreprise, A2EMoney s'adapte à vous.",
       "individual": {
         "title": "Particulier",
         "description": "Suivez vos dépenses personnelles, définissez des budgets et gérez vos objectifs financiers en toute simplicité.",
@@ -134,10 +262,10 @@
     },
     "testimonials": {
       "title": "Adoré par des milliers",
-      "description": "Découvrez ce que nos utilisateurs pensent de Finflow.",
+      "description": "Découvrez ce que nos utilisateurs pensent de A2EMoney.",
       "items": [
         {
-          "quote": "Finflow a complètement transformé ma gestion financière freelance. Le système de facturation seul m'a fait gagner des heures chaque mois.",
+          "quote": "A2EMoney a complètement transformé ma gestion financière freelance. Le système de facturation seul m'a fait gagner des heures chaque mois.",
           "author": "Sarah Chen",
           "role": "Designer Freelance"
         },
@@ -155,14 +283,14 @@
     },
     "cta": {
       "title": "Prêt à prendre le contrôle de vos finances ?",
-      "description": "Rejoignez des milliers de particuliers et d'entreprises qui utilisent déjà Finflow pour simplifier leur gestion financière.",
+      "description": "Rejoignez des milliers de particuliers et d'entreprises qui utilisent déjà A2EMoney pour simplifier leur gestion financière.",
       "button": "Commencer Gratuitement"
     },
     "footer": {
       "privacy": "Confidentialité",
       "terms": "Conditions",
       "contact": "Contact",
-      "copyright": "2024 Finflow. Tous droits réservés."
+      "copyright": "2024 A2EMoney. Tous droits réservés."
     }
   },
   "dashboard": {
