@@ -89,47 +89,7 @@
     "income": "Income",
     "expense": "Expense",
     "pending": "Pending",
-    "linkedTo": "Linked to",
-    "cancel": "Cancel",
-    "save": "Save",
-    "create": "Create",
-    "edit": "Edit",
-    "delete": "Delete",
-    "remove": "Remove",
-    "confirm": "Confirm",
-    "loading": "Loading…",
-    "search": "Search…",
-    "all": "All",
-    "actions": "Actions",
-    "details": "Details",
-    "back": "Back",
-    "next": "Next",
-    "yes": "Yes",
-    "no": "No",
-    "close": "Close",
-    "view": "View",
-    "open": "Open",
-    "export": "Export",
-    "import": "Import",
-    "download": "Download",
-    "upload": "Upload",
-    "amount": "Amount",
-    "date": "Date",
-    "status": "Status",
-    "name": "Name",
-    "description": "Description",
-    "category": "Category",
-    "currency": "Currency",
-    "client": "Client",
-    "project": "Project",
-    "notes": "Notes",
-    "settings": "Settings",
-    "today": "Today",
-    "thisMonth": "This month",
-    "thisYear": "This year",
-    "noResults": "No results found",
-    "errorOccurred": "An error occurred",
-    "tryAgain": "Try again"
+    "linkedTo": "Linked to"
   },
   "nav": {
     "features": "Features",
@@ -147,22 +107,42 @@
     "legal": "Legal",
     "reports": "Reports",
     "team": "Team",
+    "activity": "Activity",
+    "fiches": "Project sheets",
     "settings": "Settings",
     "signOut": "Sign Out",
     "storage": "Storage"
   },
   "landing": {
-    "badge": "Now available for individuals & businesses",
+    "badge": "v1.0 · Now in beta",
     "hero": {
-      "title": "Finance management,",
-      "highlight": "simplified",
-      "description": "All-in-one platform for budgeting, invoicing, expense tracking, and financial reporting. Built for individuals, tailored for businesses. 500MB free storage included.",
+      "title": "Building",
+      "highlight": "the financial future",
+      "description": "A2EMoney helps individuals, associations and businesses move from idea to launch: budgets, invoicing, expenses, ledger, projects and collaboration, without unnecessary complexity.",
       "startFree": "Start for free",
       "seeHowItWorks": "See how it works",
       "benefits": {
         "freeForever": "Free forever plan",
         "storage": "500MB document storage",
         "setup": "Setup in 2 minutes"
+      },
+      "tail": "of your organization",
+      "primaryCta": "Get Early Access",
+      "secondaryCta": "Contact Us",
+      "trustLine": "Trusted by creators, teams and associations",
+      "stats": {
+        "teams": {
+          "value": "15+",
+          "label": "Active teams"
+        },
+        "uptime": {
+          "value": "99.9%",
+          "label": "Uptime"
+        },
+        "tx": {
+          "value": "120k+",
+          "label": "Transactions"
+        }
       }
     },
     "profiles": {
@@ -171,13 +151,23 @@
       "individual": {
         "title": "Individual",
         "description": "Track personal expenses, set budgets, and manage your financial goals with ease.",
-        "features": ["Personal budget tracking", "Expense categorization", "Savings goals", "Financial insights"],
+        "features": [
+          "Personal budget tracking",
+          "Expense categorization",
+          "Savings goals",
+          "Financial insights"
+        ],
         "cta": "Get started as Individual"
       },
       "business": {
         "title": "Business / Association",
         "description": "Complete financial management with invoicing, project budgets, and legal compliance.",
-        "features": ["Professional invoicing", "Project budget sheets", "Legal compliance tools", "Multi-user access"],
+        "features": [
+          "Professional invoicing",
+          "Project budget sheets",
+          "Legal compliance tools",
+          "Multi-user access"
+        ],
         "cta": "Get started as Business",
         "badge": "POPULAR"
       }
@@ -226,10 +216,22 @@
       "cta": "Try the Book System"
     },
     "stats": {
-      "activeUsers": { "value": "50K+", "label": "Active Users" },
-      "invoices": { "value": "2M+", "label": "Invoices Created" },
-      "uptime": { "value": "99.9%", "label": "Uptime" },
-      "rating": { "value": "4.9/5", "label": "User Rating" }
+      "activeUsers": {
+        "value": "50K+",
+        "label": "Active Users"
+      },
+      "invoices": {
+        "value": "2M+",
+        "label": "Invoices Created"
+      },
+      "uptime": {
+        "value": "99.9%",
+        "label": "Uptime"
+      },
+      "rating": {
+        "value": "4.9/5",
+        "label": "User Rating"
+      }
     },
     "pricing": {
       "title": "Simple, transparent pricing",
@@ -239,14 +241,27 @@
           "name": "Free",
           "price": "0",
           "description": "Perfect for getting started",
-          "features": ["Personal budgets", "Expense tracking", "Basic reports", "500MB storage", "1 user"],
+          "features": [
+            "Personal budgets",
+            "Expense tracking",
+            "Basic reports",
+            "500MB storage",
+            "1 user"
+          ],
           "cta": "Start Free"
         },
         "pro": {
           "name": "Pro",
           "price": "19",
           "description": "For growing businesses",
-          "features": ["Everything in Free", "Professional invoicing", "Project sheets", "5GB storage", "5 users", "Priority support"],
+          "features": [
+            "Everything in Free",
+            "Professional invoicing",
+            "Project sheets",
+            "5GB storage",
+            "5 users",
+            "Priority support"
+          ],
           "cta": "Start Pro Trial",
           "badge": "MOST POPULAR"
         },
@@ -254,7 +269,14 @@
           "name": "Enterprise",
           "price": "49",
           "description": "For larger organizations",
-          "features": ["Everything in Pro", "Unlimited users", "Legal compliance", "50GB storage", "API access", "Custom integrations"],
+          "features": [
+            "Everything in Pro",
+            "Unlimited users",
+            "Legal compliance",
+            "50GB storage",
+            "API access",
+            "Custom integrations"
+          ],
           "cta": "Contact Sales"
         }
       },
@@ -291,6 +313,93 @@
       "terms": "Terms",
       "contact": "Contact",
       "copyright": "2026 A2EMoney. Part of the A2E Suite."
+    },
+    "why": {
+      "tag": "WHY A2EMONEY",
+      "title": "Designed for speed. Built for growth.",
+      "description": "A focused, modern approach that helps teams structure finances, ship faster, and grow with confidence.",
+      "items": {
+        "speed": {
+          "title": "Fast execution",
+          "description": "Spin up invoicing, expenses and budgets in minutes."
+        },
+        "clarity": {
+          "title": "Clear direction",
+          "description": "Turn raw numbers into decisions, no endless spreadsheets."
+        },
+        "scale": {
+          "title": "Scalable foundation",
+          "description": "Isolated workspaces, roles, projects, built to grow with you."
+        },
+        "design": {
+          "title": "Thoughtful design",
+          "description": "Every detail crafted for clarity and joy of use."
+        },
+        "vision": {
+          "title": "Long-term vision",
+          "description": "Built for enduring value beyond the first launch."
+        },
+        "founder": {
+          "title": "Founder-friendly",
+          "description": "Tailored to the pace of teams and associations."
+        }
+      }
+    },
+    "intuitive": {
+      "title": "Intuitive by design",
+      "description": "We focus on clarity, balance and simplicity, so finances are easy to understand and act on.",
+      "cta": "Learn more",
+      "bullets": [
+        "Thoughtful structure",
+        "Growth-oriented thinking",
+        "Calm, distraction-free layouts",
+        "Designed to communicate clearly"
+      ]
+    },
+    "evolve": {
+      "title": "Built to evolve",
+      "description": "Whether you're shaping an idea or preparing for growth, our approach adapts to your pace.",
+      "cta": "Learn more",
+      "bullets": [
+        "Role-based access",
+        "Instant updates",
+        "Secure sharing",
+        "Flexible foundation",
+        "Teams and devices"
+      ]
+    },
+    "faqs": {
+      "tag": "FAQ",
+      "title": "Frequently asked questions",
+      "description": "Give the right people the right visibility, without the back-and-forth.",
+      "items": [
+        {
+          "q": "Who is A2EMoney for?",
+          "a": "Individuals, freelancers, associations and small teams who want to manage their finances simply."
+        },
+        {
+          "q": "Do I need a finished product?",
+          "a": "No. We help you start from day one, your books grow with you."
+        },
+        {
+          "q": "Can this scale later?",
+          "a": "Yes, isolated workspaces, roles, projects and legal exports are built-in."
+        },
+        {
+          "q": "Is this only for one sector?",
+          "a": "No. Clarity and structure apply to any organization."
+        },
+        {
+          "q": "Do you offer support?",
+          "a": "Yes, magic-link auth, GDPR exports, activity log, and we're reachable."
+        }
+      ]
+    },
+    "ctaFinal": {
+      "title": "Ready to bring your project to life?",
+      "description": "Join the teams and associations building their next step with A2EMoney.",
+      "primary": "Get Early Access",
+      "secondary": "Contact Us"
     }
   },
   "dashboard": {
@@ -329,12 +438,6 @@
     "search": "Search transactions, invoices...",
     "myAccount": "My Account",
     "profile": "Profile"
-  },
-  "common": {
-    "income": "Income",
-    "expense": "Expense",
-    "pending": "Pending",
-    "linkedTo": "Linked to"
   },
   "notifications": {
     "open": "Open notifications",
@@ -442,6 +545,404 @@
       },
       "emptyTitle": "Your book is empty",
       "emptyDescription": "Add your first expense, income or invoice — it'll appear here automatically."
+    }
+  },
+  "pages": {
+    "sections": {
+      "workspace": "Workspace",
+      "manage": "Manage",
+      "tools": "Tools"
+    },
+    "dashboard": {
+      "welcome": "Welcome back",
+      "addExpense": "Add expense",
+      "newInvoice": "New invoice",
+      "stats": {
+        "totalBalance": "Total balance",
+        "monthlyIncome": "Monthly income",
+        "monthlyExpenses": "Monthly expenses",
+        "pendingInvoices": "Pending invoices"
+      },
+      "recentTransactions": {
+        "title": "Recent transactions",
+        "description": "Your latest financial activity",
+        "viewAll": "View all",
+        "empty": "Log your first expense or income to see it here."
+      },
+      "pendingInvoices": {
+        "title": "Pending invoices",
+        "description": "Awaiting payment",
+        "manage": "Manage invoices",
+        "empty": "Create your first invoice to start tracking payments."
+      },
+      "activity": {
+        "title": "Latest activity",
+        "description": "Team & workspace changes",
+        "empty": "Nothing happened yet."
+      },
+      "selectWorkspace": "Select or create a workspace to continue."
+    },
+    "budget": {
+      "title": "Budgets",
+      "description": "Set spending limits per category. Auto-calculated from expenses.",
+      "new": "New budget",
+      "empty": {
+        "title": "No budgets yet",
+        "description": "Create a budget to track spending against a category."
+      },
+      "period": "Period",
+      "periods": {
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "custom": "Custom"
+      },
+      "start": "Start",
+      "end": "End",
+      "color": "Color",
+      "spent": "Spent",
+      "toasts": {
+        "created": "Budget created",
+        "failed": "Could not save"
+      }
+    },
+    "expenses": {
+      "title": "Expenses & income",
+      "description": "Track money in and out, attach receipts, link to projects.",
+      "add": "Add transaction",
+      "addExpense": "Add expense",
+      "addIncome": "Add income",
+      "type": "Type",
+      "expense": "Expense",
+      "income": "Income",
+      "paymentMethod": "Payment method",
+      "project": "Project (optional)",
+      "noProject": "— No project —",
+      "totals": {
+        "income": "Total income",
+        "expenses": "Total expenses",
+        "net": "Net"
+      },
+      "empty": {
+        "title": "No transactions yet",
+        "description": "Log your first expense or income to see it here."
+      },
+      "attach": {
+        "title": "Attach receipts",
+        "description": "Add receipts or supporting documents. They'll be linked automatically."
+      },
+      "done": "Done",
+      "toasts": {
+        "addedExpense": "Expense added",
+        "addedIncome": "Income added",
+        "failed": "Could not save"
+      }
+    },
+    "invoices": {
+      "title": "Invoices",
+      "description": "Create, send and track payments. Auto-numbered per year.",
+      "new": "New invoice",
+      "clientEmail": "Client email",
+      "clientAddress": "Client address",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "lineItems": "Line items",
+      "addLine": "Add line",
+      "taxRate": "Tax rate (%)",
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "total": "Total",
+      "number": "Number",
+      "issue": "Issue",
+      "due": "Due",
+      "actions": {
+        "markSent": "Mark as sent",
+        "markPaid": "Mark as paid",
+        "markOverdue": "Mark as overdue",
+        "backToDraft": "Back to draft",
+        "delete": "Delete"
+      },
+      "status": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "paid": "Paid",
+        "overdue": "Overdue",
+        "cancelled": "Cancelled"
+      },
+      "empty": {
+        "title": "No invoices yet",
+        "description": "Create your first invoice to start tracking client billing."
+      },
+      "attach": {
+        "title": "Attach documents",
+        "description": "Attach contracts, signed quotes or proof of delivery."
+      },
+      "toasts": {
+        "created": "Invoice created",
+        "marked": "Marked as {status}",
+        "failed": "Could not save"
+      }
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "Shared across the A2E Suite. Link invoices, expenses, books and fiches.",
+      "new": "New project",
+      "openFiche": "Open project sheet",
+      "status": {
+        "planning": "Planning",
+        "active": "Active",
+        "on_hold": "On hold",
+        "completed": "Completed"
+      },
+      "empty": {
+        "title": "No projects yet",
+        "description": "Create a project to group invoices, expenses and tasks."
+      },
+      "budget": "Budget",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "toasts": {
+        "created": "Project created",
+        "failed": "Could not save"
+      }
+    },
+    "fiches": {
+      "navTitle": "Project sheets",
+      "title": "Project sheets",
+      "description": "Smart, printable association project sheets (fiches projet). Filled or empty PDF export, customizable templates.",
+      "new": "New project sheet",
+      "newFromTemplate": "From template",
+      "newBlank": "Blank sheet",
+      "templateLabel": "Template",
+      "open": "Open sheet",
+      "duplicate": "Duplicate",
+      "exportPdf": "Export to PDF",
+      "exportBlankPdf": "Empty PDF",
+      "exportFilledPdf": "Filled PDF",
+      "saved": "Saved",
+      "saving": "Saving…",
+      "lastSaved": "Last saved {when}",
+      "linkedProject": "Linked project (optional)",
+      "noProjectLinked": "— No project linked —",
+      "search": "Search sheets…",
+      "empty": {
+        "title": "No project sheets yet",
+        "description": "Start from a template (e.g. Fiche projet associatif) or a blank sheet."
+      },
+      "templates": {
+        "asso_fr": {
+          "name": "Fiche projet associatif (FR)",
+          "description": "French association project sheet — identity, context, audience, objectives, actions, partners, evaluation."
+        },
+        "blank": {
+          "name": "Blank sheet",
+          "description": "Start from scratch with a free-form rich text editor."
+        }
+      },
+      "fields": {
+        "title": "Title",
+        "subtitle": "Subtitle",
+        "ficheTitle": "Sheet title",
+        "logo": "Logo",
+        "partnerLogo": "Partner logo",
+        "association": "Association / Department",
+        "referent": "Project lead",
+        "phone": "Phone",
+        "email": "Email",
+        "thematic": "Thematic",
+        "thematics": {
+          "culture": "Culture",
+          "sport": "Sport",
+          "social": "Social",
+          "education": "Education",
+          "other": "Other"
+        },
+        "context": "Initial situation, problem or need identified",
+        "origin": "Origin of the idea (field, volunteers, partners…)",
+        "linkToProject": "Link to the global association project",
+        "audience": "Target audience",
+        "ageProfile": "Profile / age",
+        "estimatedParticipants": "Estimated participants",
+        "geographicArea": "Geographic area",
+        "identifiedNeeds": "Identified needs",
+        "needs": {
+          "isolation": "Isolation / lack of social ties",
+          "economic": "Economic difficulties",
+          "culturalAccess": "Lack of access to cultural / sport offer",
+          "educational": "Educational difficulties",
+          "other": "Other"
+        },
+        "generalObjective": "General objective (one sentence)",
+        "specificObjectives": "Specific objectives (3 to 4 operational objectives)",
+        "actionTypes": "Type of planned actions",
+        "actions": {
+          "workshops": "Regular workshops",
+          "event": "One-off event",
+          "individualSupport": "Individual support",
+          "awareness": "Awareness / information",
+          "other": "Other"
+        },
+        "action": "Action {n}",
+        "actionDescription": "Action description",
+        "audienceLabel": "Audience",
+        "frequency": "Frequency",
+        "period": "Period / dates",
+        "addAction": "Add an action",
+        "removeAction": "Remove",
+        "humanResources": "Human resources",
+        "volunteers": "Volunteers",
+        "employees": "Employees",
+        "externalContributors": "External contributors",
+        "materialResources": "Material / logistical resources",
+        "partners": "Potential partners",
+        "partnersOptions": {
+          "localGov": "Local authorities",
+          "associations": "Other associations",
+          "schools": "Schools / universities",
+          "companies": "Companies / sponsoring",
+          "other": "Other"
+        },
+        "successIndicators": "Success indicators",
+        "targetParticipants": "Target participants",
+        "targetAttendance": "Target attendance rate (%)",
+        "qualitativeIndicators": "Other qualitative indicators",
+        "trackingTools": "Tracking tools",
+        "trackingOptions": {
+          "attendance": "Attendance sheets",
+          "satisfaction": "Satisfaction questionnaire",
+          "collective": "Collective discussion time",
+          "report": "Written report / activity report",
+          "other": "Other"
+        },
+        "perspectives": "Perspectives (renewal, extension, adaptation)",
+        "date": "Date",
+        "referentSignature": "Project lead signature",
+        "boardVisa": "Board / Council visa",
+        "boardOpinion": "Board opinion",
+        "opinions": {
+          "favorable": "Favorable",
+          "reserved": "Reserved",
+          "unfavorable": "Unfavorable"
+        },
+        "observations": "Board observations"
+      }
+    },
+    "book": {
+      "title": "Books",
+      "description": "Custom spreadsheets for any financial data. Export to CSV / Google Sheets compatible.",
+      "new": "New sheet",
+      "startFromTemplate": "Start from a template",
+      "sheetName": "Sheet name",
+      "rows": "{count, plural, =0 {No rows} =1 {1 row} other {# rows}}",
+      "columns": "{count, plural, =0 {No columns} =1 {1 column} other {# columns}}",
+      "addRow": "Add row",
+      "updated": "Updated {when}",
+      "empty": {
+        "title": "No sheets yet",
+        "description": "Create your first book sheet to start tracking financial data."
+      },
+      "templates": {
+        "cashflow": "Cash flow",
+        "donations": "Donations log",
+        "grants": "Grants tracker",
+        "custom": "Blank sheet"
+      },
+      "toasts": {
+        "created": "Sheet created",
+        "failed": "Could not save"
+      }
+    },
+    "documents": {
+      "title": "Documents",
+      "description": "Receipts, contracts, certificates — stored securely on Backblaze B2 (EU).",
+      "uploadTitle": "Upload new document",
+      "uploadDescription": "Files uploaded here are not linked to any entity. You can link them from an invoice, expense, project or book entry.",
+      "storage": {
+        "used": "Storage used",
+        "files": "{count, plural, =0 {No files} =1 {1 file} other {# files}}"
+      },
+      "empty": {
+        "title": "No documents yet",
+        "description": "Upload receipts, certificates and supporting files."
+      }
+    },
+    "reports": {
+      "title": "Reports",
+      "description": "Aggregated insights across {workspace}.",
+      "totals": {
+        "income": "Total income",
+        "expenses": "Total expenses",
+        "invoiced": "Total invoiced",
+        "net": "Net"
+      },
+      "monthly": "Monthly income vs expenses",
+      "byCategory": "Expenses by category",
+      "noData": "No data yet.",
+      "composition": {
+        "title": "Income / Expense composition",
+        "subtitle": "Normalized monthly breakdown over the last 12 months"
+      }
+    },
+    "activity": {
+      "title": "Activity log",
+      "description": "Immutable audit trail for this workspace.",
+      "empty": {
+        "title": "No activity yet",
+        "description": "Workspace events will be logged here."
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Manage your profile and active workspace.",
+      "profile": "Profile",
+      "workspace": "Workspace",
+      "exportGdpr": "Export GDPR data",
+      "danger": "Danger zone",
+      "dangerDescription": "Deleting a workspace removes all invoices, expenses, books, budgets, projects and members associated with it. This action is permanent.",
+      "deleteWorkspace": "Delete workspace",
+      "signOut": "Sign out",
+      "toasts": {
+        "profileSaved": "Profile saved",
+        "workspaceSaved": "Workspace saved",
+        "workspaceDeleted": "Workspace deleted",
+        "failed": "Could not save"
+      }
+    },
+    "legal": {
+      "title": "Legal & compliance",
+      "description": "GDPR, data residency and security details for A2EMoney.",
+      "privacyDesc": "How we collect, store and process your data.",
+      "termsDesc": "The rules you agree to when using the service.",
+      "residency": {
+        "title": "Data residency",
+        "items": [
+          "Database hosted on Convex (EU - Paris region)",
+          "Documents stored on Backblaze B2 (EU - Central, Frankfurt)",
+          "Workspaces are fully isolated; cross-workspace access is denied by construction",
+          "All writes are recorded in the activity log for legal traceability",
+          "Workspace owners can export all data as JSON at any time (GDPR)"
+        ]
+      },
+      "read": "Read"
+    },
+    "invite": {
+      "invitedTitle": "You're invited to join",
+      "asRole": "As a {role}, you'll be able to collaborate on this workspace.",
+      "accept": "Accept invitation",
+      "signInToAccept": "Sign in to accept",
+      "notFound": "Invitation not found",
+      "notFoundDescription": "This invitation does not exist or has been revoked.",
+      "goHome": "Go home",
+      "noLongerValid": "Invitation {status}",
+      "noLongerValidDescription": "This invitation is no longer valid.",
+      "goDashboard": "Go to dashboard",
+      "joined": "Joined workspace!"
+    },
+    "preview": {
+      "title": "File preview",
+      "download": "Download",
+      "openOriginal": "Open original",
+      "loading": "Loading preview…",
+      "noPreview": "No preview available for this file type."
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Wallet } from "lucide-react"
+import { Wallet } from "@/components/iconsax"
 import Link from "next/link"
 
 export default function PrivacyPage() {

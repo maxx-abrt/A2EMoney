@@ -89,47 +89,7 @@
     "income": "Revenu",
     "expense": "Dépense",
     "pending": "En attente",
-    "linkedTo": "Lié à",
-    "cancel": "Annuler",
-    "save": "Enregistrer",
-    "create": "Créer",
-    "edit": "Modifier",
-    "delete": "Supprimer",
-    "remove": "Retirer",
-    "confirm": "Confirmer",
-    "loading": "Chargement…",
-    "search": "Rechercher…",
-    "all": "Tout",
-    "actions": "Actions",
-    "details": "Détails",
-    "back": "Retour",
-    "next": "Suivant",
-    "yes": "Oui",
-    "no": "Non",
-    "close": "Fermer",
-    "view": "Voir",
-    "open": "Ouvrir",
-    "export": "Exporter",
-    "import": "Importer",
-    "download": "Télécharger",
-    "upload": "Téléverser",
-    "amount": "Montant",
-    "date": "Date",
-    "status": "Statut",
-    "name": "Nom",
-    "description": "Description",
-    "category": "Catégorie",
-    "currency": "Devise",
-    "client": "Client",
-    "project": "Projet",
-    "notes": "Notes",
-    "settings": "Paramètres",
-    "today": "Aujourd'hui",
-    "thisMonth": "Ce mois-ci",
-    "thisYear": "Cette année",
-    "noResults": "Aucun résultat",
-    "errorOccurred": "Une erreur est survenue",
-    "tryAgain": "Réessayer"
+    "linkedTo": "Lié à"
   },
   "nav": {
     "features": "Fonctionnalités",
@@ -147,22 +107,42 @@
     "legal": "Légal",
     "reports": "Rapports",
     "team": "Équipe",
+    "activity": "Activité",
+    "fiches": "Fiches projet",
     "settings": "Paramètres",
     "signOut": "Déconnexion",
     "storage": "Stockage"
   },
   "landing": {
-    "badge": "Disponible pour particuliers et entreprises",
+    "badge": "v1.0 · Lancement progressif",
     "hero": {
-      "title": "Gestion financière,",
-      "highlight": "simplifiée",
-      "description": "Plateforme tout-en-un pour la budgétisation, la facturation, le suivi des dépenses et les rapports financiers. Conçue pour les particuliers, adaptée aux entreprises. 500Mo de stockage gratuit inclus.",
+      "title": "Construisons",
+      "highlight": "l'avenir financier",
+      "description": "A2EMoney accompagne particuliers, associations et entreprises de l'idée au pilotage : budgets, factures, dépenses, livre comptable, projets et collaboration, sans complexité inutile.",
       "startFree": "Commencer gratuitement",
       "seeHowItWorks": "Voir comment ça marche",
       "benefits": {
         "freeForever": "Plan gratuit à vie",
         "storage": "500Mo de stockage documents",
         "setup": "Configuration en 2 minutes"
+      },
+      "tail": "de votre organisation",
+      "primaryCta": "Accès anticipé",
+      "secondaryCta": "Nous contacter",
+      "trustLine": "Choisi par les créateurs, les équipes et les associations",
+      "stats": {
+        "teams": {
+          "value": "15+",
+          "label": "Équipes actives"
+        },
+        "uptime": {
+          "value": "99.9%",
+          "label": "Disponibilité"
+        },
+        "tx": {
+          "value": "120k+",
+          "label": "Transactions"
+        }
       }
     },
     "profiles": {
@@ -171,13 +151,23 @@
       "individual": {
         "title": "Particulier",
         "description": "Suivez vos dépenses personnelles, définissez des budgets et gérez vos objectifs financiers en toute simplicité.",
-        "features": ["Suivi budgétaire personnel", "Catégorisation des dépenses", "Objectifs d'épargne", "Insights financiers"],
+        "features": [
+          "Suivi budgétaire personnel",
+          "Catégorisation des dépenses",
+          "Objectifs d'épargne",
+          "Insights financiers"
+        ],
         "cta": "Commencer en tant que Particulier"
       },
       "business": {
         "title": "Entreprise / Association",
         "description": "Gestion financière complète avec facturation, budgets projet et conformité légale.",
-        "features": ["Facturation professionnelle", "Tableaux de budgets projet", "Outils de conformité légale", "Accès multi-utilisateurs"],
+        "features": [
+          "Facturation professionnelle",
+          "Tableaux de budgets projet",
+          "Outils de conformité légale",
+          "Accès multi-utilisateurs"
+        ],
         "cta": "Commencer en tant qu'Entreprise",
         "badge": "POPULAIRE"
       }
@@ -226,10 +216,22 @@
       "cta": "Essayer le Système de Livre"
     },
     "stats": {
-      "activeUsers": { "value": "50K+", "label": "Utilisateurs Actifs" },
-      "invoices": { "value": "2M+", "label": "Factures Créées" },
-      "uptime": { "value": "99.9%", "label": "Disponibilité" },
-      "rating": { "value": "4.9/5", "label": "Note Utilisateurs" }
+      "activeUsers": {
+        "value": "50K+",
+        "label": "Utilisateurs Actifs"
+      },
+      "invoices": {
+        "value": "2M+",
+        "label": "Factures Créées"
+      },
+      "uptime": {
+        "value": "99.9%",
+        "label": "Disponibilité"
+      },
+      "rating": {
+        "value": "4.9/5",
+        "label": "Note Utilisateurs"
+      }
     },
     "pricing": {
       "title": "Tarifs simples et transparents",
@@ -239,14 +241,27 @@
           "name": "Gratuit",
           "price": "0",
           "description": "Parfait pour commencer",
-          "features": ["Budgets personnels", "Suivi des dépenses", "Rapports basiques", "500Mo stockage", "1 utilisateur"],
+          "features": [
+            "Budgets personnels",
+            "Suivi des dépenses",
+            "Rapports basiques",
+            "500Mo stockage",
+            "1 utilisateur"
+          ],
           "cta": "Commencer Gratuit"
         },
         "pro": {
           "name": "Pro",
           "price": "19",
           "description": "Pour les entreprises en croissance",
-          "features": ["Tout du Gratuit", "Facturation professionnelle", "Tableaux de projets", "5Go stockage", "5 utilisateurs", "Support prioritaire"],
+          "features": [
+            "Tout du Gratuit",
+            "Facturation professionnelle",
+            "Tableaux de projets",
+            "5Go stockage",
+            "5 utilisateurs",
+            "Support prioritaire"
+          ],
           "cta": "Essai Pro",
           "badge": "LE PLUS POPULAIRE"
         },
@@ -254,7 +269,14 @@
           "name": "Entreprise",
           "price": "49",
           "description": "Pour les grandes organisations",
-          "features": ["Tout du Pro", "Utilisateurs illimités", "Conformité légale", "50Go stockage", "Accès API", "Intégrations personnalisées"],
+          "features": [
+            "Tout du Pro",
+            "Utilisateurs illimités",
+            "Conformité légale",
+            "50Go stockage",
+            "Accès API",
+            "Intégrations personnalisées"
+          ],
           "cta": "Contacter les Ventes"
         }
       },
@@ -291,6 +313,93 @@
       "terms": "Conditions",
       "contact": "Contact",
       "copyright": "2024 A2EMoney. Tous droits réservés."
+    },
+    "why": {
+      "tag": "POURQUOI A2EMONEY",
+      "title": "Conçue pour la vitesse. Bâtie pour grandir.",
+      "description": "Une approche claire et moderne qui aide les équipes à structurer leurs finances, à livrer plus vite et à grandir avec confiance.",
+      "items": {
+        "speed": {
+          "title": "Exécution rapide",
+          "description": "Mettez en route facturation, dépenses et budgets en quelques minutes."
+        },
+        "clarity": {
+          "title": "Direction claire",
+          "description": "Transformez vos chiffres en décisions, sans tableurs interminables."
+        },
+        "scale": {
+          "title": "Fondation évolutive",
+          "description": "Workspaces isolés, rôles, projets, pensé pour grandir avec vous."
+        },
+        "design": {
+          "title": "Design soigné",
+          "description": "Chaque détail est pensé pour la clarté et le plaisir d'utilisation."
+        },
+        "vision": {
+          "title": "Vision long terme",
+          "description": "On construit pour la durée, au-delà du premier lancement."
+        },
+        "founder": {
+          "title": "Pensé pour vous",
+          "description": "Adapté au rythme et aux besoins des équipes et associations."
+        }
+      }
+    },
+    "intuitive": {
+      "title": "Intuitif par conception",
+      "description": "Nous misons sur la clarté, l'équilibre et la simplicité, pour que vos idées et vos finances avancent en confiance.",
+      "cta": "En savoir plus",
+      "bullets": [
+        "Structure réfléchie",
+        "Vision orientée croissance",
+        "Interface calme et lisible",
+        "Conçue pour communiquer clairement"
+      ]
+    },
+    "evolve": {
+      "title": "Conçue pour évoluer",
+      "description": "Que vous lanciez une idée ou prépariez une montée en charge, notre approche s'adapte à votre rythme.",
+      "cta": "En savoir plus",
+      "bullets": [
+        "Rôles & permissions",
+        "Mises à jour instantanées",
+        "Partage sécurisé",
+        "Fondation flexible",
+        "Multi-équipes et appareils"
+      ]
+    },
+    "faqs": {
+      "tag": "FAQ",
+      "title": "Questions fréquentes",
+      "description": "Donnez les bons accès aux bonnes personnes, sans aller-retour.",
+      "items": [
+        {
+          "q": "Pour qui A2EMoney est-il fait ?",
+          "a": "Particuliers, freelances, associations et petites équipes qui veulent piloter leurs finances simplement."
+        },
+        {
+          "q": "Faut-il un produit fini ?",
+          "a": "Non. A2EMoney vous accompagne dès le départ, vous construisez votre comptabilité au fil de l'eau."
+        },
+        {
+          "q": "Peut-on grandir avec A2EMoney ?",
+          "a": "Oui. Workspaces isolés, rôles, projets, exports légaux : pensé pour grandir."
+        },
+        {
+          "q": "Est-ce réservé à un secteur ?",
+          "a": "Non. Les principes de clarté et de structure s'appliquent à toute organisation."
+        },
+        {
+          "q": "Y a-t-il du support ?",
+          "a": "Oui, magic-link auth, exports RGPD, suivi d'activité, et nous sommes joignables."
+        }
+      ]
+    },
+    "ctaFinal": {
+      "title": "Prêt à donner vie à votre projet ?",
+      "description": "Rejoignez les équipes et associations qui bâtissent leur prochaine étape avec A2EMoney.",
+      "primary": "Accès anticipé",
+      "secondary": "Nous contacter"
     }
   },
   "dashboard": {
@@ -329,12 +438,6 @@
     "search": "Rechercher transactions, factures...",
     "myAccount": "Mon Compte",
     "profile": "Profil"
-  },
-  "common": {
-    "income": "Revenu",
-    "expense": "Dépense",
-    "pending": "En attente",
-    "linkedTo": "Lié à"
   },
   "notifications": {
     "open": "Ouvrir les notifications",
@@ -442,6 +545,404 @@
       },
       "emptyTitle": "Votre livre est vide",
       "emptyDescription": "Ajoutez une dépense, un revenu ou une facture — ils apparaîtront ici automatiquement."
+    }
+  },
+  "pages": {
+    "sections": {
+      "workspace": "Espace",
+      "manage": "Gestion",
+      "tools": "Outils"
+    },
+    "dashboard": {
+      "welcome": "Bon retour",
+      "addExpense": "Ajouter une dépense",
+      "newInvoice": "Nouvelle facture",
+      "stats": {
+        "totalBalance": "Solde total",
+        "monthlyIncome": "Revenus du mois",
+        "monthlyExpenses": "Dépenses du mois",
+        "pendingInvoices": "Factures en attente"
+      },
+      "recentTransactions": {
+        "title": "Transactions récentes",
+        "description": "Votre dernière activité financière",
+        "viewAll": "Voir tout",
+        "empty": "Enregistrez votre première dépense ou recette pour la voir ici."
+      },
+      "pendingInvoices": {
+        "title": "Factures en attente",
+        "description": "En attente de paiement",
+        "manage": "Gérer les factures",
+        "empty": "Créez votre première facture pour suivre les paiements."
+      },
+      "activity": {
+        "title": "Dernière activité",
+        "description": "Changements de l'équipe et de l'espace",
+        "empty": "Rien ne s'est encore passé."
+      },
+      "selectWorkspace": "Sélectionnez ou créez un espace pour continuer."
+    },
+    "budget": {
+      "title": "Budgets",
+      "description": "Définissez des plafonds par catégorie. Calculés automatiquement à partir des dépenses.",
+      "new": "Nouveau budget",
+      "empty": {
+        "title": "Aucun budget pour l'instant",
+        "description": "Créez un budget pour suivre les dépenses par catégorie."
+      },
+      "period": "Période",
+      "periods": {
+        "monthly": "Mensuel",
+        "yearly": "Annuel",
+        "custom": "Personnalisé"
+      },
+      "start": "Début",
+      "end": "Fin",
+      "color": "Couleur",
+      "spent": "Dépensé",
+      "toasts": {
+        "created": "Budget créé",
+        "failed": "Impossible d'enregistrer"
+      }
+    },
+    "expenses": {
+      "title": "Dépenses & recettes",
+      "description": "Suivez vos flux, attachez des justificatifs, liez aux projets.",
+      "add": "Ajouter une transaction",
+      "addExpense": "Ajouter une dépense",
+      "addIncome": "Ajouter une recette",
+      "type": "Type",
+      "expense": "Dépense",
+      "income": "Recette",
+      "paymentMethod": "Moyen de paiement",
+      "project": "Projet (optionnel)",
+      "noProject": "— Aucun projet —",
+      "totals": {
+        "income": "Recettes",
+        "expenses": "Dépenses",
+        "net": "Net"
+      },
+      "empty": {
+        "title": "Aucune transaction pour l'instant",
+        "description": "Enregistrez votre première dépense ou recette pour la voir ici."
+      },
+      "attach": {
+        "title": "Joindre des justificatifs",
+        "description": "Ajoutez les reçus ou pièces justificatives. Ils seront liés automatiquement."
+      },
+      "done": "Terminé",
+      "toasts": {
+        "addedExpense": "Dépense ajoutée",
+        "addedIncome": "Recette ajoutée",
+        "failed": "Impossible d'enregistrer"
+      }
+    },
+    "invoices": {
+      "title": "Factures",
+      "description": "Créez, envoyez et suivez les paiements. Numérotation automatique par année.",
+      "new": "Nouvelle facture",
+      "clientEmail": "E-mail du client",
+      "clientAddress": "Adresse du client",
+      "issueDate": "Date d'émission",
+      "dueDate": "Échéance",
+      "lineItems": "Lignes",
+      "addLine": "Ajouter une ligne",
+      "taxRate": "Taux de TVA (%)",
+      "subtotal": "Sous-total",
+      "tax": "TVA",
+      "total": "Total",
+      "number": "Numéro",
+      "issue": "Émission",
+      "due": "Échéance",
+      "actions": {
+        "markSent": "Marquer envoyée",
+        "markPaid": "Marquer payée",
+        "markOverdue": "Marquer en retard",
+        "backToDraft": "Repasser en brouillon",
+        "delete": "Supprimer"
+      },
+      "status": {
+        "draft": "Brouillon",
+        "sent": "Envoyée",
+        "paid": "Payée",
+        "overdue": "En retard",
+        "cancelled": "Annulée"
+      },
+      "empty": {
+        "title": "Aucune facture pour l'instant",
+        "description": "Créez votre première facture pour suivre la facturation client."
+      },
+      "attach": {
+        "title": "Joindre des documents",
+        "description": "Joignez contrats, devis signés ou preuves de livraison."
+      },
+      "toasts": {
+        "created": "Facture créée",
+        "marked": "Marquée {status}",
+        "failed": "Impossible d'enregistrer"
+      }
+    },
+    "projects": {
+      "title": "Projets",
+      "description": "Partagés dans toute la Suite A2E. Liez factures, dépenses, livres et fiches projet.",
+      "new": "Nouveau projet",
+      "openFiche": "Ouvrir la fiche projet",
+      "status": {
+        "planning": "Planification",
+        "active": "Actif",
+        "on_hold": "En pause",
+        "completed": "Terminé"
+      },
+      "empty": {
+        "title": "Aucun projet pour l'instant",
+        "description": "Créez un projet pour regrouper factures, dépenses et tâches."
+      },
+      "budget": "Budget",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "toasts": {
+        "created": "Projet créé",
+        "failed": "Impossible d'enregistrer"
+      }
+    },
+    "fiches": {
+      "navTitle": "Fiches projet",
+      "title": "Fiches projet",
+      "description": "Fiches projet imprimables intelligentes (associatives & business). Export PDF vide ou rempli, modèles personnalisables.",
+      "new": "Nouvelle fiche projet",
+      "newFromTemplate": "Depuis un modèle",
+      "newBlank": "Fiche vierge",
+      "templateLabel": "Modèle",
+      "open": "Ouvrir la fiche",
+      "duplicate": "Dupliquer",
+      "exportPdf": "Exporter en PDF",
+      "exportBlankPdf": "PDF vierge",
+      "exportFilledPdf": "PDF rempli",
+      "saved": "Enregistré",
+      "saving": "Enregistrement…",
+      "lastSaved": "Enregistré {when}",
+      "linkedProject": "Projet lié (optionnel)",
+      "noProjectLinked": "— Aucun projet lié —",
+      "search": "Rechercher des fiches…",
+      "empty": {
+        "title": "Aucune fiche projet",
+        "description": "Démarrez à partir d'un modèle (ex. Fiche projet associatif) ou d'une fiche vierge."
+      },
+      "templates": {
+        "asso_fr": {
+          "name": "Fiche projet associatif (FR)",
+          "description": "Fiche projet associatif — identité, contexte, public, objectifs, actions, partenaires, évaluation."
+        },
+        "blank": {
+          "name": "Fiche vierge",
+          "description": "Démarrez avec un éditeur de texte enrichi libre."
+        }
+      },
+      "fields": {
+        "title": "Titre",
+        "subtitle": "Sous-titre",
+        "ficheTitle": "Titre de la fiche",
+        "logo": "Logo",
+        "partnerLogo": "Logo partenaire",
+        "association": "Association / Service",
+        "referent": "Référent du projet",
+        "phone": "Téléphone",
+        "email": "E-mail",
+        "thematic": "Thématique",
+        "thematics": {
+          "culture": "Culture",
+          "sport": "Sport",
+          "social": "Social",
+          "education": "Éducation",
+          "other": "Autre"
+        },
+        "context": "Constat de départ (situation, problème, besoin repéré)",
+        "origin": "Origine de l'idée (terrain, bénévoles, partenaires…)",
+        "linkToProject": "Lien avec le projet associatif global",
+        "audience": "Public(s) visé(s)",
+        "ageProfile": "Profil / âge",
+        "estimatedParticipants": "Nombre estimé de participants",
+        "geographicArea": "Zone géographique",
+        "identifiedNeeds": "Besoins repérés",
+        "needs": {
+          "isolation": "Isolement / manque de lien social",
+          "economic": "Difficultés économiques",
+          "culturalAccess": "Manque d'accès à l'offre culturelle / sportive",
+          "educational": "Difficultés scolaires / éducatives",
+          "other": "Autre"
+        },
+        "generalObjective": "Objectif général (en une phrase)",
+        "specificObjectives": "Objectifs spécifiques (3 à 4 objectifs opérationnels)",
+        "actionTypes": "Type d'actions prévues",
+        "actions": {
+          "workshops": "Ateliers réguliers",
+          "event": "Événement ponctuel",
+          "individualSupport": "Accompagnement individuel",
+          "awareness": "Sensibilisation / information",
+          "other": "Autre"
+        },
+        "action": "Action {n}",
+        "actionDescription": "Description de l'action",
+        "audienceLabel": "Public",
+        "frequency": "Fréquence",
+        "period": "Période / dates",
+        "addAction": "Ajouter une action",
+        "removeAction": "Retirer",
+        "humanResources": "Moyens humains",
+        "volunteers": "Bénévoles",
+        "employees": "Salariés",
+        "externalContributors": "Intervenants externes",
+        "materialResources": "Moyens matériels / logistiques",
+        "partners": "Partenaires pressentis",
+        "partnersOptions": {
+          "localGov": "Collectivités locales",
+          "associations": "Autres associations",
+          "schools": "Établissements scolaires / universitaires",
+          "companies": "Entreprises / mécénat",
+          "other": "Autre"
+        },
+        "successIndicators": "Indicateurs de réussite",
+        "targetParticipants": "Cible : nombre de participants",
+        "targetAttendance": "Cible : taux de participation (%)",
+        "qualitativeIndicators": "Autres indicateurs (qualitatifs)",
+        "trackingTools": "Outils de suivi",
+        "trackingOptions": {
+          "attendance": "Feuilles de présence",
+          "satisfaction": "Questionnaire de satisfaction",
+          "collective": "Temps d'échange collectif",
+          "report": "Bilan écrit / rapport d'activité",
+          "other": "Autre"
+        },
+        "perspectives": "Perspectives (reconduction, extension, adaptation)",
+        "date": "Date",
+        "referentSignature": "Signature du référent du projet",
+        "boardVisa": "Visa du Bureau / Conseil d'Administration",
+        "boardOpinion": "Avis du Bureau",
+        "opinions": {
+          "favorable": "Avis favorable",
+          "reserved": "Avis réservé",
+          "unfavorable": "Avis défavorable"
+        },
+        "observations": "Observations du Bureau"
+      }
+    },
+    "book": {
+      "title": "Livres",
+      "description": "Feuilles personnalisées pour toutes vos données financières. Export CSV / compatible Google Sheets.",
+      "new": "Nouvelle feuille",
+      "startFromTemplate": "Démarrer avec un modèle",
+      "sheetName": "Nom de la feuille",
+      "rows": "{count, plural, =0 {Aucune ligne} =1 {1 ligne} other {# lignes}}",
+      "columns": "{count, plural, =0 {Aucune colonne} =1 {1 colonne} other {# colonnes}}",
+      "addRow": "Ajouter une ligne",
+      "updated": "Mis à jour {when}",
+      "empty": {
+        "title": "Aucune feuille pour l'instant",
+        "description": "Créez votre première feuille pour suivre vos données financières."
+      },
+      "templates": {
+        "cashflow": "Trésorerie",
+        "donations": "Journal des dons",
+        "grants": "Suivi des subventions",
+        "custom": "Feuille vierge"
+      },
+      "toasts": {
+        "created": "Feuille créée",
+        "failed": "Impossible d'enregistrer"
+      }
+    },
+    "documents": {
+      "title": "Documents",
+      "description": "Reçus, contrats, certificats — stockés sur Backblaze B2 (UE, Francfort).",
+      "uploadTitle": "Téléverser un document",
+      "uploadDescription": "Les fichiers téléversés ici ne sont liés à aucune entité. Vous pourrez les lier depuis une facture, dépense, projet ou ligne de livre.",
+      "storage": {
+        "used": "Stockage utilisé",
+        "files": "{count, plural, =0 {Aucun fichier} =1 {1 fichier} other {# fichiers}}"
+      },
+      "empty": {
+        "title": "Aucun document pour l'instant",
+        "description": "Téléversez vos reçus, certificats et pièces justificatives."
+      }
+    },
+    "reports": {
+      "title": "Rapports",
+      "description": "Indicateurs consolidés pour {workspace}.",
+      "totals": {
+        "income": "Total recettes",
+        "expenses": "Total dépenses",
+        "invoiced": "Total facturé",
+        "net": "Net"
+      },
+      "monthly": "Recettes vs dépenses mensuelles",
+      "byCategory": "Dépenses par catégorie",
+      "noData": "Pas encore de données.",
+      "composition": {
+        "title": "Composition revenus / dépenses",
+        "subtitle": "Répartition mensuelle normalisée sur les 12 derniers mois"
+      }
+    },
+    "activity": {
+      "title": "Journal d'activité",
+      "description": "Trace immuable et auditable de cet espace.",
+      "empty": {
+        "title": "Aucune activité pour l'instant",
+        "description": "Les événements de l'espace apparaîtront ici."
+      }
+    },
+    "settings": {
+      "title": "Paramètres",
+      "description": "Gérez votre profil et l'espace de travail actif.",
+      "profile": "Profil",
+      "workspace": "Espace de travail",
+      "exportGdpr": "Exporter données RGPD",
+      "danger": "Zone dangereuse",
+      "dangerDescription": "Supprimer un espace de travail efface toutes les factures, dépenses, livres, budgets, projets et membres associés. Cette action est définitive.",
+      "deleteWorkspace": "Supprimer l'espace",
+      "signOut": "Se déconnecter",
+      "toasts": {
+        "profileSaved": "Profil enregistré",
+        "workspaceSaved": "Espace enregistré",
+        "workspaceDeleted": "Espace supprimé",
+        "failed": "Impossible d'enregistrer"
+      }
+    },
+    "legal": {
+      "title": "Légal & conformité",
+      "description": "RGPD, résidence des données et sécurité pour A2EMoney.",
+      "privacyDesc": "Comment nous collectons, stockons et traitons vos données.",
+      "termsDesc": "Les règles que vous acceptez en utilisant le service.",
+      "residency": {
+        "title": "Résidence des données",
+        "items": [
+          "Base de données hébergée sur Convex (UE - région Paris)",
+          "Documents stockés sur Backblaze B2 (UE - Central, Francfort)",
+          "Les espaces sont totalement isolés ; tout accès inter-espace est refusé par construction",
+          "Toutes les écritures sont enregistrées dans le journal d'activité pour traçabilité légale",
+          "Les propriétaires peuvent exporter toutes les données en JSON à tout moment (RGPD)"
+        ]
+      },
+      "read": "Lire"
+    },
+    "invite": {
+      "invitedTitle": "Vous êtes invité·e à rejoindre",
+      "asRole": "En tant que {role}, vous pourrez collaborer sur cet espace.",
+      "accept": "Accepter l'invitation",
+      "signInToAccept": "Se connecter pour accepter",
+      "notFound": "Invitation introuvable",
+      "notFoundDescription": "Cette invitation n'existe pas ou a été révoquée.",
+      "goHome": "Retour à l'accueil",
+      "noLongerValid": "Invitation {status}",
+      "noLongerValidDescription": "Cette invitation n'est plus valide.",
+      "goDashboard": "Aller au tableau de bord",
+      "joined": "Vous avez rejoint l'espace !"
+    },
+    "preview": {
+      "title": "Aperçu du fichier",
+      "download": "Télécharger",
+      "openOriginal": "Ouvrir l'original",
+      "loading": "Chargement de l'aperçu…",
+      "noPreview": "Aucun aperçu disponible pour ce type de fichier."
     }
   }
 }

@@ -5,14 +5,54 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { api } from "./_generated/api";
 import { assertWorkspaceMember, logActivity } from "./lib/auth";
 
+/**
+ * Backblaze B2 storage (S3-compatible).
+ * Env vars on the Convex backend:
+ *   B2_REGION            (e.g. eu-central-003)
+ *   B2_ENDPOINT          (e.g. https://s3.eu-central-003.backblazeb2.com)
+ *   B2_KEY_ID            (S3 access key id)
+ *   B2_APPLICATION_KEY   (S3 secret access key)
+ *   B2_BUCKET_NAME       (e.g. A2E-Drive)
+ *
+ * We keep the legacy AWS_* env vars as fallbacks so old deployments keep working.
+ */
 function getS3() {
+  const endpoint =
+    process.env.B2_ENDPOINT ||
+    (process.env.B2_REGION
+      ? `https://s3.${process.env.B2_REGION}.backblazeb2.com`
+      : process.env.S3_ENDPOINT);
+  const region =
+    process.env.B2_REGION || process.env.AWS_REGION || "eu-central-003";
+  const accessKeyId = process.env.B2_KEY_ID || process.env.AWS_ACCESS_KEY_ID!;
+  const secretAccessKey =
+    process.env.B2_APPLICATION_KEY || process.env.AWS_SECRET_ACCESS_KEY!;
+
   return new S3Client({
-    region: process.env.AWS_REGION!,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    },
+    region,
+    endpoint,
+    forcePathStyle: true, // required for Backblaze B2
+    credentials: { accessKeyId, secretAccessKey },
   });
+}
+
+function getBucket() {
+  return (
+    process.env.B2_BUCKET_NAME ||
+    process.env.S3_BUCKET_NAME ||
+    "A2E-Drive"
+  );
+}
+
+function getEndpointHost() {
+  const endpoint =
+    process.env.B2_ENDPOINT ||
+    (process.env.B2_REGION
+      ? `https://s3.${process.env.B2_REGION}.backblazeb2.com`
+      : null);
+  if (endpoint) return endpoint.replace(/^https?:\/\//, "");
+  const region = process.env.AWS_REGION || "eu-west-3";
+  return `s3.${region}.amazonaws.com`;
 }
 
 function safeFileName(name: string) {
@@ -43,8 +83,7 @@ export const presignUpload = action({
       throw new Error("File too large (max 50MB per file)");
     }
 
-    const bucket = process.env.S3_BUCKET_NAME!;
-    const region = process.env.AWS_REGION!;
+    const bucket = getBucket();
     const key = `workspaces/${args.workspaceId}/${Date.now()}-${safeFileName(
       args.fileName,
     )}`;
@@ -58,7 +97,7 @@ export const presignUpload = action({
     const uploadUrl: string = await getSignedUrl(s3 as any, command as any, {
       expiresIn: 60 * 10, // 10 minutes
     });
-    const publicUrl = `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+    const publicUrl = `https://${getEndpointHost()}/${bucket}/${key}`;
     return { uploadUrl, key, publicUrl };
   },
 });
@@ -71,7 +110,7 @@ export const presignDownload = action({
       documentId: args.documentId,
     });
     if (!doc) return null;
-    const bucket = process.env.S3_BUCKET_NAME!;
+    const bucket = getBucket();
     const s3 = getS3();
     const url: string = await getSignedUrl(
       s3 as any,
@@ -83,6 +122,29 @@ export const presignDownload = action({
       { expiresIn: 60 * 10 },
     );
     return { url, name: doc.name };
+  },
+});
+
+/** Action: returns a presigned GET url to PREVIEW inline (no download disposition). */
+export const presignView = action({
+  args: { documentId: v.id("a2e_documents") },
+  handler: async (ctx, args): Promise<{ url: string; name: string; contentType?: string } | null> => {
+    const doc: any = await ctx.runQuery(api.a2e_documents.get, {
+      documentId: args.documentId,
+    });
+    if (!doc) return null;
+    const bucket = getBucket();
+    const s3 = getS3();
+    const url: string = await getSignedUrl(
+      s3 as any,
+      new GetObjectCommand({
+        Bucket: bucket,
+        Key: doc.s3Key,
+        ResponseContentType: doc.contentType,
+      }) as any,
+      { expiresIn: 60 * 30 },
+    );
+    return { url, name: doc.name, contentType: doc.contentType };
   },
 });
 
@@ -231,7 +293,7 @@ export const remove = action({
       const s3 = getS3();
       await s3.send(
         new DeleteObjectCommand({
-          Bucket: process.env.S3_BUCKET_NAME!,
+          Bucket: getBucket(),
           Key: doc.s3Key,
         }),
       );

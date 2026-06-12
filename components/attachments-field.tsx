@@ -17,7 +17,7 @@ import {
   Paperclip,
   Trash2,
   UploadCloud,
-} from "lucide-react"
+} from "@/components/iconsax"
 
 interface AttachmentsFieldProps {
   linkedTo: {

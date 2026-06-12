@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Globe, Check } from 'lucide-react';
+import { Globe, TickCircle } from '@/components/iconsax';
 
 interface LanguageSwitcherProps {
   variant?: 'default' | 'outline' | 'ghost';
@@ -28,9 +28,10 @@ export function LanguageSwitcher({
   const [isPending, startTransition] = useTransition();
 
   function handleLocaleChange(newLocale: Locale) {
-    startTransition(() => {
-      setUserLocale(newLocale);
-    });
+    // Set cookie directly on client side
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
+    // Reload to apply the new locale
+    window.location.reload();
   }
 
   return (
@@ -54,7 +55,7 @@ export function LanguageSwitcher({
             className="flex items-center justify-between cursor-pointer font-medium"
           >
             <span>{localeLabels[l]}</span>
-            {locale === l && <Check className="h-4 w-4 text-accent" />}
+            {locale === l && <TickCircle size={16} variant="Bulk" className="text-accent" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

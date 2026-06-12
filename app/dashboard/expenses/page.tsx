@@ -1,17 +1,18 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "framer-motion"
 import { useTranslations } from "next-intl"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { useSearchParams } from "next/navigation"
 import { useWorkspace } from "@/lib/workspace-context"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -21,33 +22,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { EmptyState } from "@/components/empty-state"
+import { GlassCard } from "@/components/glass-card"
 import { AttachmentsField } from "@/components/attachments-field"
-import { Plus, Receipt, Trash2, Loader2, ArrowDownRight, ArrowUpRight } from "lucide-react"
+import { Plus, Receipt, Trash2, Loader2, ArrowDownRight, ArrowUpRight } from "@/components/iconsax"
 import { toast } from "sonner"
-import { useSearchParams } from "next/navigation"
 
-const CATEGORIES = [
-  "Food",
-  "Transport",
-  "Housing",
-  "Office",
-  "Marketing",
-  "Software",
-  "Travel",
-  "Salaries",
-  "Taxes",
-  "Utilities",
-  "Other",
-]
-
+const CATEGORIES = ["Food", "Transport", "Housing", "Office", "Marketing", "Software", "Travel", "Salaries", "Taxes", "Utilities", "Other"]
 const PAYMENT_METHODS = ["Card", "Bank transfer", "Cash", "PayPal", "Other"]
 
 export default function ExpensesPage() {
-  const t = useTranslations("common")
+  const t = useTranslations("pages.expenses")
+  const tCommon = useTranslations("common")
   const { activeWorkspace } = useWorkspace()
   const wsId = activeWorkspace?._id
   const currency = activeWorkspace?.currency ?? "EUR"
   const searchParams = useSearchParams()
+
   const expenses = useQuery(api.a2e_expenses.list, wsId ? { workspaceId: wsId } : "skip")
   const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
   const create = useMutation(api.a2e_expenses.create)
@@ -88,28 +78,18 @@ export default function ExpensesPage() {
         projectId: projectId ? (projectId as Id<"projects">) : undefined,
       })
       setSavedId(id)
-      toast.success(type === "income" ? "Income added" : "Expense added")
+      toast.success(type === "income" ? t("toasts.addedIncome") : t("toasts.addedExpense"))
     } catch (err: any) {
-      toast.error(err?.message || "Could not save")
+      toast.error(err?.message || t("toasts.failed"))
     } finally {
       setSaving(false)
     }
   }
 
   function resetForm() {
-    setDescription("")
-    setAmount("")
-    setCategory("Other")
-    setNotes("")
-    setProjectId("")
-    setSavedId(null)
-    setType("expense")
+    setDescription(""); setAmount(""); setCategory("Other"); setNotes(""); setProjectId(""); setSavedId(null); setType("expense")
   }
-
-  function closeDialog() {
-    setOpen(false)
-    setTimeout(resetForm, 200)
-  }
+  function closeDialog() { setOpen(false); setTimeout(resetForm, 200) }
 
   const totals = React.useMemo(() => {
     const list = expenses ?? []
@@ -123,92 +103,60 @@ export default function ExpensesPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Expenses & Income</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Track money in and out, attach receipts, link to projects.
-            </p>
+            <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
           </div>
           <Dialog open={open} onOpenChange={(o) => (o ? setOpen(o) : closeDialog())}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add transaction
-              </Button>
-            </DialogTrigger>
+            <DialogTrigger asChild><Button className="gap-2 rounded-full shadow-sm"><Plus className="h-4 w-4" /> {t("add")}</Button></DialogTrigger>
             <DialogContent className="max-w-xl">
-              <DialogHeader>
-                <DialogTitle>{savedId ? "Attach receipts" : "Add a transaction"}</DialogTitle>
-              </DialogHeader>
+              <DialogHeader><DialogTitle>{savedId ? t("attach.title") : t("add")}</DialogTitle></DialogHeader>
               {!savedId ? (
                 <form onSubmit={handleSave} className="space-y-4">
                   <div className="flex gap-2">
                     {(["expense", "income"] as const).map((opt) => (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => setType(opt)}
-                        className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                          type === opt
-                            ? "border-foreground bg-foreground text-background"
-                            : "border-border hover:bg-muted"
-                        }`}
-                      >
-                        {opt === "expense" ? "Expense" : "Income"}
+                      <button key={opt} type="button" onClick={() => setType(opt)}
+                        className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${type === opt ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted"}`}>
+                        {t(opt)}
                       </button>
                     ))}
                   </div>
-                  <div>
-                    <Label htmlFor="desc">{t("description")}</Label>
-                    <Input id="desc" value={description} onChange={(e) => setDescription(e.target.value)} required />
+                  <div><Label>{tCommon("description")}</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} required /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} required /></div>
+                    <div><Label>{tCommon("date")}</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="amt">{t("amount")} ({currency})</Label>
-                      <Input id="amt" type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-                    </div>
-                    <div>
-                      <Label htmlFor="date">{t("date")}</Label>
-                      <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="cat">{t("category")}</Label>
-                      <select id="cat" value={category} onChange={(e) => setCategory(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                    <div><Label>{tCommon("category")}</Label>
+                      <select value={category} onChange={(e) => setCategory(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
                         {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                       </select>
                     </div>
-                    <div>
-                      <Label htmlFor="pay">Payment method</Label>
-                      <select id="pay" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                    <div><Label>{t("paymentMethod")}</Label>
+                      <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
                         {PAYMENT_METHODS.map((c) => <option key={c}>{c}</option>)}
                       </select>
                     </div>
                   </div>
                   {(projects ?? []).length > 0 && (
-                    <div>
-                      <Label htmlFor="proj">Project (optional)</Label>
-                      <select id="proj" value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                        <option value="">— No project —</option>
+                    <div><Label>{t("project")}</Label>
+                      <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                        <option value="">{t("noProject")}</option>
                         {(projects ?? []).map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
                       </select>
                     </div>
                   )}
-                  <div>
-                    <Label htmlFor="notes">{t("notes")}</Label>
-                    <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
-                  </div>
+                  <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={closeDialog}>{t("cancel")}</Button>
-                    <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("save")}</Button>
+                    <Button type="button" variant="outline" onClick={closeDialog}>{tCommon("cancel")}</Button>
+                    <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("save")}</Button>
                   </DialogFooter>
                 </form>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">Add receipts or supporting documents. They'll be linked automatically.</p>
+                  <p className="text-sm text-muted-foreground">{t("attach.description")}</p>
                   <AttachmentsField linkedTo={{ type: "expense", id: savedId }} documentType="receipt" />
                   <DialogFooter>
-                    <Button onClick={closeDialog}>Done</Button>
+                    <Button onClick={closeDialog}>{t("done")}</Button>
                   </DialogFooter>
                 </div>
               )}
@@ -216,30 +164,25 @@ export default function ExpensesPage() {
           </Dialog>
         </div>
 
-        {/* Totals */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <SummaryCard label="Total income" value={formatCurrency(totals.income, currency)} tone="positive" />
-          <SummaryCard label="Total expenses" value={formatCurrency(totals.out, currency)} tone="negative" />
-          <SummaryCard label="Net" value={formatCurrency(totals.net, currency)} tone={totals.net >= 0 ? "positive" : "negative"} />
+          <SummaryCard label={t("totals.income")} value={formatCurrency(totals.income, currency)} tone="positive" />
+          <SummaryCard label={t("totals.expenses")} value={formatCurrency(totals.out, currency)} tone="negative" />
+          <SummaryCard label={t("totals.net")} value={formatCurrency(totals.net, currency)} tone={totals.net >= 0 ? "positive" : "negative"} />
         </div>
 
-        {/* List */}
-        <div className="rounded-2xl border border-border bg-card">
+        <GlassCard>
           {expenses === undefined ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
+            <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
           ) : expenses.length === 0 ? (
-            <EmptyState
-              icon={Receipt}
-              title="No transactions yet"
-              description="Log your first expense or income to see it here."
-              action={{ onClick: () => setOpen(true), label: "Add transaction" }}
-            />
+            <EmptyState icon={Receipt} title={t("empty.title")} description={t("empty.description")} action={{ onClick: () => setOpen(true), label: t("add") }} />
           ) : (
-            <ul className="divide-y divide-border">
-              {expenses.map((e) => (
-                <li key={e._id} className="flex items-center justify-between gap-3 px-5 py-3">
+            <ul className="divide-y divide-border/60">
+              {expenses.map((e, idx) => (
+                <motion.li
+                  key={e._id}
+                  initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.015 * idx, duration: 0.25 }}
+                  className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/30"
+                >
                   <div className="flex min-w-0 items-center gap-3">
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${e.type === "income" ? "bg-accent/10 text-accent" : "bg-muted"}`}>
                       {e.type === "income" ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
@@ -259,11 +202,11 @@ export default function ExpensesPage() {
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                </li>
+                </motion.li>
               ))}
             </ul>
           )}
-        </div>
+        </GlassCard>
       </div>
     </div>
   )
@@ -272,9 +215,9 @@ export default function ExpensesPage() {
 function SummaryCard({ label, value, tone }: { label: string; value: string; tone: "positive" | "negative" | "neutral" }) {
   const toneCls = tone === "positive" ? "text-accent" : tone === "negative" ? "text-destructive" : "text-foreground"
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <GlassCard className="p-5">
       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className={`mt-2 font-numeric text-2xl font-semibold ${toneCls}`}>{value}</p>
-    </div>
+    </GlassCard>
   )
 }

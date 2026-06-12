@@ -10,7 +10,7 @@ import { useWorkspace } from "@/lib/workspace-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/empty-state"
-import { ArrowLeft, Plus, Download, Loader2, Trash2 } from "lucide-react"
+import { ArrowLeft, Plus, Download, Loader2, Trash2 } from "@/components/iconsax"
 import { toast } from "sonner"
 import { exportToXLSX, exportToCSV } from "@/lib/export"
 

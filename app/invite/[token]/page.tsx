@@ -6,7 +6,7 @@ import { useMutation, useQuery } from "convex/react"
 import { useConvexAuth } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
-import { Loader2, Wallet, CheckCircle2 } from "lucide-react"
+import { Loader2, Wallet, CheckCircle2 } from "@/components/iconsax"
 import { useWorkspace } from "@/lib/workspace-context"
 import { toast } from "sonner"
 

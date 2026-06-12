@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronsUpDown, Check, Plus, Users, Building2, Wallet, HeartHandshake } from "lucide-react"
+import { ChevronsUpDown, Check, Plus, Users, Building2, Wallet, HeartHandshake } from "@/components/iconsax"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 

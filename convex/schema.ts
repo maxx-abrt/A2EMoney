@@ -315,4 +315,42 @@ export default defineSchema({
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_category", ["workspaceId", "category"]),
+
+  /** Workspace-scoped categories for expenses & income. Defaults exist client-side. */
+  a2e_categories: defineTable({
+    workspaceId: v.id("workspaces"),
+    name: v.string(),
+    icon: v.optional(v.string()),
+    color: v.optional(v.string()),
+    type: v.union(v.literal("expense"), v.literal("income"), v.literal("both")),
+    archived: v.optional(v.boolean()),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_workspace", ["workspaceId"]),
+
+  /** Project sheets ("fiches projet") - rich template-based docs linked to projects. */
+  a2e_fiches: defineTable({
+    workspaceId: v.id("workspaces"),
+    projectId: v.optional(v.id("projects")),
+    template: v.string(), // "asso_fr" | "blank" | "custom"
+    title: v.string(),
+    subtitle: v.optional(v.string()),
+    data: v.any(), // template-specific JSON payload
+    status: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("submitted"),
+        v.literal("approved"),
+        v.literal("archived"),
+      ),
+    ),
+    locale: v.optional(v.string()),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_workspace", ["workspaceId"])
+    .index("by_project", ["projectId"]),
 });

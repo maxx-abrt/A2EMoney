@@ -50,6 +50,8 @@ export const exportWorkspace = query({
       "a2e_bookSheets",
       "a2e_bookEntries",
       "a2e_budgets",
+      "a2e_categories",
+      "a2e_fiches",
     ] as const;
     const data: Record<string, any[]> = {};
     for (const t of tables) {

@@ -27,10 +27,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { EmptyState } from "@/components/empty-state"
-import { Users, UserPlus, Loader2, MoreHorizontal, Copy, ShieldCheck, ShieldAlert, Eye, UserCheck, XCircle } from "lucide-react"
+import { People as Users, UserAdd, Refresh as Loader2, MoreCircle as MoreHorizontal, Copy, ShieldTick as ShieldCheck, Danger as ShieldAlert, Eye, ProfileTick as UserCheck, CloseCircle as XCircle } from "@/components/iconsax"
 import { toast } from "sonner"
 
 const ROLES = ["admin", "member", "viewer"] as const
+const UserPlus = UserAdd
 
 export default function TeamPage() {
   const t = useTranslations("team")

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { X, Lightbulb, Sparkles, Info } from "lucide-react"
+import { X, Lightbulb, Sparkles, Info } from "@/components/iconsax"
 import { cn } from "@/lib/utils"
 
 type TipVariant = "tip" | "info" | "ai"

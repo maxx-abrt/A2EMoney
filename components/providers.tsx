@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "sonner"
 import { WorkspaceProvider } from "@/lib/workspace-context"
+import { FilePreviewProvider } from "@/components/file-preview-provider"
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
@@ -17,7 +18,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ConvexAuthNextjsProvider client={convex}>
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
         <WorkspaceProvider>
-          {children}
+          <FilePreviewProvider>
+            {children}
+          </FilePreviewProvider>
           <Toaster />
           <SonnerToaster position="top-right" richColors closeButton />
         </WorkspaceProvider>

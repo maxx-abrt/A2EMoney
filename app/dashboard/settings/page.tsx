@@ -10,12 +10,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { LogOut, Save, Trash2, AlertTriangle, Download, Loader2 } from "lucide-react"
+import { GlassCard } from "@/components/glass-card"
+import { LogoutCurve, Save2, Trash, Danger, DocumentDownload } from "@/components/iconsax"
 import { toast } from "sonner"
 import { exportToJSON } from "@/lib/export"
 
 export default function SettingsPage() {
-  const t = useTranslations("common")
+  const t = useTranslations("pages.settings")
+  const tCommon = useTranslations("common")
   const { signOut } = useAuthActions()
   const { activeWorkspace, setActiveWorkspaceId } = useWorkspace()
   const wsId = activeWorkspace?._id
@@ -47,9 +49,9 @@ export default function SettingsPage() {
     try {
       setSaving(true)
       await updateUser({ name })
-      toast.success("Profile saved")
+      toast.success(t("toasts.profileSaved"))
     } catch (err: any) {
-      toast.error(err?.message || "Could not save")
+      toast.error(err?.message || t("toasts.failed"))
     } finally {
       setSaving(false)
     }
@@ -61,9 +63,9 @@ export default function SettingsPage() {
     try {
       setSaving(true)
       await updateWs({ workspaceId: wsId, name: wsName, description: wsDesc || undefined, currency: wsCurrency })
-      toast.success("Workspace saved")
+      toast.success(t("toasts.workspaceSaved"))
     } catch (err: any) {
-      toast.error(err?.message || "Could not save")
+      toast.error(err?.message || t("toasts.failed"))
     } finally {
       setSaving(false)
     }
@@ -71,13 +73,13 @@ export default function SettingsPage() {
 
   async function handleDeleteWorkspace() {
     if (!wsId) return
-    if (!confirm("Delete this workspace? This cannot be undone.")) return
+    if (!confirm(t("dangerDescription"))) return
     try {
       await removeWs({ workspaceId: wsId })
       setActiveWorkspaceId(null)
-      toast.success("Workspace deleted")
+      toast.success(t("toasts.workspaceDeleted"))
     } catch (err: any) {
-      toast.error(err?.message || "Could not delete")
+      toast.error(err?.message || t("toasts.failed"))
     }
   }
 
@@ -88,66 +90,82 @@ export default function SettingsPage() {
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl space-y-8">
+      <div className="mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Manage your profile and active workspace.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
         </div>
 
-        <form onSubmit={handleSaveProfile} className="rounded-2xl border border-border bg-card p-6 space-y-4">
-          <h2 className="text-sm font-semibold">Profile</h2>
-          <div>
-            <Label>{t("name")}</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
-          </div>
-          <div>
-            <Label>Email</Label>
-            <Input value={me?.email ?? ""} disabled />
-          </div>
-          <div className="flex justify-end">
-            <Button type="submit" disabled={saving} className="gap-2"><Save className="h-3.5 w-3.5" /> {t("save")}</Button>
-          </div>
-        </form>
-
-        {activeWorkspace && (
-          <form onSubmit={handleSaveWorkspace} className="rounded-2xl border border-border bg-card p-6 space-y-4">
-            <h2 className="text-sm font-semibold">Workspace</h2>
+        <GlassCard className="p-6">
+          <form onSubmit={handleSaveProfile} className="space-y-4">
+            <h2 className="text-sm font-semibold">{t("profile")}</h2>
             <div>
-              <Label>{t("name")}</Label>
-              <Input value={wsName} onChange={(e) => setWsName(e.target.value)} required />
+              <Label>{tCommon("name")}</Label>
+              <Input data-testid="settings-name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div>
-              <Label>{t("description")}</Label>
-              <Textarea value={wsDesc} onChange={(e) => setWsDesc(e.target.value)} rows={2} />
+              <Label>Email</Label>
+              <Input value={me?.email ?? ""} disabled />
             </div>
-            <div>
-              <Label>{t("currency")}</Label>
-              <select value={wsCurrency} onChange={(e) => setWsCurrency(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                <option value="EUR">EUR €</option>
-                <option value="USD">USD $</option>
-                <option value="GBP">GBP £</option>
-                <option value="CHF">CHF</option>
-                <option value="CAD">CAD $</option>
-              </select>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={handleExport} className="gap-2" disabled={!exportWs}><Download className="h-3.5 w-3.5" /> Export GDPR data</Button>
-              <Button type="submit" disabled={saving} className="gap-2"><Save className="h-3.5 w-3.5" /> {t("save")}</Button>
+            <div className="flex justify-end">
+              <Button data-testid="save-profile-btn" type="submit" disabled={saving} className="gap-2">
+                <Save2 size={14} variant="Bulk" /> {tCommon("save")}
+              </Button>
             </div>
           </form>
+        </GlassCard>
+
+        {activeWorkspace && (
+          <GlassCard className="p-6">
+            <form onSubmit={handleSaveWorkspace} className="space-y-4">
+              <h2 className="text-sm font-semibold">{t("workspace")}</h2>
+              <div>
+                <Label>{tCommon("name")}</Label>
+                <Input data-testid="ws-name" value={wsName} onChange={(e) => setWsName(e.target.value)} required />
+              </div>
+              <div>
+                <Label>{tCommon("description")}</Label>
+                <Textarea value={wsDesc} onChange={(e) => setWsDesc(e.target.value)} rows={2} />
+              </div>
+              <div>
+                <Label>{tCommon("currency")}</Label>
+                <select value={wsCurrency} onChange={(e) => setWsCurrency(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                  <option value="EUR">EUR €</option>
+                  <option value="USD">USD $</option>
+                  <option value="GBP">GBP £</option>
+                  <option value="CHF">CHF</option>
+                  <option value="CAD">CAD $</option>
+                </select>
+              </div>
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button data-testid="export-gdpr-btn" type="button" variant="outline" onClick={handleExport} className="gap-2" disabled={!exportWs}>
+                  <DocumentDownload size={14} variant="Bulk" /> {t("exportGdpr")}
+                </Button>
+                <Button data-testid="save-workspace-btn" type="submit" disabled={saving} className="gap-2">
+                  <Save2 size={14} variant="Bulk" /> {tCommon("save")}
+                </Button>
+              </div>
+            </form>
+          </GlassCard>
         )}
 
         {activeWorkspace?.role === "owner" && (
-          <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-6 space-y-3">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-destructive"><AlertTriangle className="h-4 w-4" /> Danger zone</h2>
-            <p className="text-xs text-muted-foreground">Deleting a workspace removes all invoices, expenses, books, budgets, projects and members associated with it. This action is permanent.</p>
-            <Button variant="destructive" onClick={handleDeleteWorkspace} className="gap-2"><Trash2 className="h-3.5 w-3.5" /> Delete workspace</Button>
+          <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-6 space-y-3 backdrop-blur-xl">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-destructive">
+              <Danger size={16} variant="Bulk" /> {t("danger")}
+            </h2>
+            <p className="text-xs text-muted-foreground">{t("dangerDescription")}</p>
+            <Button data-testid="delete-workspace-btn" variant="destructive" onClick={handleDeleteWorkspace} className="gap-2">
+              <Trash size={14} variant="Bulk" /> {t("deleteWorkspace")}
+            </Button>
           </div>
         )}
 
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <Button variant="ghost" onClick={() => signOut()} className="gap-2 text-muted-foreground"><LogOut className="h-3.5 w-3.5" /> Sign out</Button>
-        </div>
+        <GlassCard className="p-6">
+          <Button data-testid="signout-btn" variant="ghost" onClick={() => signOut()} className="gap-2 text-muted-foreground">
+            <LogoutCurve size={14} variant="Bulk" /> {t("signOut")}
+          </Button>
+        </GlassCard>
       </div>
     </div>
   )

@@ -24,7 +24,7 @@ import {
   UserPlus,
   Users,
   X,
-} from "lucide-react"
+} from "@/components/iconsax"
 import { cn } from "@/lib/utils"
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {

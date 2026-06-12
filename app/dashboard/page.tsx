@@ -2,11 +2,13 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { motion } from "framer-motion"
+import CountUp from "react-countup"
 import { useTranslations } from "next-intl"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useWorkspace } from "@/lib/workspace-context"
-import { formatCurrency, formatDate, formatBytes } from "@/lib/utils"
+import { formatCurrency, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -16,27 +18,24 @@ import {
   Plus,
   Receipt,
   FileText,
-  PiggyBank,
-  BookOpen,
   Wallet,
   TrendingUp,
   TrendingDown,
   Building2,
   Users,
   Activity as ActivityIcon,
-} from "lucide-react"
+} from "@/components/iconsax"
 import { EmptyState } from "@/components/empty-state"
+import { GlassCard } from "@/components/glass-card"
 
 export default function DashboardPage() {
-  const t = useTranslations("dashboard")
-  const tCommon = useTranslations("common")
+  const t = useTranslations("pages.dashboard")
   const { activeWorkspace } = useWorkspace()
   const wsId = activeWorkspace?._id
   const currency = activeWorkspace?.currency ?? "EUR"
 
   const invoices = useQuery(api.a2e_invoices.list, wsId ? { workspaceId: wsId } : "skip")
   const expenses = useQuery(api.a2e_expenses.list, wsId ? { workspaceId: wsId } : "skip")
-  const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
   const activities = useQuery(
     api.activities.list,
     wsId ? { workspaceId: wsId, limit: 6 } : "skip",
@@ -55,13 +54,7 @@ export default function DashboardPage() {
     const outMonth = exps
       .filter((e) => e.type === "expense" && e.date >= monthAgo)
       .reduce((a, b) => a + b.amount, 0)
-    return {
-      balance: income - out,
-      income,
-      out,
-      incomeMonth,
-      outMonth,
-    }
+    return { balance: income - out, income, out, incomeMonth, outMonth }
   }, [expenses, monthAgo])
 
   const pendingInvoices = (invoices ?? []).filter(
@@ -81,17 +74,23 @@ export default function DashboardPage() {
         <EmptyState
           icon={Wallet}
           title={t("welcome")}
-          description="Select or create a workspace to continue."
+          description={t("selectWorkspace")}
         />
       </div>
     )
   }
 
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-8">
+    <div className="relative px-4 py-8 sm:px-6 lg:px-8">
+      <BackgroundGlow />
+      <div className="relative mx-auto max-w-7xl space-y-8">
         {/* Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+        >
           <div>
             <p className="text-sm text-muted-foreground">{t("welcome")}</p>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight">
@@ -107,57 +106,64 @@ export default function DashboardPage() {
               )}
               <span>{activeWorkspace.type ?? "workspace"}</span>
               <span>·</span>
-              <span>{activeWorkspace.role}</span>
+              <span className="capitalize">{activeWorkspace.role}</span>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" className="gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" className="gap-2 rounded-full">
               <Link href="/dashboard/expenses?new=1">
                 <Plus className="h-4 w-4" />
                 {t("addExpense")}
               </Link>
             </Button>
-            <Button asChild className="gap-2">
+            <Button asChild className="gap-2 rounded-full shadow-sm">
               <Link href="/dashboard/invoices?new=1">
                 <Plus className="h-4 w-4" />
                 {t("newInvoice")}
               </Link>
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         {/* KPI cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
             label={t("stats.totalBalance")}
-            value={formatCurrency(totals.balance, currency)}
+            value={totals.balance}
+            currency={currency}
             tone={totals.balance >= 0 ? "positive" : "negative"}
             icon={Wallet}
+            delay={0}
           />
           <KpiCard
             label={t("stats.monthlyIncome")}
-            value={formatCurrency(totals.incomeMonth, currency)}
+            value={totals.incomeMonth}
+            currency={currency}
             tone="positive"
             icon={TrendingUp}
+            delay={0.05}
           />
           <KpiCard
             label={t("stats.monthlyExpenses")}
-            value={formatCurrency(totals.outMonth, currency)}
+            value={totals.outMonth}
+            currency={currency}
             tone="negative"
             icon={TrendingDown}
+            delay={0.1}
           />
           <KpiCard
             label={t("stats.pendingInvoices")}
-            value={String(pendingInvoices.length)}
+            count={pendingInvoices.length}
             tone="neutral"
             icon={FileText}
+            delay={0.15}
           />
         </div>
 
         {/* Recent transactions + pending invoices */}
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="rounded-2xl border border-border bg-card lg:col-span-2">
-            <div className="flex items-center justify-between border-b border-border p-5">
+          <GlassCard className="lg:col-span-2">
+            <div className="flex items-center justify-between border-b border-border/60 p-5">
               <div>
                 <h2 className="text-sm font-semibold">{t("recentTransactions.title")}</h2>
                 <p className="text-xs text-muted-foreground">{t("recentTransactions.description")}</p>
@@ -173,15 +179,21 @@ export default function DashboardPage() {
               <EmptyState
                 icon={Receipt}
                 title={t("recentTransactions.title")}
-                description="Log your first expense or income to see it here."
+                description={t("recentTransactions.empty")}
                 action={{ href: "/dashboard/expenses?new=1", label: t("addExpense") }}
               />
             ) : (
-              <ul className="divide-y divide-border">
-                {recentTransactions.map((tr) => {
+              <ul className="divide-y divide-border/60">
+                {recentTransactions.map((tr, idx) => {
                   const isIn = tr.type === "income"
                   return (
-                    <li key={tr._id} className="flex items-center justify-between gap-3 px-5 py-3">
+                    <motion.li
+                      key={tr._id}
+                      initial={{ opacity: 0, x: -4 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.02 * idx, duration: 0.25 }}
+                      className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/40"
+                    >
                       <div className="flex min-w-0 items-center gap-3">
                         <div
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
@@ -209,15 +221,15 @@ export default function DashboardPage() {
                         {isIn ? "+" : "-"}
                         {formatCurrency(tr.amount, tr.currency ?? currency)}
                       </span>
-                    </li>
+                    </motion.li>
                   )
                 })}
               </ul>
             )}
-          </div>
+          </GlassCard>
           <div className="space-y-6">
-            <div className="rounded-2xl border border-border bg-card">
-              <div className="flex items-center justify-between border-b border-border p-5">
+            <GlassCard>
+              <div className="flex items-center justify-between border-b border-border/60 p-5">
                 <div>
                   <h2 className="text-sm font-semibold">{t("pendingInvoices.title")}</h2>
                   <p className="text-xs text-muted-foreground">{t("pendingInvoices.description")}</p>
@@ -227,11 +239,11 @@ export default function DashboardPage() {
                 <EmptyState
                   icon={FileText}
                   title={t("pendingInvoices.title")}
-                  description="Create your first invoice to start tracking payments."
+                  description={t("pendingInvoices.empty")}
                   action={{ href: "/dashboard/invoices?new=1", label: t("newInvoice") }}
                 />
               ) : (
-                <ul className="divide-y divide-border">
+                <ul className="divide-y divide-border/60">
                   {pendingInvoices.slice(0, 5).map((inv) => {
                     const total = inv.items.reduce(
                       (a, b) => a + b.quantity * b.unitPrice,
@@ -268,26 +280,26 @@ export default function DashboardPage() {
                   })}
                 </ul>
               )}
-              <div className="border-t border-border p-3">
+              <div className="border-t border-border/60 p-3">
                 <Button asChild variant="ghost" size="sm" className="w-full justify-center">
                   <Link href="/dashboard/invoices">{t("pendingInvoices.manage")}</Link>
                 </Button>
               </div>
-            </div>
+            </GlassCard>
 
-            <div className="rounded-2xl border border-border bg-card">
-              <div className="flex items-center justify-between border-b border-border p-5">
+            <GlassCard>
+              <div className="flex items-center justify-between border-b border-border/60 p-5">
                 <div>
-                  <h2 className="text-sm font-semibold">Latest activity</h2>
-                  <p className="text-xs text-muted-foreground">Team & workspace changes</p>
+                  <h2 className="text-sm font-semibold">{t("activity.title")}</h2>
+                  <p className="text-xs text-muted-foreground">{t("activity.description")}</p>
                 </div>
               </div>
               {(activities ?? []).length === 0 ? (
                 <div className="px-5 py-8 text-center text-xs text-muted-foreground">
-                  Nothing happened yet.
+                  {t("activity.empty")}
                 </div>
               ) : (
-                <ul className="divide-y divide-border">
+                <ul className="divide-y divide-border/60">
                   {(activities ?? []).map((a: any) => (
                     <li key={a._id} className="flex items-start gap-3 px-5 py-3 text-xs">
                       <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
@@ -306,7 +318,7 @@ export default function DashboardPage() {
                   ))}
                 </ul>
               )}
-            </div>
+            </GlassCard>
           </div>
         </div>
       </div>
@@ -314,16 +326,31 @@ export default function DashboardPage() {
   )
 }
 
+function BackgroundGlow() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 overflow-hidden">
+      <div className="absolute left-1/4 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-accent/15 blur-3xl" />
+      <div className="absolute right-1/4 top-10 h-64 w-64 translate-x-1/2 rounded-full bg-purple-400/15 blur-3xl" />
+    </div>
+  )
+}
+
 function KpiCard({
   label,
   value,
+  count,
+  currency,
   tone,
   icon: Icon,
+  delay = 0,
 }: {
   label: string
-  value: string
+  value?: number
+  count?: number
+  currency?: string
   tone: "positive" | "negative" | "neutral"
   icon: React.ComponentType<{ className?: string }>
+  delay?: number
 }) {
   const toneClass =
     tone === "positive"
@@ -331,8 +358,16 @@ function KpiCard({
       : tone === "negative"
       ? "bg-destructive/10 text-destructive"
       : "bg-muted text-foreground"
+  const isCurrency = value !== undefined
+  const displayed = isCurrency ? (value as number) : (count as number)
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.35 }}
+      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-md"
+    >
+      <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="flex items-center justify-between">
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {label}
@@ -341,7 +376,20 @@ function KpiCard({
           <Icon className="h-3.5 w-3.5" />
         </div>
       </div>
-      <p className="mt-3 font-numeric text-2xl font-semibold">{value}</p>
-    </div>
+      <p className="mt-3 font-numeric text-2xl font-semibold">
+        {isCurrency ? (
+          <CountUp
+            end={displayed}
+            duration={1.2}
+            decimals={2}
+            decimal=","
+            separator=" "
+            formattingFn={(v) => formatCurrency(v, currency)}
+          />
+        ) : (
+          <CountUp end={displayed ?? 0} duration={0.9} />
+        )}
+      </p>
+    </motion.div>
   )
 }

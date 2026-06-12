@@ -186,6 +186,8 @@ export const remove = mutation({
       "a2e_bookSheets",
       "a2e_bookEntries",
       "a2e_budgets",
+      "a2e_categories",
+      "a2e_fiches",
     ] as const;
     for (const t of tables) {
       const rows = await ctx.db

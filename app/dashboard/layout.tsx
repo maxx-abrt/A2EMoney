@@ -29,26 +29,54 @@ import {
 } from "@/components/ui/sheet"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import {
-  BarChart3,
-  BookOpen,
-  ChevronLeft,
-  FileText,
+  Element4,
+  Wallet3,
+  ReceiptText,
+  DocumentText1,
   FolderOpen,
-  Gavel,
-  HardDrive,
-  LayoutDashboard,
-  LogOut,
-  Menu,
+  ClipboardText,
+  Book1,
+  Folder2,
+  Chart,
+  People,
+  Activity as ActivityIcon,
+  Judge,
+  Setting2,
+  LogoutCurve,
+  HambergerMenu,
+  Sun1,
   Moon,
-  PiggyBank,
-  Receipt,
-  Settings,
-  Sun,
-  Users,
+  ArrowLeft2,
   Wallet,
-  Activity,
-} from "lucide-react"
+} from "@/components/iconsax"
 import { cn } from "@/lib/utils"
+
+type IconProps = { className?: string; size?: number }
+
+const iconAdapter = (Comp: any) =>
+  function Adapted({ className, size = 18 }: IconProps) {
+    return <Comp className={className} size={size} variant="Bulk" />
+  }
+
+const LayoutDashboard = iconAdapter(Element4)
+const PiggyBank = iconAdapter(Wallet3)
+const Receipt = iconAdapter(ReceiptText)
+const FileText = iconAdapter(DocumentText1)
+const FolderOpenIcon = iconAdapter(FolderOpen)
+const ClipboardList = iconAdapter(ClipboardText)
+const BookOpen = iconAdapter(Book1)
+const HardDrive = iconAdapter(Folder2)
+const BarChart3 = iconAdapter(Chart)
+const Users = iconAdapter(People)
+const Activity = iconAdapter(ActivityIcon)
+const Gavel = iconAdapter(Judge)
+const Settings = iconAdapter(Setting2)
+const LogOut = iconAdapter(LogoutCurve)
+const Menu = iconAdapter(HambergerMenu)
+const Sun = iconAdapter(Sun1)
+const MoonIcon = iconAdapter(Moon)
+const ChevronLeft = iconAdapter(ArrowLeft2)
+const WalletIcon = iconAdapter(Wallet)
 
 interface NavItem {
   key: string
@@ -63,7 +91,8 @@ const navItems: NavItem[] = [
   { key: "budget", href: "/dashboard/budget", icon: PiggyBank, group: "main" },
   { key: "expenses", href: "/dashboard/expenses", icon: Receipt, group: "main" },
   { key: "invoices", href: "/dashboard/invoices", icon: FileText, group: "main" },
-  { key: "projects", href: "/dashboard/projects", icon: FolderOpen, group: "main" },
+  { key: "projects", href: "/dashboard/projects", icon: FolderOpenIcon, group: "main" },
+  { key: "fiches", href: "/dashboard/fiches", icon: ClipboardList, group: "main" },
   { key: "book", href: "/dashboard/book", icon: BookOpen, group: "main" },
   { key: "documents", href: "/dashboard/documents", icon: HardDrive, group: "main" },
   { key: "reports", href: "/dashboard/reports", icon: BarChart3, group: "secondary" },
@@ -86,6 +115,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   )
   const { theme, setTheme, resolvedTheme } = useTheme()
   const t = useTranslations("nav")
+  const tSections = useTranslations("pages.sections")
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -175,7 +205,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-foreground text-background">
-            <Wallet className="h-4 w-4" />
+            <WalletIcon className="h-4 w-4" />
           </div>
           {(!collapsed || forceExpanded) && (
             <span className="text-base font-semibold tracking-tight">A2EMoney</span>
@@ -203,7 +233,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="space-y-1">
           {(!collapsed || forceExpanded) && (
             <p className="px-3 pb-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              Workspace
+              {tSections("workspace")}
             </p>
           )}
           {mainNav.map((item) => renderNavLink(item, forceExpanded))}
@@ -211,7 +241,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="space-y-1">
           {(!collapsed || forceExpanded) && (
             <p className="px-3 pb-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              Manage
+              {tSections("manage")}
             </p>
           )}
           {secondaryNav.map((item) => renderNavLink(item, forceExpanded))}
@@ -301,7 +331,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
                 aria-label="Toggle theme"
               >
-                {resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                {resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
               </Button>
               <LanguageSwitcher />
               <NotificationsDropdown />
