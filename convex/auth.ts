@@ -51,7 +51,7 @@ function resendEmailProvider() {
       }
       const { identifier, url, token, provider } = params;
       const locale = extractLocaleFromUrl(url);
-      const copy = emailCopy[locale] ?? emailCopy.en;
+      const copy = emailCopy[locale] ?? emailCopy.fr;
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
