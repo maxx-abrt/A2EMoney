@@ -1,0 +1,6 @@
+keyID:
+00331a238f3df920000000001
+keyName:
+A2E-Drive
+applicationKey:
+K003hkox+NnUxfeFRMVqBEl0lYsHCKE
