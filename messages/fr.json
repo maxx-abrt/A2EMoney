@@ -89,7 +89,22 @@
     "income": "Revenu",
     "expense": "Dépense",
     "pending": "En attente",
-    "linkedTo": "Lié à"
+    "linkedTo": "Lié à",
+    "name": "Nom",
+    "amount": "Montant",
+    "category": "Catégorie",
+    "cancel": "Annuler",
+    "create": "Créer",
+    "description": "Description",
+    "date": "Date",
+    "notes": "Notes",
+    "save": "Enregistrer",
+    "client": "Client",
+    "status": "Statut",
+    "close": "Fermer",
+    "currency": "Devise",
+    "project": "Projet",
+    "errorOccurred": "Une erreur est survenue"
   },
   "nav": {
     "features": "Fonctionnalités",

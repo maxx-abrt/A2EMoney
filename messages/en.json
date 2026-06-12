@@ -89,7 +89,22 @@
     "income": "Income",
     "expense": "Expense",
     "pending": "Pending",
-    "linkedTo": "Linked to"
+    "linkedTo": "Linked to",
+    "name": "Name",
+    "amount": "Amount",
+    "category": "Category",
+    "cancel": "Cancel",
+    "create": "Create",
+    "description": "Description",
+    "date": "Date",
+    "notes": "Notes",
+    "save": "Save",
+    "client": "Client",
+    "status": "Status",
+    "close": "Close",
+    "currency": "Currency",
+    "project": "Project",
+    "errorOccurred": "An error occurred"
   },
   "nav": {
     "features": "Features",
