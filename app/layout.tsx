@@ -1,48 +1,57 @@
-import type { Metadata, Viewport } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
-import { NextIntlClientProvider } from 'next-intl'
-import { getLocale, getMessages } from 'next-intl/server'
-import { Analytics } from '@vercel/analytics/next'
-import './globals.css'
-import { Providers } from '@/components/providers'
+import type { Metadata, Viewport } from "next"
+import { Inter, JetBrains_Mono } from "next/font/google"
+import { NextIntlClientProvider } from "next-intl"
+import { getLocale, getMessages } from "next-intl/server"
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server"
+import "./globals.css"
+import { Providers } from "@/components/providers"
 
 const inter = Inter({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-inter',
-  display: 'swap',
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
 })
 
 const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-jetbrains-mono',
-  display: 'swap',
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
-  title: 'Finflow — All-in-one finance',
+  title: "A2EMoney — All-in-one money management",
   description:
-    'One place for budgeting, invoicing, expenses, reports and connected records. Built for individuals, teams, and associations.',
-  generator: 'Finflow',
-  keywords: ['finance', 'budget', 'invoicing', 'expense tracking', 'accounting', 'association', 'business'],
-  authors: [{ name: 'Finflow' }],
+    "Budgets, invoicing, expenses, books and connected records for individuals, teams and associations. Part of the A2E Suite.",
+  generator: "A2E Suite",
+  keywords: [
+    "finance",
+    "budget",
+    "invoicing",
+    "expense tracking",
+    "accounting",
+    "association",
+    "business",
+    "a2e suite",
+  ],
+  authors: [{ name: "A2E Suite" }],
   icons: {
     icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: "/icon-light-32x32.png", media: "(prefers-color-scheme: light)" },
+      { url: "/icon-dark-32x32.png", media: "(prefers-color-scheme: dark)" },
+      { url: "/icon.svg", type: "image/svg+xml" },
     ],
-    apple: '/apple-icon.png',
+    apple: "/apple-icon.png",
   },
 }
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fafaf7' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a0a0b' },
+    { media: "(prefers-color-scheme: light)", color: "#fafaf7" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0b" },
   ],
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 5,
 }
@@ -56,17 +65,18 @@ export default async function RootLayout({
   const messages = await getMessages()
 
   return (
-    <html
-      lang={locale}
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
-      suppressHydrationWarning
-    >
-      <body className="font-sans antialiased min-h-screen bg-background text-foreground">
-        <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
-        </NextIntlClientProvider>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
-      </body>
-    </html>
+    <ConvexAuthNextjsServerProvider>
+      <html
+        lang={locale}
+        className={`${inter.variable} ${jetbrainsMono.variable}`}
+        suppressHydrationWarning
+      >
+        <body className="font-sans antialiased min-h-screen bg-background text-foreground">
+          <NextIntlClientProvider messages={messages}>
+            <Providers>{children}</Providers>
+          </NextIntlClientProvider>
+        </body>
+      </html>
+    </ConvexAuthNextjsServerProvider>
   )
 }

@@ -43,7 +43,7 @@ export default async function LandingPage() {
             <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-foreground text-background">
               <Wallet className="h-4 w-4 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">Finflow</span>
+            <span className="text-lg font-semibold tracking-tight">A2EMoney</span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {[
@@ -63,14 +63,14 @@ export default async function LandingPage() {
           <div className="flex items-center gap-1.5">
             <LanguageSwitcher />
             <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
-              <Link href="/onboarding">{nav("signIn")}</Link>
+              <Link href="/auth">{nav("signIn")}</Link>
             </Button>
             <Button
               asChild
               size="sm"
               className="rounded-full shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-md"
             >
-              <Link href="/onboarding">
+              <Link href="/auth">
                 {nav("getStarted")}
                 <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>
@@ -121,7 +121,7 @@ export default async function LandingPage() {
                 size="lg"
                 className="group rounded-full shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <Link href="/onboarding">
+                <Link href="/auth">
                   {t("hero.startFree")}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
@@ -158,7 +158,7 @@ export default async function LandingPage() {
                 <div className="h-2.5 w-2.5 rounded-full bg-border" />
                 <div className="h-2.5 w-2.5 rounded-full bg-border" />
                 <div className="ml-4 flex h-5 max-w-xs flex-1 items-center gap-1.5 rounded-md bg-background px-2 text-[10px] text-muted-foreground">
-                  <span className="inline-block h-1 w-1 rounded-full bg-accent" /> finflow.app/dashboard
+                  <span className="inline-block h-1 w-1 rounded-full bg-accent" /> a2emoney.app/dashboard
                 </div>
               </div>
               <div className="grid grid-cols-6 gap-3 p-6 sm:p-8">
@@ -301,7 +301,7 @@ export default async function LandingPage() {
                 ))}
               </ul>
               <Button asChild variant="outline" className="mt-8 w-full rounded-full group-hover:border-foreground">
-                <Link href="/onboarding?type=individual">
+                <Link href="/auth?type=individual">
                   {t("profiles.individual.cta")}
                   <ArrowUpRight className="ml-1.5 h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </Link>
@@ -330,7 +330,7 @@ export default async function LandingPage() {
                 asChild
                 className="relative mt-8 w-full rounded-full bg-background text-foreground hover:bg-background/90"
               >
-                <Link href="/onboarding?type=business">
+                <Link href="/auth?type=business">
                   {t("profiles.business.cta")}
                   <ArrowUpRight className="ml-1.5 h-4 w-4" />
                 </Link>
@@ -400,7 +400,7 @@ export default async function LandingPage() {
                 ))}
               </ul>
               <Button asChild className="group mt-8 rounded-full">
-                <Link href="/onboarding">
+                <Link href="/auth">
                   {t("bookSystem.cta")}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
@@ -520,7 +520,7 @@ export default async function LandingPage() {
                     variant={isPro ? "default" : "outline"}
                     className="mt-8 w-full rounded-full group-hover:-translate-y-0"
                   >
-                    <Link href="/onboarding">{t(`pricing.plans.${plan}.cta`)}</Link>
+                    <Link href="/auth">{t(`pricing.plans.${plan}.cta`)}</Link>
                   </Button>
                 </div>
               )
@@ -583,7 +583,7 @@ export default async function LandingPage() {
             size="lg"
             className="group mt-8 rounded-full bg-background text-foreground shadow-lg hover:-translate-y-0.5 hover:bg-background/95 hover:shadow-xl"
           >
-            <Link href="/onboarding">
+            <Link href="/auth">
               {t("cta.button")}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
@@ -598,7 +598,7 @@ export default async function LandingPage() {
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-background">
               <Wallet className="h-3.5 w-3.5" />
             </div>
-            <span className="text-sm font-semibold">Finflow</span>
+            <span className="text-sm font-semibold">A2EMoney</span>
           </div>
           <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground">
             <Link href="#" className="transition-colors hover:text-foreground">

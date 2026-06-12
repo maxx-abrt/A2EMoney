@@ -5,13 +5,15 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
-import { useDataStore, formatBytes } from "@/lib/data-store"
-import { useUser } from "@/lib/user-context"
+import { useAuthActions } from "@convex-dev/auth/react"
+import { useConvexAuth, useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import { useWorkspace } from "@/lib/workspace-context"
+import { formatBytes } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
+import { WorkspaceSwitcher } from "@/components/workspace-switcher"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,16 +23,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from "@/components/ui/command"
-import {
   Sheet as SheetComponent,
   SheetContent,
   SheetTitle,
@@ -39,7 +31,6 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import {
   BarChart3,
   BookOpen,
-  Building2,
   ChevronLeft,
   FileText,
   FolderOpen,
@@ -50,14 +41,12 @@ import {
   Menu,
   Moon,
   PiggyBank,
-  PlusCircle,
   Receipt,
-  Search,
   Settings,
   Sun,
-  User,
   Users,
   Wallet,
+  Activity,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -73,65 +62,55 @@ const navItems: NavItem[] = [
   { key: "dashboard", href: "/dashboard", icon: LayoutDashboard, group: "main" },
   { key: "budget", href: "/dashboard/budget", icon: PiggyBank, group: "main" },
   { key: "expenses", href: "/dashboard/expenses", icon: Receipt, group: "main" },
-  { key: "invoices", href: "/dashboard/invoices", icon: FileText, group: "main", businessOnly: true },
-  { key: "projects", href: "/dashboard/projects", icon: FolderOpen, group: "main", businessOnly: true },
+  { key: "invoices", href: "/dashboard/invoices", icon: FileText, group: "main" },
+  { key: "projects", href: "/dashboard/projects", icon: FolderOpen, group: "main" },
   { key: "book", href: "/dashboard/book", icon: BookOpen, group: "main" },
   { key: "documents", href: "/dashboard/documents", icon: HardDrive, group: "main" },
   { key: "reports", href: "/dashboard/reports", icon: BarChart3, group: "secondary" },
   { key: "team", href: "/dashboard/team", icon: Users, group: "secondary" },
-  { key: "legal", href: "/dashboard/legal", icon: Gavel, group: "secondary", businessOnly: true },
+  { key: "activity", href: "/dashboard/activity", icon: Activity, group: "secondary" },
+  { key: "legal", href: "/dashboard/legal", icon: Gavel, group: "secondary" },
   { key: "settings", href: "/dashboard/settings", icon: Settings, group: "secondary" },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
-  const { profile, isLoading, logout } = useUser()
-  const { storage } = useDataStore()
+  const { signOut } = useAuthActions()
+  const { isAuthenticated, isLoading: authLoading } = useConvexAuth()
+  const me = useQuery(api.users.me, isAuthenticated ? {} : "skip")
+  const { workspaces, activeWorkspace, isLoading: wsLoading } = useWorkspace()
+  const storage = useQuery(
+    api.workspaces.getStorage,
+    activeWorkspace ? { workspaceId: activeWorkspace._id } : "skip",
+  )
   const { theme, setTheme, resolvedTheme } = useTheme()
   const t = useTranslations("nav")
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [commandOpen, setCommandOpen] = useState(false)
 
   // Persist collapsed state
   useEffect(() => {
-    const stored = localStorage.getItem("finflow_sidebar_collapsed")
+    const stored = typeof window !== "undefined" ? localStorage.getItem("a2e_sidebar_collapsed") : null
     if (stored === "1") setCollapsed(true)
   }, [])
   useEffect(() => {
-    localStorage.setItem("finflow_sidebar_collapsed", collapsed ? "1" : "0")
+    if (typeof window !== "undefined")
+      localStorage.setItem("a2e_sidebar_collapsed", collapsed ? "1" : "0")
   }, [collapsed])
 
-  // Redirect if no profile or onboarding incomplete
+  // Redirect to onboarding if authenticated and no workspaces
   useEffect(() => {
-    if (!isLoading && !profile) router.push("/")
-    else if (!isLoading && profile && !profile.onboardingComplete) router.push("/onboarding")
-  }, [isLoading, profile, router])
-
-  // Cmd+K command palette
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault()
-        setCommandOpen(prev => !prev)
-      }
+    if (authLoading || wsLoading) return
+    if (!isAuthenticated) return
+    if (workspaces && workspaces.length === 0 && pathname !== "/onboarding") {
+      router.replace("/onboarding")
     }
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
-  }, [])
+  }, [authLoading, wsLoading, isAuthenticated, workspaces, pathname, router])
 
-  const isBusiness = profile?.type === "business" || profile?.type === "association"
-  const visibleNav = useMemo(
-    () => navItems.filter(item => !item.businessOnly || isBusiness),
-    [isBusiness],
-  )
-  const mainNav = visibleNav.filter(i => i.group === "main")
-  const secondaryNav = visibleNav.filter(i => i.group === "secondary")
+  const storagePercent = storage ? Math.min(100, storage.percentage) : 0
 
-  const storagePercent = storage ? Math.min(100, (storage.used / storage.total) * 100) : 0
-
-  if (isLoading || !profile) {
+  if (authLoading || (isAuthenticated && wsLoading)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
@@ -139,14 +118,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     )
   }
 
-  const runCommand = (fn: () => void) => () => {
-    setCommandOpen(false)
-    fn()
-  }
-
   const renderNavLink = (item: NavItem, forceExpanded = false) => {
     const Icon = item.icon
-    const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
+    const active =
+      pathname === item.href ||
+      (item.href !== "/dashboard" && pathname.startsWith(item.href))
     const showLabel = forceExpanded || !collapsed
     return (
       <Link
@@ -170,13 +146,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Icon
           className={cn(
             "h-4 w-4 shrink-0 transition-transform duration-200",
-            active ? "" : "text-muted-foreground group-hover:scale-110 group-hover:text-foreground",
+            active
+              ? ""
+              : "text-muted-foreground group-hover:scale-110 group-hover:text-foreground",
           )}
         />
         {showLabel ? <span className="truncate">{t(item.key)}</span> : null}
       </Link>
     )
   }
+
+  const mainNav = navItems.filter((i) => i.group === "main")
+  const secondaryNav = navItems.filter((i) => i.group === "secondary")
 
   const sidebar = (forceExpanded = false) => (
     <div
@@ -186,12 +167,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
     >
       {/* Logo */}
-      <div className={cn("flex h-16 items-center border-b border-border px-4", collapsed && !forceExpanded ? "justify-center" : "justify-between")}>
+      <div
+        className={cn(
+          "flex h-16 items-center border-b border-border px-4",
+          collapsed && !forceExpanded ? "justify-center" : "justify-between",
+        )}
+      >
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-foreground text-background">
             <Wallet className="h-4 w-4" />
           </div>
-          {(!collapsed || forceExpanded) && <span className="text-base font-semibold tracking-tight">Finflow</span>}
+          {(!collapsed || forceExpanded) && (
+            <span className="text-base font-semibold tracking-tight">A2EMoney</span>
+          )}
         </Link>
         {!forceExpanded && !collapsed && (
           <button
@@ -205,22 +193,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
       </div>
 
-      {/* Profile badge */}
-      {(!collapsed || forceExpanded) && (
-        <div className="border-b border-border px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 text-accent">
-              {isBusiness ? <Building2 className="h-4 w-4" /> : <User className="h-4 w-4" />}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{profile.organizationName || profile.name}</p>
-              <p className="truncate text-xs text-muted-foreground">
-                {isBusiness ? (profile.type === "association" ? "Association" : "Business") : "Personal"}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Workspace switcher */}
+      <div className="border-b border-border px-3 py-3">
+        <WorkspaceSwitcher collapsed={collapsed && !forceExpanded} />
+      </div>
 
       {/* Nav */}
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
@@ -230,7 +206,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Workspace
             </p>
           )}
-          {mainNav.map(item => renderNavLink(item, forceExpanded))}
+          {mainNav.map((item) => renderNavLink(item, forceExpanded))}
         </div>
         <div className="space-y-1">
           {(!collapsed || forceExpanded) && (
@@ -238,7 +214,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Manage
             </p>
           )}
-          {secondaryNav.map(item => renderNavLink(item, forceExpanded))}
+          {secondaryNav.map((item) => renderNavLink(item, forceExpanded))}
         </div>
       </nav>
 
@@ -248,10 +224,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="mb-3 rounded-lg border border-border bg-muted/40 p-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium">{t("storage")}</span>
-              <span className="text-muted-foreground">{Math.round(storagePercent)}%</span>
+              <span className="text-muted-foreground">
+                {Math.round(storagePercent)}%
+              </span>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-accent" style={{ width: `${storagePercent}%` }} />
+              <div
+                className="h-full rounded-full bg-accent"
+                style={{ width: `${storagePercent}%` }}
+              />
             </div>
             <div className="mt-1.5 text-xs text-muted-foreground">
               {formatBytes(storage.used)} / {formatBytes(storage.total)}
@@ -268,7 +249,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Menu className="h-4 w-4" />
           </button>
         ) : (
-          <Button variant="ghost" size="sm" onClick={logout} className="w-full justify-start gap-2 text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => signOut()}
+            className="w-full justify-start gap-2 text-muted-foreground"
+          >
             <LogOut className="h-4 w-4" />
             <span>{t("signOut")}</span>
           </Button>
@@ -285,7 +271,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {sidebar(false)}
         </aside>
 
-
         {/* Mobile sidebar */}
         <SheetComponent open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetContent side="left" className="w-72 p-0">
@@ -298,7 +283,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Main area */}
         <div className="flex min-h-screen flex-1 flex-col">
-          {/* Top bar */}
           <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border/70 bg-background/80 px-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 sm:px-6">
             <Button
               variant="ghost"
@@ -309,17 +293,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <button
-              type="button"
-              onClick={() => setCommandOpen(true)}
-              className="flex h-9 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted sm:max-w-md"
-            >
-              <Search className="h-4 w-4 shrink-0" />
-              <span className="flex-1 truncate text-left">Search everywhere…</span>
-              <kbd className="hidden shrink-0 items-center gap-0.5 rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-flex">
-                ⌘K
-              </kbd>
-            </button>
+            <div className="flex-1" />
             <div className="ml-auto flex items-center gap-1">
               <Button
                 variant="ghost"
@@ -335,20 +309,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <DropdownMenuTrigger asChild>
                   <button className="ml-1 flex h-9 items-center gap-2 rounded-full border border-border bg-card px-2 pr-3 transition-colors hover:bg-muted">
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-xs font-medium text-accent">
-                      {profile.name
+                      {(me?.name || me?.email || "?")
                         .split(" ")
-                        .map(n => n[0])
+                        .map((n: string) => n[0])
                         .join("")
                         .slice(0, 2)
                         .toUpperCase()}
                     </div>
-                    <span className="hidden text-sm font-medium sm:inline">{profile.name.split(" ")[0]}</span>
+                    <span className="hidden text-sm font-medium sm:inline">
+                      {(me?.name || me?.email || "").split(" ")[0]}
+                    </span>
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
-                    <div className="font-medium">{profile.name}</div>
-                    <div className="text-xs text-muted-foreground">{profile.email}</div>
+                    <div className="font-medium">{me?.name ?? "—"}</div>
+                    <div className="text-xs text-muted-foreground">{me?.email ?? ""}</div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
@@ -357,7 +333,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive">
+                  <DropdownMenuItem
+                    onClick={() => signOut()}
+                    className="text-destructive focus:text-destructive"
+                  >
                     <LogOut className="mr-2 h-4 w-4" /> {t("signOut")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -368,52 +347,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <main className="flex-1 animate-fade-in">{children}</main>
         </div>
       </div>
-
-      {/* Command palette */}
-      <CommandDialog open={commandOpen} onOpenChange={setCommandOpen}>
-        <CommandInput placeholder="Type a command or search…" />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Navigate">
-            {visibleNav.map(item => (
-              <CommandItem key={item.key} onSelect={runCommand(() => router.push(item.href))}>
-                <item.icon className="mr-2 h-4 w-4" />
-                {t(item.key)}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Create">
-            <CommandItem onSelect={runCommand(() => router.push("/dashboard/expenses?new=1"))}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              New expense
-              <CommandShortcut>⌘E</CommandShortcut>
-            </CommandItem>
-            {isBusiness && (
-              <CommandItem onSelect={runCommand(() => router.push("/dashboard/invoices?new=1"))}>
-                <FileText className="mr-2 h-4 w-4" />
-                New invoice
-                <CommandShortcut>⌘I</CommandShortcut>
-              </CommandItem>
-            )}
-            <CommandItem onSelect={runCommand(() => router.push("/dashboard/book?new=1"))}>
-              <BookOpen className="mr-2 h-4 w-4" />
-              New book sheet
-            </CommandItem>
-          </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Preferences">
-            <CommandItem onSelect={runCommand(() => setTheme(resolvedTheme === "dark" ? "light" : "dark"))}>
-              {resolvedTheme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
-              Toggle theme
-            </CommandItem>
-            <CommandItem onSelect={runCommand(logout)}>
-              <LogOut className="mr-2 h-4 w-4" />
-              {t("signOut")}
-            </CommandItem>
-          </CommandGroup>
-        </CommandList>
-      </CommandDialog>
     </div>
   )
 }
