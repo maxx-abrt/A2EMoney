@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useAuthActions } from "@convex-dev/auth/react"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -37,6 +37,7 @@ export function AuthForm() {
   const { signIn } = useAuthActions()
   const router = useRouter()
   const t = useTranslations("auth")
+  const locale = useLocale()
   const searchParams = useSearchParams()
   const nextPath = searchParams.get("next") || "/dashboard"
   const [email, setEmail] = React.useState("")
@@ -61,9 +62,10 @@ export function AuthForm() {
     if (!email) return
     try {
       setLoadingEmail(true)
-      const fd = new FormData()
-      fd.set("email", email)
-      await signIn("resend", fd)
+      const redirectTo = nextPath.includes("?")
+        ? `${nextPath}&locale=${locale}`
+        : `${nextPath}?locale=${locale}`
+      await signIn("resend", { email, redirectTo })
       setStep({ code: true, email })
       toast.success(t("toasts.codeSent"))
     } catch (err: any) {
@@ -78,10 +80,7 @@ export function AuthForm() {
     if (typeof step === "string" || !code) return
     try {
       setLoadingCode(true)
-      const fd = new FormData()
-      fd.set("email", step.email)
-      fd.set("code", code)
-      await signIn("resend", fd)
+      await signIn("resend", { email: step.email, code })
       toast.success(t("toasts.signedIn"))
       router.push(nextPath)
       router.refresh()
