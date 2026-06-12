@@ -14,19 +14,22 @@ const isPublicPage = createRouteMatcher([
   "/legal/(.*)",
 ]);
 
-export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
-  const isAuth = await convexAuth.isAuthenticated();
-  if (isAuthPage(request) && isAuth) {
-    return nextjsMiddlewareRedirect(request, "/dashboard");
-  }
-  if (!isPublicPage(request) && !isAuth) {
-    const next = request.nextUrl.pathname + request.nextUrl.search;
-    return nextjsMiddlewareRedirect(
-      request,
-      `/auth?next=${encodeURIComponent(next)}`,
-    );
-  }
-});
+export default convexAuthNextjsMiddleware(
+  async (request, { convexAuth }) => {
+    const isAuth = await convexAuth.isAuthenticated();
+    if (isAuthPage(request) && isAuth) {
+      return nextjsMiddlewareRedirect(request, "/dashboard");
+    }
+    if (!isPublicPage(request) && !isAuth) {
+      const next = request.nextUrl.pathname + request.nextUrl.search;
+      return nextjsMiddlewareRedirect(
+        request,
+        `/auth?next=${encodeURIComponent(next)}`,
+      );
+    }
+  },
+  { shouldHandleCode: false },
+);
 
 export const config = {
   matcher: [
