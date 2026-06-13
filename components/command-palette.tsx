@@ -36,20 +36,20 @@ import {
 } from "@/components/iconsax"
 
 const pages = [
-  { label: "Dashboard", href: "/dashboard", icon: Element4 },
-  { label: "Book", href: "/dashboard/book", icon: Book1 },
-  { label: "Expenses", href: "/dashboard/expenses", icon: ReceiptText },
-  { label: "Projects", href: "/dashboard/projects", icon: FolderOpen },
-  { label: "Budget", href: "/dashboard/budget", icon: Wallet3 },
-  { label: "Project sheets", href: "/dashboard/fiches", icon: ClipboardText },
-  { label: "Invoices", href: "/dashboard/invoices", icon: DocumentText1 },
-  { label: "Clients", href: "/dashboard/clients", icon: People },
-  { label: "Documents", href: "/dashboard/documents", icon: HardDrive },
-  { label: "Reports", href: "/dashboard/reports", icon: Chart },
-  { label: "Team", href: "/dashboard/team", icon: People },
-  { label: "Activity", href: "/dashboard/activity", icon: Activity },
-  { label: "Legal", href: "/dashboard/legal", icon: Judge },
-  { label: "Settings", href: "/dashboard/settings", icon: Setting2 },
+  { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: Element4 },
+  { key: "book", label: "Book", href: "/dashboard/book", icon: Book1 },
+  { key: "expenses", label: "Expenses", href: "/dashboard/expenses", icon: ReceiptText },
+  { key: "projects", label: "Projects", href: "/dashboard/projects", icon: FolderOpen },
+  { key: "budget", label: "Budget", href: "/dashboard/budget", icon: Wallet3 },
+  { key: "fiches", label: "Project sheets", href: "/dashboard/fiches", icon: ClipboardText },
+  { key: "invoices", label: "Invoices", href: "/dashboard/invoices", icon: DocumentText1 },
+  { key: "clients", label: "Clients", href: "/dashboard/clients", icon: People },
+  { key: "documents", label: "Documents", href: "/dashboard/documents", icon: HardDrive },
+  { key: "reports", label: "Reports", href: "/dashboard/reports", icon: Chart },
+  { key: "team", label: "Team", href: "/dashboard/team", icon: People },
+  { key: "activity", label: "Activity", href: "/dashboard/activity", icon: Activity },
+  { key: "legal", label: "Legal", href: "/dashboard/legal", icon: Judge },
+  { key: "settings", label: "Settings", href: "/dashboard/settings", icon: Setting2 },
 ]
 
 export function CommandPalette() {
@@ -115,7 +115,7 @@ export function CommandPalette() {
           {pages.map((p) => (
             <CommandItem key={p.href} onSelect={() => go(p.href)} className="gap-2">
               <p.icon className="h-4 w-4 text-muted-foreground" />
-              <span>{t(p.label.toLowerCase().replace(/\s/g, "")) || p.label}</span>
+              <span>{t(p.key) || p.label}</span>
               <ArrowRight className="ml-auto h-3 w-3 text-muted-foreground" />
             </CommandItem>
           ))}

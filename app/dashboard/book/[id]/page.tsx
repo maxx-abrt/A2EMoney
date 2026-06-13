@@ -67,6 +67,12 @@ export default function BookSheetPage() {
     projectId: "",
   })
 
+  const projectMap = React.useMemo(() => {
+    const m = new Map<string, any>()
+    for (const p of projects ?? []) m.set(p._id, p)
+    return m
+  }, [projects])
+
   if (!sheet) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -142,12 +148,6 @@ export default function BookSheetPage() {
       else exportToXLSX(sheet.name, headers, rows)
     }
   }
-
-  const projectMap = React.useMemo(() => {
-    const m = new Map<string, any>()
-    for (const p of projects ?? []) m.set(p._id, p)
-    return m
-  }, [projects])
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
@@ -230,17 +230,9 @@ function LedgerTable({
   t: (k: string) => string
   tCommon: (k: string) => string
 }) {
-  if (!expenses) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
-
   // Compute running balance (oldest -> newest)
   const balanceMap = React.useMemo(() => {
-    const sorted = [...expenses].sort((a, b) => a.date - b.date)
+    const sorted = [...(expenses ?? [])].sort((a, b) => a.date - b.date)
     const map = new Map<string, number>()
     let bal = 0
     for (const e of sorted) {
@@ -249,6 +241,14 @@ function LedgerTable({
     }
     return map
   }, [expenses])
+
+  if (!expenses) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card">
