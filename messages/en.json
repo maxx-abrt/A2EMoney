@@ -783,6 +783,8 @@
         "documents": "No documents linked yet."
       },
       "budget": "Budget",
+      "autoCreateBudget": "Create matching budget",
+      "autoCreateFiche": "Create project sheet (fiche)",
       "startDate": "Start date",
       "endDate": "End date",
       "tabs": {

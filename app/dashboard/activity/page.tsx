@@ -8,6 +8,7 @@ import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useWorkspace } from "@/lib/workspace-context"
 import { formatDate } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
   Activity,
@@ -29,6 +30,7 @@ import {
 } from "@/components/iconsax"
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
+import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 
 const ACTION_ICONS: Record<string, any> = {
   "expense.created": ReceiptText,
@@ -108,6 +110,7 @@ function groupByDay(activities: any[]) {
 
 export default function ActivityPage() {
   const t = useTranslations("pages.activity")
+  const tCommon = useTranslations("common")
   const { activeWorkspace } = useWorkspace()
   const wsId = activeWorkspace?._id
   const activities = useQuery(api.activities.list, wsId ? { workspaceId: wsId, limit: 200 } : "skip")
@@ -115,6 +118,7 @@ export default function ActivityPage() {
   const grouped = React.useMemo(() => {
     return groupByDay(activities ?? [])
   }, [activities])
+  const loadTimedOut = useLoadingTimeout(activities === undefined)
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
@@ -125,7 +129,16 @@ export default function ActivityPage() {
         </div>
         <GlassCard>
           {activities === undefined ? (
-            <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="flex items-center justify-center py-16">
+              {loadTimedOut ? (
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
+                  <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
+                </div>
+              ) : (
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              )}
+            </div>
           ) : activities.length === 0 ? (
             <EmptyState icon={Activity} title={t("empty.title")} description={t("empty.description")} />
           ) : (

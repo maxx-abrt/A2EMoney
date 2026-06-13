@@ -120,6 +120,14 @@ export default function ProjectHubPage() {
   const [expType, setExpType] = React.useState<"expense" | "income">("expense")
   const [expCategory, setExpCategory] = React.useState("Other")
 
+  // Loading timeout to prevent infinite spinner when backend is unreachable
+  const [loadTimedOut, setLoadTimedOut] = React.useState(false)
+  React.useEffect(() => {
+    if (project !== undefined) { setLoadTimedOut(false); return }
+    const t = setTimeout(() => setLoadTimedOut(true), 8000)
+    return () => clearTimeout(t)
+  }, [project])
+
   async function handleQuickAddExpense(e: React.FormEvent) {
     e.preventDefault()
     if (!activeWorkspace?._id || !projectId) return
@@ -146,7 +154,14 @@ export default function ProjectHubPage() {
   if (!project) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        {loadTimedOut ? (
+          <div className="text-center space-y-2">
+            <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
+          </div>
+        ) : (
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        )}
       </div>
     )
   }

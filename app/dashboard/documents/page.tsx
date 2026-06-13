@@ -21,6 +21,7 @@ import {
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { AttachmentsField } from "@/components/attachments-field"
+import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 import { FileText, HardDrive, Trash2, Loader2, Download, Image as ImageIcon, Eye } from "@/components/iconsax"
 import { toast } from "sonner"
 
@@ -37,6 +38,8 @@ export default function DocumentsPage() {
 
   const expenses = useQuery(api.a2e_expenses.list, wsId ? { workspaceId: wsId } : "skip")
   const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
+
+  const loadTimedOut = useLoadingTimeout(docs === undefined)
 
   const expenseMap = React.useMemo(() => {
     const m = new Map<string, any>()
@@ -90,7 +93,16 @@ export default function DocumentsPage() {
 
         <GlassCard>
           {docs === undefined ? (
-            <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="flex items-center justify-center py-16">
+              {loadTimedOut ? (
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">An error occurred</p>
+                  <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
+                </div>
+              ) : (
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              )}
+            </div>
           ) : docs.length === 0 ? (
             <EmptyState icon={HardDrive} title={t("empty.title")} description={t("empty.description")} />
           ) : (

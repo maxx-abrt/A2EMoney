@@ -40,6 +40,10 @@ export const create = mutation({
     endDate: v.optional(v.number()),
     description: v.optional(v.string()),
     color: v.optional(v.string()),
+    autoCreateBudget: v.optional(v.boolean()),
+    autoCreateFiche: v.optional(v.boolean()),
+    currency: v.optional(v.string()),
+    locale: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { userId } = await assertWorkspaceMember(ctx, args.workspaceId, "member");
@@ -59,6 +63,43 @@ export const create = mutation({
       createdAt: now,
       updatedAt: now,
     });
+
+    // Auto-create budget when project has a budget
+    if (args.autoCreateBudget && (args.budget ?? 0) > 0) {
+      await ctx.db.insert("a2e_budgets", {
+        workspaceId: args.workspaceId,
+        name: `${args.name} — Budget`,
+        amount: args.budget!,
+        category: "other",
+        period: "custom",
+        startDate: args.startDate ?? now,
+        endDate: args.endDate,
+        color: args.color ?? "#22c55e",
+        currency: args.currency ?? "EUR",
+        spent: 0,
+        createdBy: userId,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    // Auto-create project sheet (fiche projet)
+    if (args.autoCreateFiche) {
+      await ctx.db.insert("a2e_fiches", {
+        workspaceId: args.workspaceId,
+        projectId: id,
+        template: "blank",
+        title: args.name,
+        subtitle: args.description,
+        data: {},
+        status: "draft",
+        locale: args.locale,
+        createdBy: userId,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
     await logActivity(ctx, {
       workspaceId: args.workspaceId,
       actorId: userId,

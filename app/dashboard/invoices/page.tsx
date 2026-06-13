@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select"
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
+import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 import { AttachmentsField } from "@/components/attachments-field"
 import { Plus, FileText, Trash2, Loader2, MoreHorizontal, CheckCircle2, Clock, AlertCircle, Send, Search, Filter, ArrowRight } from "@/components/iconsax"
 import { toast } from "sonner"
@@ -105,6 +106,7 @@ export default function InvoicesPage() {
   const [taxRate, setTaxRate] = React.useState("0")
   const [savedId, setSavedId] = React.useState<Id<"a2e_invoices"> | null>(null)
   const [saving, setSaving] = React.useState(false)
+  const loadTimedOut = useLoadingTimeout(invoices === undefined)
 
   React.useEffect(() => { if (searchParams.get("new")) setOpen(true) }, [searchParams])
 
@@ -294,7 +296,16 @@ export default function InvoicesPage() {
         {/* List */}
         <div className="grid gap-4">
           {invoices === undefined ? (
-            <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="flex items-center justify-center py-16">
+              {loadTimedOut ? (
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
+                  <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
+                </div>
+              ) : (
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              )}
+            </div>
           ) : filtered.length === 0 ? (
             <GlassCard><EmptyState icon={FileText} title={query || filterStatus !== "all" ? t("empty.filteredTitle") : t("empty.title")} description={query || filterStatus !== "all" ? t("empty.filteredDescription") : t("empty.description")} action={!query && filterStatus === "all" ? { onClick: () => setOpen(true), label: t("new") } : undefined} /></GlassCard>
           ) : (

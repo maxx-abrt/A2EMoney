@@ -29,6 +29,7 @@ import {
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { Plus, PiggyBank, Trash2, Loader2 } from "@/components/iconsax"
+import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 import { toast } from "sonner"
 import { CATEGORIES, CATEGORY_I18N } from "@/lib/options"
 
@@ -54,6 +55,8 @@ export default function BudgetPage() {
   const [startDate, setStartDate] = React.useState(new Date().toISOString().split("T")[0])
   const [endDate, setEndDate] = React.useState("")
   const [saving, setSaving] = React.useState(false)
+
+  const loadTimedOut = useLoadingTimeout(budgets === undefined)
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -132,7 +135,16 @@ export default function BudgetPage() {
         </div>
 
         {budgets === undefined ? (
-          <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          <div className="flex items-center justify-center py-16">
+            {loadTimedOut ? (
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
+                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
+              </div>
+            ) : (
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            )}
+          </div>
         ) : budgets.length === 0 ? (
           <GlassCard>
             <EmptyState icon={PiggyBank} title={t("empty.title")} description={t("empty.description")} action={{ onClick: () => setOpen(true), label: t("new") }} />

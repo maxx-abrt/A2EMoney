@@ -784,6 +784,8 @@
         "documents": "Aucun document lié pour l'instant."
       },
       "budget": "Budget",
+      "autoCreateBudget": "Créer un budget correspondant",
+      "autoCreateFiche": "Créer une fiche projet",
       "startDate": "Date de début",
       "endDate": "Date de fin",
       "tabs": {

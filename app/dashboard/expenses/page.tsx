@@ -33,6 +33,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
+import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 import { AttachmentsField } from "@/components/attachments-field"
 import { Plus, Receipt, Trash2, Loader2, ArrowDownRight, ArrowUpRight, Search, Filter, Download } from "@/components/iconsax"
 import { toast } from "sonner"
@@ -68,6 +69,7 @@ export default function ExpensesPage() {
   const [filterStart, setFilterStart] = React.useState("")
   const [filterEnd, setFilterEnd] = React.useState("")
   const [showFilters, setShowFilters] = React.useState(false)
+  const loadTimedOut = useLoadingTimeout(expenses === undefined)
 
   const filtered = React.useMemo(() => {
     let list = expenses ?? []
@@ -359,7 +361,16 @@ export default function ExpensesPage() {
         {/* List */}
         <GlassCard>
           {expenses === undefined ? (
-            <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="flex items-center justify-center py-16">
+              {loadTimedOut ? (
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
+                  <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
+                </div>
+              ) : (
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              )}
+            </div>
           ) : filtered.length === 0 ? (
             <EmptyState
               icon={Receipt}

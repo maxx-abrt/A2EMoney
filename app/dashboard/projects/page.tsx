@@ -31,6 +31,7 @@ import {
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { Plus, FolderOpen, Trash2, Loader2, ClipboardList } from "@/components/iconsax"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const COLORS = ["#22c55e", "#3b82f6", "#a855f7", "#ec4899", "#f59e0b", "#ef4444", "#10b981", "#06b6d4"]
 import { toast } from "sonner"
@@ -55,7 +56,17 @@ export default function ProjectsPage() {
   const [startDate, setStartDate] = React.useState(new Date().toISOString().split("T")[0])
   const [endDate, setEndDate] = React.useState("")
   const [color, setColor] = React.useState(COLORS[0])
+  const [autoCreateBudget, setAutoCreateBudget] = React.useState(false)
+  const [autoCreateFiche, setAutoCreateFiche] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
+
+  // Loading timeout to prevent infinite spinner when backend is unreachable
+  const [loadTimedOut, setLoadTimedOut] = React.useState(false)
+  React.useEffect(() => {
+    if (projects !== undefined) { setLoadTimedOut(false); return }
+    const t = setTimeout(() => setLoadTimedOut(true), 8000)
+    return () => clearTimeout(t)
+  }, [projects])
 
   const STATUS_COLORS: Record<string, string> = {
     planning: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
@@ -79,10 +90,14 @@ export default function ProjectsPage() {
         color,
         startDate: startDate ? new Date(startDate).getTime() : undefined,
         endDate: endDate ? new Date(endDate).getTime() : undefined,
+        autoCreateBudget,
+        autoCreateFiche,
+        currency,
+        locale: activeWorkspace?.locale ?? "en",
       })
       toast.success(t("toasts.created"))
       setOpen(false)
-      setName(""); setClient(""); setBudget(""); setDescription(""); setEndDate(""); setColor(COLORS[0])
+      setName(""); setClient(""); setBudget(""); setDescription(""); setEndDate(""); setColor(COLORS[0]); setAutoCreateBudget(false); setAutoCreateFiche(false)
     } catch (err: any) {
       toast.error(err?.message || t("toasts.failed"))
     } finally { setSaving(false) }
@@ -122,6 +137,16 @@ export default function ProjectsPage() {
                   </Select>
                 </div>
                 <div><Label>{tCommon("description")}</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} /></div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="auto-budget" checked={autoCreateBudget} onCheckedChange={(c) => setAutoCreateBudget(!!c)} />
+                    <label htmlFor="auto-budget" className="text-sm cursor-pointer">{t("autoCreateBudget")}</label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="auto-fiche" checked={autoCreateFiche} onCheckedChange={(c) => setAutoCreateFiche(!!c)} />
+                    <label htmlFor="auto-fiche" className="text-sm cursor-pointer">{t("autoCreateFiche")}</label>
+                  </div>
+                </div>
                 <div><Label>{tCommon("color")}</Label>
                   <div className="flex flex-wrap gap-2">
                     {COLORS.map((c) => (
@@ -145,7 +170,16 @@ export default function ProjectsPage() {
         </div>
 
         {projects === undefined ? (
-          <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          <div className="flex items-center justify-center py-16">
+            {loadTimedOut ? (
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
+                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
+              </div>
+            ) : (
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            )}
+          </div>
         ) : projects.length === 0 ? (
           <GlassCard>
             <EmptyState icon={FolderOpen} title={t("empty.title")} description={t("empty.description")} action={{ onClick: () => setOpen(true), label: t("new") }} />

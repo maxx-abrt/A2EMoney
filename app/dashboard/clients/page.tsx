@@ -23,6 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
+import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 import { Plus, People, Trash2, Loader2, ReceiptText, Wallet3, Search } from "@/components/iconsax"
 import { toast } from "sonner"
 
@@ -40,6 +41,7 @@ export default function ClientsPage() {
 
   const [query, setQuery] = React.useState("")
   const [open, setOpen] = React.useState(false)
+  const loadTimedOut = useLoadingTimeout(clients === undefined)
   const [name, setName] = React.useState("")
   const [email, setEmail] = React.useState("")
   const [address, setAddress] = React.useState("")
@@ -128,7 +130,16 @@ export default function ClientsPage() {
         </div>
 
         {clients === undefined ? (
-          <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          <div className="flex items-center justify-center py-16">
+            {loadTimedOut ? (
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
+                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
+              </div>
+            ) : (
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            )}
+          </div>
         ) : filtered.length === 0 ? (
           <GlassCard><EmptyState icon={People} title={t("empty.title")} description={t("empty.description")} action={{ onClick: () => setOpen(true), label: t("new") }} /></GlassCard>
         ) : (

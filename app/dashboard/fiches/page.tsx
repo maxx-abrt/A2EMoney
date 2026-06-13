@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
+import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 import {
   ClipboardList,
   FilePlus2,
@@ -62,6 +63,7 @@ export default function FichesPage() {
   const [title, setTitle] = React.useState("")
   const [projectId, setProjectId] = React.useState<string>("")
   const [query, setQuery] = React.useState("")
+  const loadTimedOut = useLoadingTimeout(fiches === undefined)
   const [creating, setCreating] = React.useState(false)
 
   const filtered = React.useMemo(
@@ -185,7 +187,14 @@ export default function FichesPage() {
 
         {fiches === undefined ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            {loadTimedOut ? (
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
+                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
+              </div>
+            ) : (
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            )}
           </div>
         ) : filtered.length === 0 ? (
           <GlassCard>
