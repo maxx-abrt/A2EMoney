@@ -11,6 +11,13 @@ import { useFilePreview } from "@/components/file-preview-provider"
 import { formatBytes, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { AttachmentsField } from "@/components/attachments-field"
@@ -119,10 +126,8 @@ export default function DocumentsPage() {
                           : d.linkedToType}
                       </Badge>
                     ) : (
-                      <select
-                        className="h-7 rounded-md border border-input bg-transparent px-1 text-[10px]"
-                        onChange={async (e) => {
-                          const val = e.target.value
+                      <Select
+                        onValueChange={async (val) => {
                           if (!val) return
                           const [type, id] = val.split(":")
                           try {
@@ -131,14 +136,15 @@ export default function DocumentsPage() {
                           } catch (err: any) { toast.error(err?.message || t("toasts.linkFailed")) }
                         }}
                       >
-                        <option value="">{t("linkTo")}</option>
-                        <optgroup label={t("linkProject")}>
-                          {(projects ?? []).map((p) => <option key={p._id} value={`project:${p._id}`}>{p.name}</option>)}
-                        </optgroup>
-                        <optgroup label={t("linkExpense")}>
-                          {(expenses ?? []).slice(0, 20).map((ex) => <option key={ex._id} value={`expense:${ex._id}`}>{ex.description}</option>)}
-                        </optgroup>
-                      </select>
+                        <SelectTrigger className="h-7 text-[10px]"><SelectValue placeholder={t("linkTo")} /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="" disabled>{t("linkTo")}</SelectItem>
+                          <p className="px-2 py-1.5 text-[10px] font-medium text-muted-foreground">{t("linkProject")}</p>
+                          {(projects ?? []).map((p) => <SelectItem key={p._id} value={`project:${p._id}`}>{p.name}</SelectItem>)}
+                          <p className="px-2 py-1.5 text-[10px] font-medium text-muted-foreground">{t("linkExpense")}</p>
+                          {(expenses ?? []).slice(0, 20).map((ex) => <SelectItem key={ex._id} value={`expense:${ex._id}`}>{ex.description}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     )}
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => preview({ _id: d._id, name: d.name, contentType: d.contentType, size: d.size })}>
                       <Eye className="h-3.5 w-3.5" />

@@ -12,6 +12,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -23,8 +30,8 @@ import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { Plus, PiggyBank, Trash2, Loader2 } from "@/components/iconsax"
 import { toast } from "sonner"
+import { CATEGORIES, CATEGORY_I18N } from "@/lib/options"
 
-const CATEGORIES = ["Food", "Transport", "Housing", "Office", "Marketing", "Software", "Travel", "Salaries", "Taxes", "Utilities", "Other"]
 const COLORS = ["#22c55e", "#3b82f6", "#a855f7", "#ec4899", "#f59e0b", "#ef4444", "#10b981", "#06b6d4"]
 
 export default function BudgetPage() {
@@ -90,16 +97,19 @@ export default function BudgetPage() {
                 <div><Label>{tCommon("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required /></div>
-                  <div><Label>{tCommon("category")}</Label><select value={category} onChange={(e) => setCategory(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">{CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select></div>
+                  <div><Label>{tCommon("category")}</Label><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{tCommon(`categories.${CATEGORY_I18N[c]}`)}</SelectItem>)}</SelectContent></Select></div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label>{t("period")}</Label>
-                    <select value={period} onChange={(e) => setPeriod(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                      <option value="monthly">{t("periods.monthly")}</option>
-                      <option value="yearly">{t("periods.yearly")}</option>
-                      <option value="custom">{t("periods.custom")}</option>
-                    </select>
+                    <Select value={period} onValueChange={(v) => setPeriod(v as any)}>
+                      <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="monthly">{t("periods.monthly")}</SelectItem>
+                        <SelectItem value="yearly">{t("periods.yearly")}</SelectItem>
+                        <SelectItem value="custom">{t("periods.custom")}</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div><Label>{t("start")}</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required /></div>
                   <div><Label>{t("end")}</Label><Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} disabled={period !== "custom"} /></div>

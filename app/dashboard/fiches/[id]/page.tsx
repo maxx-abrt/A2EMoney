@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { GlassCard } from "@/components/glass-card"
+import { Breadcrumbs } from "@/components/breadcrumbs"
 import { exportFicheToPdf } from "@/lib/fiche-pdf"
 import { useWorkspace } from "@/lib/workspace-context"
 import { formatBytes, cn } from "@/lib/utils"
@@ -145,6 +146,12 @@ export default function FichePage() {
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl space-y-6">
+        <Breadcrumbs
+          crumbs={[
+            { label: "Project sheets", href: "/dashboard/fiches" },
+            { label: title || fiche.title },
+          ]}
+        />
         {/* Top bar */}
         <div className="flex flex-wrap items-center gap-3">
           <Button asChild variant="ghost" size="icon" className="h-8 w-8">

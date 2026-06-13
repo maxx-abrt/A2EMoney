@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { useTranslations } from "next-intl"
 import { useMutation, useQuery } from "convex/react"
@@ -21,14 +22,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { AttachmentsField } from "@/components/attachments-field"
-import { Plus, Receipt, Trash2, Loader2, ArrowDownRight, ArrowUpRight, Paperclip } from "@/components/iconsax"
+import { Plus, Receipt, Trash2, Loader2, ArrowDownRight, ArrowUpRight, Search, Filter, Download } from "@/components/iconsax"
 import { toast } from "sonner"
-
-const CATEGORIES = ["Food", "Transport", "Housing", "Office", "Marketing", "Software", "Travel", "Salaries", "Taxes", "Utilities", "Other"]
-const PAYMENT_METHODS = ["Card", "Bank transfer", "Cash", "PayPal", "Other"]
+import { CATEGORIES, CATEGORY_I18N, PAYMENT_METHODS, PAYMENT_I18N } from "@/lib/options"
 
 export default function ExpensesPage() {
   const t = useTranslations("pages.expenses")
@@ -52,6 +60,65 @@ export default function ExpensesPage() {
     return m
   }, [projects])
 
+  // Filters
+  const [query, setQuery] = React.useState("")
+  const [filterCategory, setFilterCategory] = React.useState<string>("all")
+  const [filterType, setFilterType] = React.useState<string>("all")
+  const [filterProject, setFilterProject] = React.useState<string>("all")
+  const [filterStart, setFilterStart] = React.useState("")
+  const [filterEnd, setFilterEnd] = React.useState("")
+  const [showFilters, setShowFilters] = React.useState(false)
+
+  const filtered = React.useMemo(() => {
+    let list = expenses ?? []
+    if (query.trim()) {
+      const q = query.toLowerCase()
+      list = list.filter((e) => e.description.toLowerCase().includes(q) || e.category.toLowerCase().includes(q))
+    }
+    if (filterCategory !== "all") list = list.filter((e) => e.category === filterCategory)
+    if (filterType !== "all") list = list.filter((e) => e.type === filterType)
+    if (filterProject !== "all") list = list.filter((e) => e.projectId === filterProject)
+    if (filterStart) {
+      const start = new Date(filterStart).getTime()
+      list = list.filter((e) => e.date >= start)
+    }
+    if (filterEnd) {
+      const end = new Date(filterEnd).getTime() + 86400000
+      list = list.filter((e) => e.date <= end)
+    }
+    return list
+  }, [expenses, query, filterCategory, filterType, filterProject, filterStart, filterEnd])
+
+  // Bulk selection
+  const [selected, setSelected] = React.useState<Set<string>>(new Set())
+  const allSelected = filtered.length > 0 && selected.size === filtered.length
+  const someSelected = selected.size > 0 && !allSelected
+
+  function toggleSelectAll() {
+    if (allSelected) setSelected(new Set())
+    else setSelected(new Set(filtered.map((e) => e._id)))
+  }
+  function toggleSelect(id: string) {
+    const next = new Set(selected)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    setSelected(next)
+  }
+
+  async function handleBulkDelete() {
+    if (!confirm(t("bulkDeleteConfirm", { count: selected.size }))) return
+    let deleted = 0
+    for (const id of selected) {
+      try {
+        await remove({ expenseId: id as Id<"a2e_expenses"> })
+        deleted++
+      } catch {}
+    }
+    setSelected(new Set())
+    toast.success(t("bulkDeleted", { count: deleted }))
+  }
+
+  // Create form
   const [open, setOpen] = React.useState(false)
   const [type, setType] = React.useState<"expense" | "income">("expense")
   const [description, setDescription] = React.useState("")
@@ -103,151 +170,280 @@ export default function ExpensesPage() {
   function closeDialog() { setOpen(false); setTimeout(resetForm, 200) }
 
   const totals = React.useMemo(() => {
-    const list = expenses ?? []
+    const list = filtered
     const income = list.filter((e) => e.type === "income").reduce((a, b) => a + b.amount, 0)
     const out = list.filter((e) => e.type === "expense").reduce((a, b) => a + b.amount, 0)
-    return { income, out, net: income - out }
-  }, [expenses])
+    return { income, out, net: income - out, count: list.length }
+  }, [filtered])
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
+        {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
           </div>
-          <Dialog open={open} onOpenChange={(o) => (o ? setOpen(o) : closeDialog())}>
-            <DialogTrigger asChild><Button className="gap-2 rounded-full shadow-sm"><Plus className="h-4 w-4" /> {t("add")}</Button></DialogTrigger>
-            <DialogContent className="max-w-xl">
-              <DialogHeader><DialogTitle>{savedId ? t("attach.title") : t("add")}</DialogTitle></DialogHeader>
-              {!savedId ? (
-                <form onSubmit={handleSave} className="space-y-5">
-                  <div className="flex gap-2">
-                    {(["expense", "income"] as const).map((opt) => (
-                      <button key={opt} type="button" onClick={() => setType(opt)}
-                        className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${type === opt ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted"}`}>
-                        {t(opt)}
-                      </button>
-                    ))}
-                  </div>
-                  <div><Label>{tCommon("description")}</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} required /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} required /></div>
-                    <div><Label>{tCommon("date")}</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><Label>{tCommon("category")}</Label>
-                      <select value={category} onChange={(e) => setCategory(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                        {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                      </select>
+          <div className="flex gap-2">
+            {selected.size > 0 && (
+              <Button variant="destructive" size="sm" className="gap-2" onClick={handleBulkDelete}>
+                <Trash2 className="h-4 w-4" /> {t("deleteSelected", { count: selected.size })}
+              </Button>
+            )}
+            <Dialog open={open} onOpenChange={(o) => (o ? setOpen(o) : closeDialog())}>
+              <DialogTrigger asChild><Button className="gap-2 rounded-full shadow-sm"><Plus className="h-4 w-4" /> {t("add")}</Button></DialogTrigger>
+              <DialogContent className="max-w-xl">
+                <DialogHeader><DialogTitle>{savedId ? t("attach.title") : t("add")}</DialogTitle></DialogHeader>
+                {!savedId ? (
+                  <form onSubmit={handleSave} className="space-y-5">
+                    <div className="flex gap-2">
+                      {(["expense", "income"] as const).map((opt) => (
+                        <button key={opt} type="button" onClick={() => setType(opt)}
+                          className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${type === opt ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted"}`}>
+                          {t(opt)}
+                        </button>
+                      ))}
                     </div>
-                    <div><Label>{t("paymentMethod")}</Label>
-                      <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                        {PAYMENT_METHODS.map((c) => <option key={c}>{c}</option>)}
-                      </select>
+                    <div><Label>{tCommon("description")}</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} required /></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} required /></div>
+                      <div><Label>{tCommon("date")}</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></div>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><Label>{t("project")}</Label>
-                      <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                        <option value="">{t("noProject")}</option>
-                        {(projects ?? []).map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
-                      </select>
-                    </div>
-                    {ledgerSheets.length > 0 && (
-                      <div><Label>{t("book")}</Label>
-                        <select value={sheetId} onChange={(e) => setSheetId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                          <option value="">—</option>
-                          {ledgerSheets.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
-                        </select>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>{tCommon("category")}</Label>
+                        <Select value={category} onValueChange={setCategory}>
+                          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{tCommon(`categories.${CATEGORY_I18N[c]}`)}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
                       </div>
-                    )}
+                      <div>
+                        <Label>{t("paymentMethod")}</Label>
+                        <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {PAYMENT_METHODS.map((c) => <SelectItem key={c} value={c}>{tCommon(`paymentMethods.${PAYMENT_I18N[c]}`)}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>{t("project")}</Label>
+                        <Select value={projectId} onValueChange={setProjectId}>
+                          <SelectTrigger className="w-full"><SelectValue placeholder={t("noProject")} /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">{t("noProject")}</SelectItem>
+                            {(projects ?? []).map((p) => <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {ledgerSheets.length > 0 && (
+                        <div>
+                          <Label>{t("book")}</Label>
+                          <Select value={sheetId} onValueChange={setSheetId}>
+                            <SelectTrigger className="w-full"><SelectValue placeholder="—" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">—</SelectItem>
+                              {ledgerSheets.map((s) => <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+                    <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
+                    <DialogFooter>
+                      <Button type="button" variant="outline" onClick={closeDialog}>{tCommon("cancel")}</Button>
+                      <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("save")}</Button>
+                    </DialogFooter>
+                  </form>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">{t("attach.description")}</p>
+                    <AttachmentsField linkedTo={{ type: "expense", id: savedId }} documentType="receipt" max={10} />
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={closeDialog}>{tCommon("done")}</Button>
+                    </div>
                   </div>
-                  <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
-                  <DialogFooter>
-                    <Button type="button" variant="outline" onClick={closeDialog}>{tCommon("cancel")}</Button>
-                    <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("save")}</Button>
-                  </DialogFooter>
-                </form>
-              ) : (
-                <div className="space-y-5">
-                  <p className="text-sm text-muted-foreground">{t("attach.description")}</p>
-                  <AttachmentsField linkedTo={{ type: "expense", id: savedId }} documentType="receipt" />
-                  <DialogFooter>
-                    <Button onClick={closeDialog}>{t("done")}</Button>
-                  </DialogFooter>
-                </div>
-              )}
-            </DialogContent>
-          </Dialog>
+                )}
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
+        {/* Filter bar */}
+        <GlassCard className="p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder={t("searchPlaceholder")}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowFilters((s) => !s)}>
+              <Filter className="h-4 w-4" /> {t("filters")}
+            </Button>
+          </div>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mt-3 grid gap-3 sm:grid-cols-5"
+            >
+              <div>
+                <Label className="text-xs">{tCommon("type")}</Label>
+                <Select value={filterType} onValueChange={setFilterType}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("allTypes")}</SelectItem>
+                    <SelectItem value="expense">{t("expense")}</SelectItem>
+                    <SelectItem value="income">{t("income")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">{tCommon("category")}</Label>
+                <Select value={filterCategory} onValueChange={setFilterCategory}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("allCategories")}</SelectItem>
+                    {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{tCommon(`categories.${CATEGORY_I18N[c]}`)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">{t("project")}</Label>
+                <Select value={filterProject} onValueChange={setFilterProject}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("allProjects")}</SelectItem>
+                    {(projects ?? []).map((p) => <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">{t("fromDate")}</Label>
+                <Input type="date" value={filterStart} onChange={(e) => setFilterStart(e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs">{t("toDate")}</Label>
+                <Input type="date" value={filterEnd} onChange={(e) => setFilterEnd(e.target.value)} />
+              </div>
+            </motion.div>
+          )}
+        </GlassCard>
+
+        {/* Totals */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <SummaryCard label={t("totals.income")} value={formatCurrency(totals.income, currency)} tone="positive" />
-          <SummaryCard label={t("totals.expenses")} value={formatCurrency(totals.out, currency)} tone="negative" />
-          <SummaryCard label={t("totals.net")} value={formatCurrency(totals.net, currency)} tone={totals.net >= 0 ? "positive" : "negative"} />
+          <GlassCard className="p-4">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("stats.income")}</p>
+            <p className="mt-1 text-xl font-semibold text-accent">{formatCurrency(totals.income, currency)}</p>
+          </GlassCard>
+          <GlassCard className="p-4">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("stats.expenses")}</p>
+            <p className="mt-1 text-xl font-semibold text-foreground">{formatCurrency(totals.out, currency)}</p>
+          </GlassCard>
+          <GlassCard className="p-4">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("stats.net")}</p>
+            <p className={`mt-1 text-xl font-semibold ${totals.net >= 0 ? "text-accent" : "text-destructive"}`}>{formatCurrency(totals.net, currency)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("stats.count", { count: totals.count })}</p>
+          </GlassCard>
         </div>
 
+        {/* List */}
         <GlassCard>
           {expenses === undefined ? (
             <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-          ) : expenses.length === 0 ? (
-            <EmptyState icon={Receipt} title={t("empty.title")} description={t("empty.description")} action={{ onClick: () => setOpen(true), label: t("add") }} />
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              icon={Receipt}
+              title={query || filterCategory !== "all" || filterType !== "all" ? t("empty.filteredTitle") : t("empty.title")}
+              description={query || filterCategory !== "all" || filterType !== "all" ? t("empty.filteredDescription") : t("empty.description")}
+              action={!query && filterCategory === "all" && filterType === "all" ? { onClick: () => setOpen(true), label: t("add") } : undefined}
+            />
           ) : (
-            <ul className="divide-y divide-border/60">
-              {expenses.map((e, idx) => (
-                <motion.li
-                  key={e._id}
-                  initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.015 * idx, duration: 0.25 }}
-                  className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/30"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${e.type === "income" ? "bg-accent/10 text-accent" : "bg-muted"}`}>
-                      {e.type === "income" ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{e.description}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(e.date)} · {e.category} · {e.paymentMethod}
-                        {e.projectId && projectMap.get(e.projectId) && (
-                          <span className="ml-1 inline-flex items-center gap-1">
-                            · <span className="h-1.5 w-1.5 rounded-full" style={{ background: projectMap.get(e.projectId).color || "#ccc" }} />
-                            {projectMap.get(e.projectId).name}
-                          </span>
-                        )}
-                        {(e.linkedDocuments?.length ?? 0) > 0 && (
-                          <span className="ml-1 inline-flex items-center gap-0.5">
-                            · <Paperclip className="h-3 w-3" />
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-3">
-                    <span className={`font-numeric text-sm font-medium ${e.type === "income" ? "text-accent" : "text-foreground"}`}>
-                      {e.type === "income" ? "+" : "-"}{formatCurrency(e.amount, e.currency ?? currency)}
-                    </span>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => remove({ expenseId: e._id })}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </motion.li>
-              ))}
-            </ul>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border/60">
+                    <th className="w-10 px-4 py-3">
+                      <Checkbox
+                        checked={allSelected}
+                        data-state={someSelected ? "indeterminate" : allSelected ? "checked" : "unchecked"}
+                        onCheckedChange={toggleSelectAll}
+                        aria-label="Select all"
+                      />
+                    </th>
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">{tCommon("description")}</th>
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">{tCommon("category")}</th>
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">{tCommon("date")}</th>
+                    <th className="px-4 py-3 text-right font-medium text-muted-foreground">{tCommon("amount")}</th>
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("project")}</th>
+                    <th className="w-10 px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((tr, idx) => {
+                    const isIn = tr.type === "income"
+                    const isSelected = selected.has(tr._id)
+                    return (
+                      <motion.tr
+                        key={tr._id}
+                        initial={{ opacity: 0, x: -4 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.01 * idx, duration: 0.25 }}
+                        className={`border-b border-border/40 transition-colors hover:bg-muted/30 ${isSelected ? "bg-accent/5" : ""}`}
+                      >
+                        <td className="px-4 py-3">
+                          <Checkbox checked={isSelected} onCheckedChange={() => toggleSelect(tr._id)} aria-label="Select row" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${isIn ? "bg-accent/10 text-accent" : "bg-muted text-foreground"}`}>
+                              {isIn ? <ArrowDownRight className="h-3.5 w-3.5" /> : <ArrowUpRight className="h-3.5 w-3.5" />}
+                            </div>
+                            <div>
+                              <p className="font-medium">{tr.description}</p>
+                              {tr.notes && <p className="text-xs text-muted-foreground">{tr.notes}</p>}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge variant="secondary" className="text-xs">{tr.category}</Badge>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">{formatDate(tr.date)}</td>
+                        <td className={`px-4 py-3 text-right font-medium tabular-nums ${isIn ? "text-accent" : ""}`}>
+                          {isIn ? "+" : "-"}{formatCurrency(tr.amount, currency)}
+                        </td>
+                        <td className="px-4 py-3">
+                          {tr.projectId && projectMap.get(tr.projectId) ? (
+                            <Link href={`/dashboard/projects/${tr.projectId}`} className="text-xs text-accent hover:underline">
+                              {projectMap.get(tr.projectId).name}
+                            </Link>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => remove({ expenseId: tr._id })}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </td>
+                      </motion.tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </GlassCard>
       </div>
     </div>
-  )
-}
-
-function SummaryCard({ label, value, tone }: { label: string; value: string; tone: "positive" | "negative" | "neutral" }) {
-  const toneCls = tone === "positive" ? "text-accent" : tone === "negative" ? "text-destructive" : "text-foreground"
-  return (
-    <GlassCard className="p-5">
-      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className={`mt-2 font-numeric text-2xl font-semibold ${toneCls}`}>{value}</p>
-    </GlassCard>
   )
 }

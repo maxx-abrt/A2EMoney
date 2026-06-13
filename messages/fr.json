@@ -100,13 +100,34 @@
     "notes": "Notes",
     "save": "Enregistrer",
     "client": "Client",
+    "clients": "Clients",
     "status": "Statut",
     "close": "Fermer",
     "currency": "Devise",
     "project": "Projet",
     "edit": "Modifier",
     "color": "Couleur",
-    "errorOccurred": "Une erreur est survenue"
+    "errorOccurred": "Une erreur est survenue",
+    "categories": {
+      "food": "Alimentation",
+      "transport": "Transport",
+      "housing": "Logement",
+      "office": "Bureau",
+      "marketing": "Marketing",
+      "software": "Logiciel",
+      "travel": "Voyage",
+      "salaries": "Salaires",
+      "taxes": "Impôts",
+      "utilities": "Services publics",
+      "other": "Autre"
+    },
+    "paymentMethods": {
+      "card": "Carte",
+      "bankTransfer": "Virement bancaire",
+      "cash": "Espèces",
+      "paypal": "PayPal",
+      "other": "Autre"
+    }
   },
   "nav": {
     "features": "Fonctionnalités",
@@ -118,6 +139,7 @@
     "budget": "Budget",
     "expenses": "Dépenses",
     "invoices": "Factures",
+    "clients": "Clients",
     "projects": "Projets",
     "book": "Livre",
     "documents": "Documents",
@@ -128,7 +150,8 @@
     "fiches": "Fiches projet",
     "settings": "Paramètres",
     "signOut": "Déconnexion",
-    "storage": "Stockage"
+    "storage": "Stockage",
+    "search": "Rechercher ou naviguer..."
   },
   "landing": {
     "badge": "v1.0 · Lancement progressif",
@@ -638,11 +661,24 @@
       "totals": {
         "income": "Recettes",
         "expenses": "Dépenses",
-        "net": "Net"
+        "net": "Net",
+        "count": "{count} transactions"
       },
+      "searchPlaceholder": "Rechercher des transactions...",
+      "filters": "Filtres",
+      "allTypes": "Tous types",
+      "allCategories": "Toutes catégories",
+      "allProjects": "Tous projets",
+      "fromDate": "Du",
+      "toDate": "Au",
+      "deleteSelected": "Supprimer {count}",
+      "bulkDeleteConfirm": "Supprimer {count} transactions sélectionnées ?",
+      "bulkDeleted": "{count} transactions supprimées",
       "empty": {
         "title": "Aucune transaction pour l'instant",
-        "description": "Enregistrez votre première dépense ou recette pour la voir ici."
+        "description": "Enregistrez votre première dépense ou recette pour la voir ici.",
+        "filteredTitle": "Aucune transaction correspondante",
+        "filteredDescription": "Essayez d'ajuster vos filtres ou votre recherche."
       },
       "attach": {
         "title": "Joindre des justificatifs",
@@ -687,9 +723,19 @@
         "overdue": "En retard",
         "cancelled": "Annulée"
       },
+      "searchPlaceholder": "Rechercher des factures par client ou numéro...",
+      "filters": "Filtres",
+      "allStatuses": "Tous statuts",
+      "allProjects": "Tous projets",
+      "linkedClient": "Client lié",
+      "selectClient": "Sélectionner un client",
+      "noClient": "— Aucun client —",
+      "paidDate": "Date de paiement",
       "empty": {
         "title": "Aucune facture pour l'instant",
-        "description": "Créez votre première facture pour suivre la facturation client."
+        "description": "Créez votre première facture pour suivre la facturation client.",
+        "filteredTitle": "Aucune facture correspondante",
+        "filteredDescription": "Essayez d'ajuster vos filtres ou votre recherche."
       },
       "attach": {
         "title": "Joindre des documents",
@@ -698,6 +744,24 @@
       "toasts": {
         "created": "Facture créée",
         "marked": "Marquée {status}",
+        "failed": "Impossible d'enregistrer"
+      }
+    },
+    "clients": {
+      "title": "Clients",
+      "description": "Gérez votre répertoire client, suivez l'historique de facturation et les totaux payés.",
+      "new": "Nouveau client",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "searchPlaceholder": "Rechercher des clients par nom, email ou SIRET...",
+      "invoices": "Factures",
+      "totalPaid": "Payé",
+      "empty": {
+        "title": "Aucun client pour l'instant",
+        "description": "Ajoutez votre premier client pour générer rapidement des factures et suivre l'historique."
+      },
+      "toasts": {
+        "created": "Client créé",
         "failed": "Impossible d'enregistrer"
       }
     },
@@ -899,6 +963,7 @@
         "category": "Catégorie",
         "type": "Type",
         "amount": "Montant",
+        "balance": "Solde",
         "project": "Projet",
         "payment": "Paiement",
         "notes": "Notes"

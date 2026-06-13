@@ -106,7 +106,27 @@
     "project": "Project",
     "edit": "Edit",
     "color": "Color",
-    "errorOccurred": "An error occurred"
+    "errorOccurred": "An error occurred",
+    "categories": {
+      "food": "Food",
+      "transport": "Transport",
+      "housing": "Housing",
+      "office": "Office",
+      "marketing": "Marketing",
+      "software": "Software",
+      "travel": "Travel",
+      "salaries": "Salaries",
+      "taxes": "Taxes",
+      "utilities": "Utilities",
+      "other": "Other"
+    },
+    "paymentMethods": {
+      "card": "Card",
+      "bankTransfer": "Bank transfer",
+      "cash": "Cash",
+      "paypal": "PayPal",
+      "other": "Other"
+    }
   },
   "nav": {
     "features": "Features",
@@ -118,6 +138,7 @@
     "budget": "Budget",
     "expenses": "Expenses",
     "invoices": "Invoices",
+    "clients": "Clients",
     "projects": "Projects",
     "book": "Book",
     "documents": "Documents",
@@ -128,7 +149,8 @@
     "fiches": "Project sheets",
     "settings": "Settings",
     "signOut": "Sign Out",
-    "storage": "Storage"
+    "storage": "Storage",
+    "search": "Search or jump to..."
   },
   "landing": {
     "badge": "v1.0 · Now in beta",
@@ -638,11 +660,24 @@
       "totals": {
         "income": "Total income",
         "expenses": "Total expenses",
-        "net": "Net"
+        "net": "Net",
+        "count": "{count} transactions"
       },
+      "searchPlaceholder": "Search transactions...",
+      "filters": "Filters",
+      "allTypes": "All types",
+      "allCategories": "All categories",
+      "allProjects": "All projects",
+      "fromDate": "From",
+      "toDate": "To",
+      "deleteSelected": "Delete {count}",
+      "bulkDeleteConfirm": "Delete {count} selected transactions?",
+      "bulkDeleted": "{count} transactions deleted",
       "empty": {
         "title": "No transactions yet",
-        "description": "Log your first expense or income to see it here."
+        "description": "Log your first expense or income to see it here.",
+        "filteredTitle": "No matching transactions",
+        "filteredDescription": "Try adjusting your filters or search query."
       },
       "attach": {
         "title": "Attach receipts",
@@ -687,9 +722,19 @@
         "overdue": "Overdue",
         "cancelled": "Cancelled"
       },
+      "searchPlaceholder": "Search invoices by client or number...",
+      "filters": "Filters",
+      "allStatuses": "All statuses",
+      "allProjects": "All projects",
+      "linkedClient": "Linked client",
+      "selectClient": "Select a client",
+      "noClient": "— No client —",
+      "paidDate": "Paid date",
       "empty": {
         "title": "No invoices yet",
-        "description": "Create your first invoice to start tracking client billing."
+        "description": "Create your first invoice to start tracking client billing.",
+        "filteredTitle": "No matching invoices",
+        "filteredDescription": "Try adjusting your filters or search query."
       },
       "attach": {
         "title": "Attach documents",
@@ -698,6 +743,24 @@
       "toasts": {
         "created": "Invoice created",
         "marked": "Marked as {status}",
+        "failed": "Could not save"
+      }
+    },
+    "clients": {
+      "title": "Clients",
+      "description": "Manage your client directory, track invoicing history and payment totals.",
+      "new": "New client",
+      "phone": "Phone",
+      "address": "Address",
+      "searchPlaceholder": "Search clients by name, email or SIRET...",
+      "invoices": "Invoices",
+      "totalPaid": "Paid",
+      "empty": {
+        "title": "No clients yet",
+        "description": "Add your first client to quickly generate invoices and track billing history."
+      },
+      "toasts": {
+        "created": "Client created",
         "failed": "Could not save"
       }
     },
@@ -899,6 +962,7 @@
         "category": "Category",
         "type": "Type",
         "amount": "Amount",
+        "balance": "Balance",
         "project": "Project",
         "payment": "Payment",
         "notes": "Notes"

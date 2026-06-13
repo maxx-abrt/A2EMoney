@@ -222,6 +222,10 @@ export const Layers = get("HierarchySquare3")
 export const Link2Icon = get("Link21")
 export const Globe = get("Global")
 export const Languages = get("Translate")
+export const Search = get("SearchNormal1")
+export const Filter = get("FilterSquare")
+export const MoneySend = get("MoneySend")
+export const NoteAdd = get("NoteAdd")
 
 // Generic proxy fallback: anything else still works via lazy lookup.
 const proxy = new Proxy(

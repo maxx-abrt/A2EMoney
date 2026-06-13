@@ -16,7 +16,15 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { GlassCard } from "@/components/glass-card"
+import { Breadcrumbs } from "@/components/breadcrumbs"
 import { AttachmentsField } from "@/components/attachments-field"
 import {
   ArrowLeft,
@@ -28,9 +36,11 @@ import {
   ClipboardList,
   FileText,
   HardDrive,
+  NoteText,
   Receipt,
 } from "@/components/iconsax"
 import { toast } from "sonner"
+import { CATEGORIES, CATEGORY_I18N } from "@/lib/options"
 
 const STATUS_COLORS: Record<string, string> = {
   planning: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
@@ -53,6 +63,7 @@ export default function ProjectHubPage() {
   const expenses = useQuery(api.a2e_expenses.listByProject, projectId ? { projectId } : "skip")
   const fiches = useQuery(api.a2e_fiches.list, activeWorkspace?._id ? { workspaceId: activeWorkspace._id, projectId } : "skip")
   const docs = useQuery(api.a2e_documents.list, activeWorkspace?._id ? { workspaceId: activeWorkspace._id, linkedToType: "project", linkedToId: projectId } : "skip")
+  const grantReports = useQuery(api.a2e_grantReports.listByProject, projectId ? { projectId } : "skip")
 
   const updateProject = useMutation(api.projects.update)
   const createExpense = useMutation(api.a2e_expenses.create)
@@ -147,6 +158,12 @@ export default function ProjectHubPage() {
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
+        <Breadcrumbs
+          crumbs={[
+            { label: "Projects", href: "/dashboard/projects" },
+            { label: project.name },
+          ]}
+        />
         {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
@@ -207,6 +224,7 @@ export default function ProjectHubPage() {
           <TabsList className="rounded-lg border border-border bg-card">
             <TabsTrigger value="transactions" className="gap-1"><Receipt className="h-3.5 w-3.5" /> {t("tabs.transactions")}</TabsTrigger>
             <TabsTrigger value="fiches" className="gap-1"><ClipboardList className="h-3.5 w-3.5" /> {t("tabs.fiches")}</TabsTrigger>
+            <TabsTrigger value="cerfa" className="gap-1"><NoteText className="h-3.5 w-3.5" /> CERFA</TabsTrigger>
             <TabsTrigger value="documents" className="gap-1"><HardDrive className="h-3.5 w-3.5" /> {t("tabs.documents")}</TabsTrigger>
             <TabsTrigger value="details" className="gap-1"><FileText className="h-3.5 w-3.5" /> {t("tabs.details")}</TabsTrigger>
           </TabsList>
@@ -232,9 +250,12 @@ export default function ProjectHubPage() {
                   </div>
                   <Input value={expDesc} onChange={(e) => setExpDesc(e.target.value)} placeholder={t("quickAdd.descriptionPlaceholder")} className="h-8 text-sm w-64" required />
                   <Input type="number" step="0.01" value={expAmount} onChange={(e) => setExpAmount(e.target.value)} placeholder={t("quickAdd.amountPlaceholder")} className="h-8 text-sm w-32 font-numeric" required />
-                  <select value={expCategory} onChange={(e) => setExpCategory(e.target.value)} className="h-8 rounded-md border border-input bg-transparent px-2 text-xs">
-                    {["Food", "Transport", "Housing", "Office", "Marketing", "Software", "Travel", "Salaries", "Taxes", "Utilities", "Other"].map((c) => <option key={c}>{c}</option>)}
-                  </select>
+                  <Select value={expCategory} onValueChange={setExpCategory}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{tCommon(`categories.${CATEGORY_I18N[c]}`)}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                   <Button type="submit" size="sm">{t("quickAdd.save")}</Button>
                   <Button type="button" variant="ghost" size="sm" onClick={() => setShowAddExpense(false)}>{t("quickAdd.cancel")}</Button>
                 </form>
@@ -292,6 +313,34 @@ export default function ProjectHubPage() {
             </div>
           </TabsContent>
 
+          <TabsContent value="cerfa" className="space-y-4 pt-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold">CERFA 15059</h2>
+              <Button asChild size="sm" className="gap-1 rounded-full">
+                <Link href={`/dashboard/projects/${projectId}/cerfa`}><Plus className="h-3.5 w-3.5" /> CERFA</Link>
+              </Button>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {(grantReports ?? []).length === 0 ? (
+                <GlassCard className="p-5">
+                  <p className="text-sm text-muted-foreground">Aucun compte-rendu CERFA pour ce projet.</p>
+                </GlassCard>
+              ) : (
+                (grantReports ?? []).map((r) => (
+                  <Link key={r._id} href={`/dashboard/projects/${projectId}/cerfa/${r._id}`}>
+                    <GlassCard className="p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
+                      <h3 className="text-base font-semibold hover:underline">{r.title}</h3>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {r.status === "draft" ? "Brouillon" : r.status === "submitted" ? "Soumis" : r.status === "approved" ? "Approuvé" : "Archivé"}
+                        {" · "}{formatDate(r.updatedAt)}
+                      </p>
+                    </GlassCard>
+                  </Link>
+                ))
+              )}
+            </div>
+          </TabsContent>
+
           <TabsContent value="documents" className="space-y-4 pt-4">
             <h2 className="text-sm font-semibold">{t("tabs.documents")}</h2>
             <GlassCard className="p-5">
@@ -330,12 +379,15 @@ export default function ProjectHubPage() {
                     <div><Label>{t("budget")} ({currency})</Label><Input type="number" step="0.01" value={editBudget} onChange={(e) => setEditBudget(e.target.value)} /></div>
                   </div>
                   <div><Label>{tCommon("status")}</Label>
-                    <select value={editStatus} onChange={(e) => setEditStatus(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                      <option value="planning">{t("status.planning")}</option>
-                      <option value="active">{t("status.active")}</option>
-                      <option value="on_hold">{t("status.on_hold")}</option>
-                      <option value="completed">{t("status.completed")}</option>
-                    </select>
+                    <Select value={editStatus} onValueChange={(v) => setEditStatus(v as any)}>
+                      <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="planning">{t("status.planning")}</SelectItem>
+                        <SelectItem value="active">{t("status.active")}</SelectItem>
+                        <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
+                        <SelectItem value="completed">{t("status.completed")}</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div><Label>{tCommon("description")}</Label><Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} /></div>
                   <div><Label>{t("color")}</Label>

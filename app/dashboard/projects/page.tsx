@@ -14,6 +14,13 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -104,12 +111,15 @@ export default function ProjectsPage() {
                   <div><Label>{t("endDate")}</Label><Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} /></div>
                 </div>
                 <div><Label>{tCommon("status")}</Label>
-                  <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                    <option value="planning">{t("status.planning")}</option>
-                    <option value="active">{t("status.active")}</option>
-                    <option value="on_hold">{t("status.on_hold")}</option>
-                    <option value="completed">{t("status.completed")}</option>
-                  </select>
+                  <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="planning">{t("status.planning")}</SelectItem>
+                      <SelectItem value="active">{t("status.active")}</SelectItem>
+                      <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
+                      <SelectItem value="completed">{t("status.completed")}</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div><Label>{tCommon("description")}</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} /></div>
                 <div><Label>{tCommon("color")}</Label>

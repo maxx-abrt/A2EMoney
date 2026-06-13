@@ -12,6 +12,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -103,9 +110,12 @@ export default function TeamPage() {
                   </div>
                   <div>
                     <Label>{t("role")}</Label>
-                    <select value={role} onChange={(e) => setRole(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                      {ROLES.map((r) => (<option key={r} value={r}>{t(`roles.${r}`)}</option>))}
-                    </select>
+                    <Select value={role} onValueChange={(v) => setRole(v as any)}>
+                      <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {ROLES.map((r) => (<SelectItem key={r} value={r}>{t(`roles.${r}`)}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
                     <p className="mt-1 text-xs text-muted-foreground">{t(`roleHint.${role}`)}</p>
                   </div>
                   <DialogFooter>

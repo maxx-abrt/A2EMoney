@@ -5,6 +5,7 @@ import {
   logActivity,
   notifyWorkspaceMembers,
 } from "./lib/auth";
+import { api } from "./_generated/api";
 
 function nextInvoiceNumber(existing: string[]): string {
   const year = new Date().getFullYear();
@@ -109,6 +110,17 @@ export const create = mutation({
       targetId: id,
       metadata: { number, client: args.client },
     });
+    // Update client total invoiced
+    if (args.linkedClientId) {
+      const client = await ctx.db.get(args.linkedClientId);
+      if (client) {
+        const total = args.items.reduce((sum, it) => sum + it.quantity * it.unitPrice, 0);
+        await ctx.db.patch(args.linkedClientId, {
+          totalInvoiced: (client.totalInvoiced ?? 0) + total,
+          updatedAt: Date.now(),
+        });
+      }
+    }
     return id;
   },
 });
@@ -178,6 +190,30 @@ export const update = mutation({
         message: `Invoice ${inv.number} for ${inv.client} is now paid.`,
         link: `/dashboard/invoices`,
       });
+      // Auto-create income transaction
+      const total = inv.items.reduce((sum, it) => sum + it.quantity * it.unitPrice, 0);
+      await ctx.runMutation(api.a2e_expenses.create, {
+        workspaceId: inv.workspaceId,
+        projectId: inv.projectId,
+        description: `Paiement facture ${inv.number} — ${inv.client}`,
+        amount: total,
+        category: "Other",
+        date: args.paidDate ?? Date.now(),
+        paymentMethod: args.paidMethod ?? "Bank transfer",
+        type: "income",
+        currency: inv.currency,
+        linkedInvoice: args.invoiceId,
+      });
+      // Update client total paid
+      if (inv.linkedClientId) {
+        const client = await ctx.db.get(inv.linkedClientId);
+        if (client) {
+          await ctx.db.patch(inv.linkedClientId, {
+            totalPaid: (client.totalPaid ?? 0) + total,
+            updatedAt: Date.now(),
+          });
+        }
+      }
     }
     return args.invoiceId;
   },

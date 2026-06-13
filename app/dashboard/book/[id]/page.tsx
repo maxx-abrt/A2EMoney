@@ -13,6 +13,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Breadcrumbs } from "@/components/breadcrumbs"
+import {
   ArrowLeft,
   Plus,
   Download,
@@ -22,12 +30,11 @@ import {
 } from "@/components/iconsax"
 import { toast } from "sonner"
 import { exportToXLSX, exportToCSV } from "@/lib/export"
-
-const PAYMENT_METHODS = ["Card", "Bank transfer", "Cash", "PayPal", "Other"]
-const CATEGORIES = ["Food", "Transport", "Housing", "Office", "Marketing", "Software", "Travel", "Salaries", "Taxes", "Utilities", "Other"]
+import { CATEGORIES, CATEGORY_I18N, PAYMENT_METHODS, PAYMENT_I18N } from "@/lib/options"
 
 export default function BookSheetPage() {
   const t = useTranslations("pages.book")
+  const tCommon = useTranslations("common")
   const params = useParams<{ id: string }>()
   const sheetId = params?.id as Id<"a2e_bookSheets">
   const { activeWorkspace } = useWorkspace()
@@ -145,6 +152,12 @@ export default function BookSheetPage() {
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
+        <Breadcrumbs
+          crumbs={[
+            { label: "Books", href: "/dashboard/book" },
+            { label: sheet.name },
+          ]}
+        />
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <Button asChild variant="ghost" size="icon" className="h-8 w-8">
@@ -178,6 +191,7 @@ export default function BookSheetPage() {
             setDraft={setLedgerDraft}
             onAdd={handleAddLedgerRow}
             t={t}
+            tCommon={tCommon}
           />
         ) : (
           <GridTable
@@ -204,6 +218,7 @@ function LedgerTable({
   setDraft,
   onAdd,
   t,
+  tCommon,
 }: {
   expenses: any[] | undefined
   projects: Map<string, any>
@@ -213,6 +228,7 @@ function LedgerTable({
   setDraft: React.Dispatch<React.SetStateAction<any>>
   onAdd: (e: React.FormEvent) => void
   t: (k: string) => string
+  tCommon: (k: string) => string
 }) {
   if (!expenses) {
     return (
@@ -221,6 +237,18 @@ function LedgerTable({
       </div>
     )
   }
+
+  // Compute running balance (oldest -> newest)
+  const balanceMap = React.useMemo(() => {
+    const sorted = [...expenses].sort((a, b) => a.date - b.date)
+    const map = new Map<string, number>()
+    let bal = 0
+    for (const e of sorted) {
+      bal += e.type === "income" ? e.amount : -e.amount
+      map.set(e._id, bal)
+    }
+    return map
+  }, [expenses])
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card">
@@ -235,6 +263,7 @@ function LedgerTable({
               <th className="px-4 py-2.5">{t("table.category")}</th>
               <th className="px-4 py-2.5">{t("table.type")}</th>
               <th className="px-4 py-2.5">{t("table.amount")}</th>
+              <th className="px-4 py-2.5">{t("table.balance")}</th>
               <th className="px-4 py-2.5">{t("table.project")}</th>
               <th className="px-4 py-2.5">{t("table.payment")}</th>
               <th className="px-4 py-2.5">{t("table.notes")}</th>
@@ -273,13 +302,14 @@ function LedgerTable({
                     />
                   </td>
                   <td className="px-4 py-2">
-                    <select
-                      value={e.category}
-                      onChange={(ev) => onCellEdit(e._id, "category", ev.target.value)}
-                      className="h-7 text-xs rounded-md border border-input bg-transparent px-1"
-                    >
-                      {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                    </select>
+                    <Select value={e.category} onValueChange={(v) => onCellEdit(e._id, "category", v)}>
+                      <SelectTrigger className="h-7 w-full text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{tCommon(`categories.${CATEGORY_I18N[c]}`)}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </td>
                   <td className="px-4 py-2">
                     <Badge variant="secondary" className={e.type === "income" ? "bg-accent/10 text-accent" : "bg-muted text-foreground"}>
@@ -295,6 +325,9 @@ function LedgerTable({
                       className="h-7 text-sm border-none bg-transparent shadow-none focus-visible:ring-1 font-numeric"
                     />
                   </td>
+                  <td className="px-4 py-2 font-numeric text-xs tabular-nums">
+                    {formatCurrency(balanceMap.get(e._id) ?? 0, "EUR")}
+                  </td>
                   <td className="px-4 py-2">
                     {proj ? (
                       <span className="inline-flex items-center gap-1 text-xs">
@@ -306,13 +339,14 @@ function LedgerTable({
                     )}
                   </td>
                   <td className="px-4 py-2">
-                    <select
-                      value={e.paymentMethod}
-                      onChange={(ev) => onCellEdit(e._id, "paymentMethod", ev.target.value)}
-                      className="h-7 text-xs rounded-md border border-input bg-transparent px-1"
-                    >
-                      {PAYMENT_METHODS.map((m) => <option key={m}>{m}</option>)}
-                    </select>
+                    <Select value={e.paymentMethod} onValueChange={(v) => onCellEdit(e._id, "paymentMethod", v)}>
+                      <SelectTrigger className="h-7 w-full text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{tCommon(`paymentMethods.${PAYMENT_I18N[m]}`)}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </td>
                   <td className="px-4 py-2">
                     <Input
@@ -341,9 +375,12 @@ function LedgerTable({
                 <Input value={draft.description} onChange={(ev) => setDraft((d: any) => ({ ...d, description: ev.target.value }))} className="h-7 text-sm" placeholder={t("placeholder.description")} />
               </td>
               <td className="px-4 py-2">
-                <select value={draft.category} onChange={(ev) => setDraft((d: any) => ({ ...d, category: ev.target.value }))} className="h-7 text-xs rounded-md border border-input bg-transparent px-1">
-                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                </select>
+                <Select value={draft.category} onValueChange={(v) => setDraft((d: any) => ({ ...d, category: v }))}>
+                  <SelectTrigger className="h-7 w-full text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </td>
               <td className="px-4 py-2">
                 <div className="flex gap-1">
@@ -358,18 +395,25 @@ function LedgerTable({
               <td className="px-4 py-2">
                 <Input type="number" step="0.01" value={draft.amount} onChange={(ev) => setDraft((d: any) => ({ ...d, amount: ev.target.value }))} className="h-7 text-sm font-numeric" placeholder={t("placeholder.amount")} />
               </td>
+              <td className="px-4 py-2" />
               <td className="px-4 py-2">
-                <select value={draft.projectId} onChange={(ev) => setDraft((d: any) => ({ ...d, projectId: ev.target.value }))} className="h-7 text-xs rounded-md border border-input bg-transparent px-1">
-                  <option value="">—</option>
-                  {Array.from(projects.values()).map((p: any) => (
-                    <option key={p._id} value={p._id}>{p.name}</option>
-                  ))}
-                </select>
+                <Select value={draft.projectId} onValueChange={(v) => setDraft((d: any) => ({ ...d, projectId: v }))}>
+                  <SelectTrigger className="h-7 w-full text-xs"><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">—</SelectItem>
+                    {Array.from(projects.values()).map((p: any) => (
+                      <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </td>
               <td className="px-4 py-2">
-                <select value={draft.paymentMethod} onChange={(ev) => setDraft((d: any) => ({ ...d, paymentMethod: ev.target.value }))} className="h-7 text-xs rounded-md border border-input bg-transparent px-1">
-                  {PAYMENT_METHODS.map((m) => <option key={m}>{m}</option>)}
-                </select>
+                <Select value={draft.paymentMethod} onValueChange={(v) => setDraft((d: any) => ({ ...d, paymentMethod: v }))}>
+                  <SelectTrigger className="h-7 w-full text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </td>
               <td className="px-4 py-2">
                 <Input value={draft.notes || ""} onChange={(ev) => setDraft((d: any) => ({ ...d, notes: ev.target.value }))} className="h-7 text-xs" placeholder={t("placeholder.notes")} />
@@ -480,10 +524,13 @@ function CellEditor({
   }
   if (column.type === "select") {
     return (
-      <select value={value ?? ""} onChange={(e) => onChange(e.target.value)} className={`flex w-full rounded-md border border-input bg-transparent px-2 ${cls}`}>
-        <option value="">—</option>
-        {(column.options || []).map((opt: string) => <option key={opt}>{opt}</option>)}
-      </select>
+      <Select value={value ?? ""} onValueChange={onChange}>
+        <SelectTrigger className={cls}><SelectValue placeholder="—" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">—</SelectItem>
+          {(column.options || []).map((opt: string) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+        </SelectContent>
+      </Select>
     )
   }
   if (column.type === "date") {

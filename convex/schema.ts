@@ -177,10 +177,13 @@ export default defineSchema({
     issueDate: v.number(),
     dueDate: v.number(),
     paidDate: v.optional(v.number()),
+    paidMethod: v.optional(v.string()),
+    paidReference: v.optional(v.string()),
     notes: v.optional(v.string()),
     linkedDocuments: v.optional(v.array(v.string())),
     linkedBookEntries: v.optional(v.array(v.string())),
     taxRate: v.optional(v.number()),
+    linkedClientId: v.optional(v.id("a2e_clients")),
     currency: v.string(),
     createdBy: v.id("users"),
     createdAt: v.number(),
@@ -189,7 +192,25 @@ export default defineSchema({
     .index("by_workspace", ["workspaceId"])
     .index("by_status", ["workspaceId", "status"])
     .index("by_project", ["projectId"])
-    .index("by_number", ["workspaceId", "number"]),
+    .index("by_number", ["workspaceId", "number"])
+    .index("by_client", ["workspaceId", "linkedClientId"]),
+
+  a2e_clients: defineTable({
+    workspaceId: v.id("workspaces"),
+    name: v.string(),
+    email: v.optional(v.string()),
+    address: v.optional(v.string()),
+    siret: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    totalInvoiced: v.optional(v.number()),
+    totalPaid: v.optional(v.number()),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_workspace", ["workspaceId"])
+    .index("by_email", ["workspaceId", "email"]),
 
   a2e_expenses: defineTable({
     workspaceId: v.id("workspaces"),
@@ -215,6 +236,7 @@ export default defineSchema({
     ),
     tags: v.optional(v.array(v.string())),
     currency: v.optional(v.string()),
+    parentExpenseId: v.optional(v.id("a2e_expenses")),
     createdBy: v.id("users"),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -223,7 +245,8 @@ export default defineSchema({
     .index("by_workspace_date", ["workspaceId", "date"])
     .index("by_category", ["workspaceId", "category"])
     .index("by_project", ["projectId"])
-    .index("by_sheet", ["sheetId"]),
+    .index("by_sheet", ["sheetId"])
+    .index("by_parent", ["parentExpenseId"]),
 
   a2e_documents: defineTable({
     workspaceId: v.id("workspaces"),
@@ -341,6 +364,28 @@ export default defineSchema({
     title: v.string(),
     subtitle: v.optional(v.string()),
     data: v.any(), // template-specific JSON payload
+    status: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("submitted"),
+        v.literal("approved"),
+        v.literal("archived"),
+      ),
+    ),
+    locale: v.optional(v.string()),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_workspace", ["workspaceId"])
+    .index("by_project", ["projectId"]),
+
+  /** CERFA 15059 - Compte-rendu financier de subvention */
+  a2e_grantReports: defineTable({
+    workspaceId: v.id("workspaces"),
+    projectId: v.optional(v.id("projects")),
+    title: v.string(),
+    data: v.any(), // full CERFA 15059 payload
     status: v.optional(
       v.union(
         v.literal("draft"),

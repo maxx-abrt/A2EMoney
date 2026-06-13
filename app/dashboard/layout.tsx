@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
 import { WorkspaceSwitcher } from "@/components/workspace-switcher"
+import { CommandPalette } from "@/components/command-palette"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -94,6 +95,7 @@ const navItems: NavItem[] = [
   { key: "budget", href: "/dashboard/budget", icon: PiggyBank, section: "projects" },
   { key: "fiches", href: "/dashboard/fiches", icon: ClipboardList, section: "projects" },
   { key: "invoices", href: "/dashboard/invoices", icon: FileText, section: "operations" },
+  { key: "clients", href: "/dashboard/clients", icon: People, section: "operations" },
   { key: "documents", href: "/dashboard/documents", icon: HardDrive, section: "operations" },
   { key: "reports", href: "/dashboard/reports", icon: BarChart3, section: "management" },
   { key: "team", href: "/dashboard/team", icon: Users, section: "management" },
@@ -378,6 +380,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <main className="flex-1 animate-fade-in">{children}</main>
         </div>
       </div>
+      <CommandPalette />
     </div>
   )
 }

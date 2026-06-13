@@ -14,6 +14,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -151,18 +158,15 @@ export default function FichesPage() {
                   {(projects ?? []).length > 0 && (
                     <div>
                       <Label>{t("linkedProject")}</Label>
-                      <select
-                        value={projectId}
-                        onChange={(e) => setProjectId(e.target.value)}
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                      >
-                        <option value="">{t("noProjectLinked")}</option>
-                        {(projects ?? []).map((p) => (
-                          <option key={p._id} value={p._id}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </select>
+                      <Select value={projectId} onValueChange={setProjectId}>
+                        <SelectTrigger className="w-full"><SelectValue placeholder={t("noProjectLinked")} /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">{t("noProjectLinked")}</SelectItem>
+                          {(projects ?? []).map((p) => (
+                            <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
                   <DialogFooter>
