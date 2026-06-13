@@ -58,6 +58,7 @@
     "iconsax-react": "^0.0.8",
     "input-otp": "1.4.2",
     "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.564.0",
     "next": "15.5.19",
     "next-intl": "^4.9.1",
