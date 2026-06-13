@@ -64,7 +64,7 @@ export default function BookSheetPage() {
     date: new Date().toISOString().split("T")[0],
     paymentMethod: "Card",
     type: "expense" as "expense" | "income",
-    projectId: "",
+    projectId: "__none__",
   })
 
   const projectMap = React.useMemo(() => {
@@ -115,9 +115,9 @@ export default function BookSheetPage() {
         paymentMethod: ledgerDraft.paymentMethod,
         type: ledgerDraft.type,
         currency,
-        projectId: ledgerDraft.projectId ? (ledgerDraft.projectId as Id<"projects">) : undefined,
+        projectId: ledgerDraft.projectId !== "__none__" ? (ledgerDraft.projectId as Id<"projects">) : undefined,
       })
-      setLedgerDraft({ description: "", amount: "", category: "Other", date: new Date().toISOString().split("T")[0], paymentMethod: "Card", type: "expense", projectId: "" })
+      setLedgerDraft({ description: "", amount: "", category: "Other", date: new Date().toISOString().split("T")[0], paymentMethod: "Card", type: "expense", projectId: "__none__" })
     } catch (err: any) {
       toast.error(err?.message || t("toasts.addTransactionFailed"))
     }
@@ -400,7 +400,7 @@ function LedgerTable({
                 <Select value={draft.projectId} onValueChange={(v) => setDraft((d: any) => ({ ...d, projectId: v }))}>
                   <SelectTrigger className="h-7 w-full text-xs"><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">—</SelectItem>
+                    <SelectItem value="__none__">—</SelectItem>
                     {Array.from(projects.values()).map((p: any) => (
                       <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>
                     ))}
@@ -524,10 +524,10 @@ function CellEditor({
   }
   if (column.type === "select") {
     return (
-      <Select value={value ?? ""} onValueChange={onChange}>
+      <Select value={value || "__none__"} onValueChange={(v) => onChange(v === "__none__" ? "" : v)}>
         <SelectTrigger className={cls}><SelectValue placeholder="—" /></SelectTrigger>
         <SelectContent>
-          <SelectItem value="">—</SelectItem>
+          <SelectItem value="__none__">—</SelectItem>
           {(column.options || []).map((opt: string) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
         </SelectContent>
       </Select>
