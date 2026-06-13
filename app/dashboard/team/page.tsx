@@ -96,7 +96,7 @@ export default function TeamPage() {
                 <DialogHeader>
                   <DialogTitle>{t("inviteMember")}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleInvite} className="space-y-4">
+                <form onSubmit={handleInvite} className="space-y-5">
                   <div>
                     <Label>{t("email")}</Label>
                     <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />

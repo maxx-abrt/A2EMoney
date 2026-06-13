@@ -111,7 +111,7 @@ export default function ExpensesPage() {
             <DialogContent className="max-w-xl">
               <DialogHeader><DialogTitle>{savedId ? t("attach.title") : t("add")}</DialogTitle></DialogHeader>
               {!savedId ? (
-                <form onSubmit={handleSave} className="space-y-4">
+                <form onSubmit={handleSave} className="space-y-5">
                   <div className="flex gap-2">
                     {(["expense", "income"] as const).map((opt) => (
                       <button key={opt} type="button" onClick={() => setType(opt)}
@@ -152,7 +152,7 @@ export default function ExpensesPage() {
                   </DialogFooter>
                 </form>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <p className="text-sm text-muted-foreground">{t("attach.description")}</p>
                   <AttachmentsField linkedTo={{ type: "expense", id: savedId }} documentType="receipt" />
                   <DialogFooter>

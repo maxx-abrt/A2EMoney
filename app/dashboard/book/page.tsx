@@ -98,7 +98,7 @@ export default function BookPage() {
             <DialogTrigger asChild><Button className="gap-2 rounded-full shadow-sm"><Plus className="h-4 w-4" /> {t("new")}</Button></DialogTrigger>
             <DialogContent className="max-w-xl">
               <DialogHeader><DialogTitle>{t("new")}</DialogTitle></DialogHeader>
-              <form onSubmit={handleCreate} className="space-y-4">
+              <form onSubmit={handleCreate} className="space-y-5">
                 <div>
                   <Label>{t("startFromTemplate")}</Label>
                   <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">

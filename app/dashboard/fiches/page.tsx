@@ -121,7 +121,7 @@ export default function FichesPage() {
                 <DialogHeader>
                   <DialogTitle>{t("new")}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleCreate} className="space-y-4">
+                <form onSubmit={handleCreate} className="space-y-5">
                   <div>
                     <Label>{t("templateLabel")}</Label>
                     <div className="mt-2 grid grid-cols-2 gap-2">

@@ -128,7 +128,7 @@ export default function InvoicesPage() {
             <DialogContent className="max-w-2xl">
               <DialogHeader><DialogTitle>{savedId ? t("attach.title") : t("new")}</DialogTitle></DialogHeader>
               {!savedId ? (
-                <form onSubmit={handleSave} className="space-y-4">
+                <form onSubmit={handleSave} className="space-y-5">
                   <div className="grid grid-cols-2 gap-4">
                     <div><Label>{tCommon("client")}</Label><Input value={client} onChange={(e) => setClient(e.target.value)} required /></div>
                     <div><Label>{t("clientEmail")}</Label><Input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} required /></div>
@@ -175,7 +175,7 @@ export default function InvoicesPage() {
                   </DialogFooter>
                 </form>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <p className="text-sm text-muted-foreground">{t("attach.description")}</p>
                   <AttachmentsField linkedTo={{ type: "invoice", id: savedId }} documentType="invoice" />
                   <DialogFooter><Button onClick={closeDialog}>{tCommon("close")}</Button></DialogFooter>

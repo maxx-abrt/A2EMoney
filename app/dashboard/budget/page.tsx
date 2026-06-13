@@ -86,7 +86,7 @@ export default function BudgetPage() {
             <DialogTrigger asChild><Button className="gap-2 rounded-full"><Plus className="h-4 w-4" /> {t("new")}</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{t("new")}</DialogTitle></DialogHeader>
-              <form onSubmit={handleSave} className="space-y-4">
+              <form onSubmit={handleSave} className="space-y-5">
                 <div><Label>{tCommon("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required /></div>
