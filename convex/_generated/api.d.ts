@@ -11,11 +11,9 @@
 import type * as a2e_books from "../a2e_books.js";
 import type * as a2e_budgets from "../a2e_budgets.js";
 import type * as a2e_categories from "../a2e_categories.js";
-import type * as a2e_clients from "../a2e_clients.js";
 import type * as a2e_documents from "../a2e_documents.js";
 import type * as a2e_expenses from "../a2e_expenses.js";
 import type * as a2e_fiches from "../a2e_fiches.js";
-import type * as a2e_grantReports from "../a2e_grantReports.js";
 import type * as a2e_invoices from "../a2e_invoices.js";
 import type * as activities from "../activities.js";
 import type * as auth from "../auth.js";
@@ -37,11 +35,9 @@ declare const fullApi: ApiFromModules<{
   a2e_books: typeof a2e_books;
   a2e_budgets: typeof a2e_budgets;
   a2e_categories: typeof a2e_categories;
-  a2e_clients: typeof a2e_clients;
   a2e_documents: typeof a2e_documents;
   a2e_expenses: typeof a2e_expenses;
   a2e_fiches: typeof a2e_fiches;
-  a2e_grantReports: typeof a2e_grantReports;
   a2e_invoices: typeof a2e_invoices;
   activities: typeof activities;
   auth: typeof auth;

@@ -9,36 +9,6 @@ interface ExportArgs {
   locale: string
 }
 
-function hexToRgb(hex: string): [number, number, number] {
-  const clean = hex.replace("#", "")
-  const bigint = parseInt(clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean, 16)
-  const r = (bigint >> 16) & 255
-  const g = (bigint >> 8) & 255
-  const b = bigint & 255
-  return [r, g, b]
-}
-
-async function loadImageBase64(url: string): Promise<{ base64: string; format: string } | null> {
-  try {
-    const res = await fetch(url)
-    if (!res.ok) return null
-    const blob = await res.blob()
-    const format = blob.type === "image/png" ? "PNG" : blob.type === "image/webp" ? "WEBP" : "JPEG"
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const result = reader.result as string
-        const base64 = result.split(",")[1]
-        resolve({ base64, format })
-      }
-      reader.onerror = reject
-      reader.readAsDataURL(blob)
-    })
-  } catch {
-    return null
-  }
-}
-
 const FR_LABELS = {
   thematic: "Thématique",
   thematics: {
@@ -154,22 +124,14 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
     y += 8
   }
 
-  function sectionHeader(label: string, accentRgb?: [number, number, number]) {
+  function sectionHeader(label: string) {
     y += 6
     ensureSpace(28)
-    if (accentRgb) {
-      doc.setFillColor(accentRgb[0], accentRgb[1], accentRgb[2])
-    } else {
-      doc.setFillColor(245, 245, 245)
-    }
+    doc.setFillColor(245, 245, 245)
     doc.roundedRect(M, y - 12, W - 2 * M, 22, 4, 4, "F")
     doc.setFont("helvetica", "bold")
     doc.setFontSize(11)
-    if (accentRgb) {
-      doc.setTextColor(255, 255, 255)
-    } else {
-      doc.setTextColor("#0a0a0a")
-    }
+    doc.setTextColor("#0a0a0a")
     doc.text(label, M + 8, y + 3)
     y += 18
   }
@@ -207,6 +169,21 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
     y += 14
   }
 
+  // ---- Header ----
+  doc.setFont("helvetica", "bold")
+  doc.setFontSize(8)
+  doc.setTextColor("#888")
+  doc.text("LOGO ASSOCIATION", M, y)
+  doc.text("LOGO PARTENAIRE", W - M - 90, y)
+  y += 14
+  doc.setDrawColor(40)
+  doc.setLineWidth(1)
+  doc.line(M, y, W - M, y)
+  y += 16
+  text("SCHÉMA FICHE PROJET ASSOCIATIF", { size: 14, bold: true })
+  text(title || "Fiche à remplir : cocher les cases ☑ et compléter les lignes.", { size: 10, color: "#555" })
+  rule()
+
   if (template !== "asso_fr") {
     text(title, { size: 16, bold: true })
     rule()
@@ -216,53 +193,9 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
   }
 
   const d = data ?? {}
-  const accentColor = d.accentColor || "#16a34a"
-  const accentRgb = hexToRgb(accentColor)
-
-  // ---- Header ----
-  // Logos
-  const logoHeight = 28
-  const logoMaxWidth = 90
-  if (d.logoUrl) {
-    const logoImg = await loadImageBase64(d.logoUrl)
-    if (logoImg) {
-      doc.addImage(logoImg.base64, logoImg.format, M, y - 6, logoMaxWidth, logoHeight, undefined, "FAST")
-    } else {
-      doc.setFont("helvetica", "bold")
-      doc.setFontSize(8)
-      doc.setTextColor("#888")
-      doc.text("LOGO ASSOCIATION", M, y + 6)
-    }
-  }
-  if (d.partnerLogoUrl) {
-    const partnerImg = await loadImageBase64(d.partnerLogoUrl)
-    if (partnerImg) {
-      doc.addImage(partnerImg.base64, partnerImg.format, W - M - logoMaxWidth, y - 6, logoMaxWidth, logoHeight, undefined, "FAST")
-    } else {
-      doc.setFont("helvetica", "bold")
-      doc.setFontSize(8)
-      doc.setTextColor("#888")
-      doc.text("LOGO PARTENAIRE", W - M - 90, y + 6)
-    }
-  }
-  if (!d.logoUrl && !d.partnerLogoUrl) {
-    doc.setFont("helvetica", "bold")
-    doc.setFontSize(8)
-    doc.setTextColor("#888")
-    doc.text("LOGO ASSOCIATION", M, y + 6)
-    doc.text("LOGO PARTENAIRE", W - M - 90, y + 6)
-  }
-  y += Math.max(14, logoHeight + 4)
-  doc.setDrawColor(accentRgb[0], accentRgb[1], accentRgb[2])
-  doc.setLineWidth(2)
-  doc.line(M, y, W - M, y)
-  y += 16
-  text("SCHÉMA FICHE PROJET ASSOCIATIF", { size: 14, bold: true })
-  text(title || "Fiche à remplir : cocher les cases ☑ et compléter les lignes.", { size: 10, color: "#555" })
-  rule()
 
   // 1. Identity
-  sectionHeader(SECTIONS[0], accentRgb)
+  sectionHeader(SECTIONS[0])
   field(FR_LABELS.ficheTitle, d.ficheTitle)
   text(FR_LABELS.thematic + " :", { size: 9, color: "#5a5a5a" })
   ;(["culture", "sport", "social", "education", "other"] as const).forEach((k) =>
@@ -277,13 +210,13 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
   field(FR_LABELS.email, d.email)
 
   // 2. Context
-  sectionHeader(SECTIONS[1], accentRgb)
+  sectionHeader(SECTIONS[1])
   field(FR_LABELS.context, d.context)
   field(FR_LABELS.origin, d.origin)
   field(FR_LABELS.linkToProject, d.linkToProject)
 
   // 3. Audience
-  sectionHeader(SECTIONS[2], accentRgb)
+  sectionHeader(SECTIONS[2])
   field(FR_LABELS.audience, d.audience)
   field(FR_LABELS.ageProfile, d.ageProfile)
   field(FR_LABELS.estimatedParticipants, d.estimatedParticipants)
@@ -295,7 +228,7 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
   if (d.needs?.other && d.needsOther) field("Précision", d.needsOther)
 
   // 4. Objectives
-  sectionHeader(SECTIONS[3], accentRgb)
+  sectionHeader(SECTIONS[3])
   field(FR_LABELS.generalObjective, d.generalObjective)
   text(FR_LABELS.specificObjectives + " :", { size: 9, color: "#5a5a5a" })
   ;[0, 1, 2, 3].forEach((i) => {
@@ -304,7 +237,7 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
   })
 
   // 5. Actions
-  sectionHeader(SECTIONS[4], accentRgb)
+  sectionHeader(SECTIONS[4])
   text(FR_LABELS.actionTypes + " :", { size: 9, color: "#5a5a5a" })
   ;(["workshops", "event", "individualSupport", "awareness", "other"] as const).forEach((k) =>
     checkboxLine((FR_LABELS.actions as any)[k], !!d.actionTypes?.[k]),
@@ -319,7 +252,7 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
   })
 
   // 6. Resources & partners
-  sectionHeader(SECTIONS[5], accentRgb)
+  sectionHeader(SECTIONS[5])
   text("Humains :", { size: 10, bold: true })
   field(FR_LABELS.volunteers, d.volunteers)
   field(FR_LABELS.employees, d.employees)
@@ -332,7 +265,7 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
   if (d.partners?.other && d.partnersOther) field("Précision", d.partnersOther)
 
   // 7. Evaluation
-  sectionHeader(SECTIONS[6], accentRgb)
+  sectionHeader(SECTIONS[6])
   field(FR_LABELS.targetParticipants, d.targetParticipants)
   field(FR_LABELS.targetAttendance, d.targetAttendance)
   field(FR_LABELS.qualitativeIndicators, d.qualitativeIndicators)
@@ -344,7 +277,7 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
   field(FR_LABELS.perspectives, d.perspectives)
 
   // 8. Signature
-  sectionHeader(SECTIONS[7], accentRgb)
+  sectionHeader(SECTIONS[7])
   field(FR_LABELS.date, d.date)
   field(FR_LABELS.referentSignature, d.referentSignature)
   text(FR_LABELS.boardOpinion + " :", { size: 9, color: "#5a5a5a" })

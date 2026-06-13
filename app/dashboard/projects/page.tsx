@@ -14,13 +14,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -31,9 +24,6 @@ import {
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { Plus, FolderOpen, Trash2, Loader2, ClipboardList } from "@/components/iconsax"
-import { Checkbox } from "@/components/ui/checkbox"
-
-const COLORS = ["#22c55e", "#3b82f6", "#a855f7", "#ec4899", "#f59e0b", "#ef4444", "#10b981", "#06b6d4"]
 import { toast } from "sonner"
 
 export default function ProjectsPage() {
@@ -55,18 +45,7 @@ export default function ProjectsPage() {
   const [status, setStatus] = React.useState<"planning" | "active" | "on_hold" | "completed">("planning")
   const [startDate, setStartDate] = React.useState(new Date().toISOString().split("T")[0])
   const [endDate, setEndDate] = React.useState("")
-  const [color, setColor] = React.useState(COLORS[0])
-  const [autoCreateBudget, setAutoCreateBudget] = React.useState(false)
-  const [autoCreateFiche, setAutoCreateFiche] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
-
-  // Loading timeout to prevent infinite spinner when backend is unreachable
-  const [loadTimedOut, setLoadTimedOut] = React.useState(false)
-  React.useEffect(() => {
-    if (projects !== undefined) { setLoadTimedOut(false); return }
-    const t = setTimeout(() => setLoadTimedOut(true), 8000)
-    return () => clearTimeout(t)
-  }, [projects])
 
   const STATUS_COLORS: Record<string, string> = {
     planning: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
@@ -87,17 +66,12 @@ export default function ProjectsPage() {
         status,
         budget: budget ? parseFloat(budget) : undefined,
         description: description.trim() || undefined,
-        color,
         startDate: startDate ? new Date(startDate).getTime() : undefined,
         endDate: endDate ? new Date(endDate).getTime() : undefined,
-        autoCreateBudget,
-        autoCreateFiche,
-        currency,
-        locale: activeWorkspace?.locale ?? "en",
       })
       toast.success(t("toasts.created"))
       setOpen(false)
-      setName(""); setClient(""); setBudget(""); setDescription(""); setEndDate(""); setColor(COLORS[0]); setAutoCreateBudget(false); setAutoCreateFiche(false)
+      setName(""); setClient(""); setBudget(""); setDescription(""); setEndDate("")
     } catch (err: any) {
       toast.error(err?.message || t("toasts.failed"))
     } finally { setSaving(false) }
@@ -115,7 +89,7 @@ export default function ProjectsPage() {
             <DialogTrigger asChild><Button className="gap-2 rounded-full shadow-sm"><Plus className="h-4 w-4" /> {t("new")}</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{t("new")}</DialogTitle></DialogHeader>
-              <form onSubmit={handleSave} className="space-y-5">
+              <form onSubmit={handleSave} className="space-y-4">
                 <div><Label>{tCommon("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div><Label>{tCommon("client")}</Label><Input value={client} onChange={(e) => setClient(e.target.value)} /></div>
@@ -126,40 +100,14 @@ export default function ProjectsPage() {
                   <div><Label>{t("endDate")}</Label><Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} /></div>
                 </div>
                 <div><Label>{tCommon("status")}</Label>
-                  <Select value={status} onValueChange={(v) => setStatus(v as any)}>
-                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="planning">{t("status.planning")}</SelectItem>
-                      <SelectItem value="active">{t("status.active")}</SelectItem>
-                      <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
-                      <SelectItem value="completed">{t("status.completed")}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                    <option value="planning">{t("status.planning")}</option>
+                    <option value="active">{t("status.active")}</option>
+                    <option value="on_hold">{t("status.on_hold")}</option>
+                    <option value="completed">{t("status.completed")}</option>
+                  </select>
                 </div>
                 <div><Label>{tCommon("description")}</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} /></div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <Checkbox id="auto-budget" checked={autoCreateBudget} onCheckedChange={(c) => setAutoCreateBudget(!!c)} />
-                    <label htmlFor="auto-budget" className="text-sm cursor-pointer">{t("autoCreateBudget")}</label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Checkbox id="auto-fiche" checked={autoCreateFiche} onCheckedChange={(c) => setAutoCreateFiche(!!c)} />
-                    <label htmlFor="auto-fiche" className="text-sm cursor-pointer">{t("autoCreateFiche")}</label>
-                  </div>
-                </div>
-                <div><Label>{tCommon("color")}</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {COLORS.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setColor(c)}
-                        className={`h-7 w-7 rounded-full border-2 transition ${color === c ? "border-foreground scale-110" : "border-transparent hover:scale-105"}`}
-                        style={{ background: c }}
-                      />
-                    ))}
-                  </div>
-                </div>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>{tCommon("cancel")}</Button>
                   <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("create")}</Button>
@@ -170,16 +118,7 @@ export default function ProjectsPage() {
         </div>
 
         {projects === undefined ? (
-          <div className="flex items-center justify-center py-16">
-            {loadTimedOut ? (
-              <div className="text-center space-y-2">
-                <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
-                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
-              </div>
-            ) : (
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            )}
-          </div>
+          <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
         ) : projects.length === 0 ? (
           <GlassCard>
             <EmptyState icon={FolderOpen} title={t("empty.title")} description={t("empty.description")} action={{ onClick: () => setOpen(true), label: t("new") }} />
@@ -190,41 +129,38 @@ export default function ProjectsPage() {
               const budgetUsage = p.budget ? Math.min(100, ((p.spent || 0) / p.budget) * 100) : 0
               return (
                 <motion.div key={p._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.03 * idx }}>
-                  <Link href={`/dashboard/projects/${p._id}`}>
-                    <GlassCard className="group relative p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
-                      <div className="absolute left-0 top-0 h-full w-1 rounded-l-lg" style={{ background: p.color || "transparent" }} />
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <h3 className="truncate text-base font-semibold group-hover:underline">{p.name}</h3>
-                          <p className="truncate text-xs text-muted-foreground">{p.client}</p>
-                        </div>
-                        <Badge variant="secondary" className={STATUS_COLORS[p.status]}>{t(`status.${p.status}`)}</Badge>
+                  <GlassCard className="p-5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-base font-semibold">{p.name}</h3>
+                        <p className="truncate text-xs text-muted-foreground">{p.client}</p>
                       </div>
-                      {p.description && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
-                      {p.budget ? (
-                        <div className="mt-4">
-                          <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">{t("budget")}</span>
-                            <span className="font-medium">{formatCurrency(p.spent || 0, currency)} / {formatCurrency(p.budget, currency)}</span>
-                          </div>
-                          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-                            <motion.div initial={{ width: 0 }} animate={{ width: `${budgetUsage}%` }} transition={{ duration: 0.6 }} className="h-full bg-accent" />
-                          </div>
+                      <Badge variant="secondary" className={STATUS_COLORS[p.status]}>{t(`status.${p.status}`)}</Badge>
+                    </div>
+                    {p.description && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
+                    {p.budget ? (
+                      <div className="mt-4">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">{t("budget")}</span>
+                          <span className="font-medium">{formatCurrency(p.spent || 0, currency)} / {formatCurrency(p.budget, currency)}</span>
                         </div>
-                      ) : null}
-                      <div className="mt-4 flex items-center justify-between">
-                        <Button asChild variant="ghost" size="sm" className="gap-1 text-xs" onClick={(e) => e.stopPropagation()}>
-                          <Link href={`/dashboard/fiches?project=${p._id}`}><ClipboardList className="h-3.5 w-3.5" /> {t("openFiche")}</Link>
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-0 transition-opacity group-hover:opacity-100" onClick={(e) => { e.preventDefault(); e.stopPropagation(); remove({ projectId: p._id }) }}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${budgetUsage}%` }} transition={{ duration: 0.6 }} className="h-full bg-accent" />
+                        </div>
                       </div>
-                      {p.startDate && (
-                        <p className="mt-2 text-xs text-muted-foreground">{formatDate(p.startDate)}</p>
-                      )}
-                    </GlassCard>
-                  </Link>
+                    ) : null}
+                    <div className="mt-4 flex items-center justify-between">
+                      <Button asChild variant="ghost" size="sm" className="gap-1 text-xs">
+                        <Link href={`/dashboard/fiches?project=${p._id}`}><ClipboardList className="h-3.5 w-3.5" /> {t("openFiche")}</Link>
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => remove({ projectId: p._id })}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                    {p.startDate && (
+                      <p className="mt-2 text-xs text-muted-foreground">{formatDate(p.startDate)}</p>
+                    )}
+                  </GlassCard>
                 </motion.div>
               )
             })}

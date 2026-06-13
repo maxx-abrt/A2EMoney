@@ -6,11 +6,38 @@ export const list = query({
   args: { workspaceId: v.id("workspaces") },
   handler: async (ctx, args) => {
     await assertWorkspaceMember(ctx, args.workspaceId);
-    return ctx.db
+    const projects = await ctx.db
       .query("projects")
       .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
       .order("desc")
       .collect();
+
+    // Compute live `spent` per project by summing linked expenses.
+    const allExpenses = await ctx.db
+      .query("a2e_expenses")
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+      .collect();
+    const allInvoices = await ctx.db
+      .query("a2e_invoices")
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+      .collect();
+
+    return projects.map((p) => {
+      const spent = allExpenses
+        .filter((e) => e.projectId === p._id && e.type === "expense")
+        .reduce((a, e) => a + e.amount, 0);
+      const income = allExpenses
+        .filter((e) => e.projectId === p._id && e.type === "income")
+        .reduce((a, e) => a + e.amount, 0);
+      const invoiced = allInvoices
+        .filter((i) => i.projectId === p._id)
+        .reduce(
+          (a, i) =>
+            a + (i.items || []).reduce((b, it) => b + it.quantity * it.unitPrice, 0),
+          0,
+        );
+      return { ...p, spent, income, invoiced };
+    });
   },
 });
 

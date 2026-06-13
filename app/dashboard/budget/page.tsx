@@ -12,13 +12,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -29,10 +22,9 @@ import {
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { Plus, PiggyBank, Trash2, Loader2 } from "@/components/iconsax"
-import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 import { toast } from "sonner"
-import { CATEGORIES, CATEGORY_I18N } from "@/lib/options"
 
+const CATEGORIES = ["Food", "Transport", "Housing", "Office", "Marketing", "Software", "Travel", "Salaries", "Taxes", "Utilities", "Other"]
 const COLORS = ["#22c55e", "#3b82f6", "#a855f7", "#ec4899", "#f59e0b", "#ef4444", "#10b981", "#06b6d4"]
 
 export default function BudgetPage() {
@@ -43,6 +35,7 @@ export default function BudgetPage() {
   const currency = activeWorkspace?.currency ?? "EUR"
 
   const budgets = useQuery(api.a2e_budgets.list, wsId ? { workspaceId: wsId } : "skip")
+  const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
   const create = useMutation(api.a2e_budgets.create)
   const remove = useMutation(api.a2e_budgets.remove)
 
@@ -55,8 +48,6 @@ export default function BudgetPage() {
   const [startDate, setStartDate] = React.useState(new Date().toISOString().split("T")[0])
   const [endDate, setEndDate] = React.useState("")
   const [saving, setSaving] = React.useState(false)
-
-  const loadTimedOut = useLoadingTimeout(budgets === undefined)
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -96,23 +87,20 @@ export default function BudgetPage() {
             <DialogTrigger asChild><Button className="gap-2 rounded-full"><Plus className="h-4 w-4" /> {t("new")}</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{t("new")}</DialogTitle></DialogHeader>
-              <form onSubmit={handleSave} className="space-y-5">
+              <form onSubmit={handleSave} className="space-y-4">
                 <div><Label>{tCommon("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required /></div>
-                  <div><Label>{tCommon("category")}</Label><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{tCommon(`categories.${CATEGORY_I18N[c]}`)}</SelectItem>)}</SelectContent></Select></div>
+                  <div><Label>{tCommon("category")}</Label><select value={category} onChange={(e) => setCategory(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">{CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select></div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label>{t("period")}</Label>
-                    <Select value={period} onValueChange={(v) => setPeriod(v as any)}>
-                      <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="monthly">{t("periods.monthly")}</SelectItem>
-                        <SelectItem value="yearly">{t("periods.yearly")}</SelectItem>
-                        <SelectItem value="custom">{t("periods.custom")}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <select value={period} onChange={(e) => setPeriod(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                      <option value="monthly">{t("periods.monthly")}</option>
+                      <option value="yearly">{t("periods.yearly")}</option>
+                      <option value="custom">{t("periods.custom")}</option>
+                    </select>
                   </div>
                   <div><Label>{t("start")}</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required /></div>
                   <div><Label>{t("end")}</Label><Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} disabled={period !== "custom"} /></div>
@@ -135,21 +123,13 @@ export default function BudgetPage() {
         </div>
 
         {budgets === undefined ? (
-          <div className="flex items-center justify-center py-16">
-            {loadTimedOut ? (
-              <div className="text-center space-y-2">
-                <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
-                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
-              </div>
-            ) : (
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            )}
-          </div>
-        ) : budgets.length === 0 ? (
+          <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+        ) : budgets.length === 0 && (projects ?? []).filter((p: any) => (p.budget ?? 0) > 0).length === 0 ? (
           <GlassCard>
             <EmptyState icon={PiggyBank} title={t("empty.title")} description={t("empty.description")} action={{ onClick: () => setOpen(true), label: t("new") }} />
           </GlassCard>
         ) : (
+          <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {budgets.map((b: any, idx: number) => {
               const pct = b.amount > 0 ? Math.min(100, (b.spent / b.amount) * 100) : 0
@@ -193,6 +173,63 @@ export default function BudgetPage() {
               )
             })}
           </div>
+        )}
+      </div>
+    </div>
+  )
+}
+> (p.budget ?? 0) > 0).length > 0 && (
+            <div className="mt-8">
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("projectBudgets")}
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {(projects ?? [])
+                  .filter((p: any) => (p.budget ?? 0) > 0)
+                  .map((p: any, idx: number) => {
+                    const pct = p.budget > 0 ? Math.min(100, (p.spent / p.budget) * 100) : 0
+                    const over = (p.spent || 0) > (p.budget || 0)
+                    return (
+                      <motion.div key={p._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.03 * idx }}>
+                        <GlassCard className="p-5">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="h-3 w-3 rounded-full bg-accent" />
+                                <h3 className="text-base font-semibold">{p.name}</h3>
+                              </div>
+                              <p className="text-xs text-muted-foreground">{p.client} · {t("project")}</p>
+                            </div>
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                              {p.status}
+                            </span>
+                          </div>
+                          <div className="mt-4">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">{t("spent")}</span>
+                              <span className={over ? "font-medium text-destructive" : "font-medium"}>
+                                <CountUp end={p.spent || 0} decimals={2} duration={0.6} formattingFn={(v) => formatCurrency(v, currency)} />
+                                {" / "}
+                                {formatCurrency(p.budget, currency)}
+                              </span>
+                            </div>
+                            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
+                                className={`h-full ${over ? "bg-destructive" : "bg-accent"}`}
+                              />
+                            </div>
+                          </div>
+                        </GlassCard>
+                      </motion.div>
+                    )
+                  })}
+              </div>
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>

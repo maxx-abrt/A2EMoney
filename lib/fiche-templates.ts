@@ -20,7 +20,6 @@ export const FICHE_TEMPLATES: Record<string, FicheTemplate> = {
       email: "",
       logoUrl: "",
       partnerLogoUrl: "",
-      accentColor: "#16a34a",
       context: "",
       origin: "",
       linkToProject: "",

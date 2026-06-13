@@ -14,7 +14,7 @@ import { assertWorkspaceMember, logActivity } from "./lib/auth";
  *   B2_APPLICATION_KEY   (S3 secret access key)
  *   B2_BUCKET_NAME       (e.g. A2E-Drive)
  *
- * Legacy AWS_* env vars are supported as fallbacks.
+ * We keep the legacy AWS_* env vars as fallbacks so old deployments keep working.
  */
 function getS3() {
   const endpoint =
@@ -24,15 +24,9 @@ function getS3() {
       : process.env.S3_ENDPOINT);
   const region =
     process.env.B2_REGION || process.env.AWS_REGION || "eu-central-003";
-  const accessKeyId = process.env.B2_KEY_ID || process.env.AWS_ACCESS_KEY_ID;
+  const accessKeyId = process.env.B2_KEY_ID || process.env.AWS_ACCESS_KEY_ID!;
   const secretAccessKey =
-    process.env.B2_APPLICATION_KEY || process.env.AWS_SECRET_ACCESS_KEY;
-
-  if (!accessKeyId || !secretAccessKey) {
-    throw new Error(
-      "Missing storage credentials. Set B2_KEY_ID + B2_APPLICATION_KEY (or AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY) in the Convex dashboard.",
-    );
-  }
+    process.env.B2_APPLICATION_KEY || process.env.AWS_SECRET_ACCESS_KEY!;
 
   return new S3Client({
     region,
@@ -43,11 +37,11 @@ function getS3() {
 }
 
 function getBucket() {
-  const bucket =
+  return (
     process.env.B2_BUCKET_NAME ||
     process.env.S3_BUCKET_NAME ||
-    "A2E-Drive";
-  return bucket;
+    "A2E-Drive"
+  );
 }
 
 function getEndpointHost() {
@@ -57,12 +51,7 @@ function getEndpointHost() {
       ? `https://s3.${process.env.B2_REGION}.backblazeb2.com`
       : null);
   if (endpoint) return endpoint.replace(/^https?:\/\//, "");
-  const region = process.env.AWS_REGION;
-  if (!region) {
-    throw new Error(
-      "Missing storage endpoint. Set B2_ENDPOINT or B2_REGION (or AWS_REGION) in the Convex dashboard.",
-    );
-  }
+  const region = process.env.AWS_REGION || "eu-west-3";
   return `s3.${region}.amazonaws.com`;
 }
 

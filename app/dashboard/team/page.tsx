@@ -12,13 +12,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -35,7 +28,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { EmptyState } from "@/components/empty-state"
 import { People as Users, UserAdd, Refresh as Loader2, MoreCircle as MoreHorizontal, Copy, ShieldTick as ShieldCheck, Danger as ShieldAlert, Eye, ProfileTick as UserCheck, CloseCircle as XCircle } from "@/components/iconsax"
-import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 import { toast } from "sonner"
 
 const ROLES = ["admin", "member", "viewer"] as const
@@ -87,8 +79,6 @@ export default function TeamPage() {
     toast.success(t("toasts.linkCopied"))
   }
 
-  const loadTimedOut = useLoadingTimeout(members === undefined)
-
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
@@ -106,19 +96,16 @@ export default function TeamPage() {
                 <DialogHeader>
                   <DialogTitle>{t("inviteMember")}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleInvite} className="space-y-5">
+                <form onSubmit={handleInvite} className="space-y-4">
                   <div>
                     <Label>{t("email")}</Label>
                     <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                   <div>
                     <Label>{t("role")}</Label>
-                    <Select value={role} onValueChange={(v) => setRole(v as any)}>
-                      <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {ROLES.map((r) => (<SelectItem key={r} value={r}>{t(`roles.${r}`)}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
+                    <select value={role} onChange={(e) => setRole(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                      {ROLES.map((r) => (<option key={r} value={r}>{t(`roles.${r}`)}</option>))}
+                    </select>
                     <p className="mt-1 text-xs text-muted-foreground">{t(`roleHint.${role}`)}</p>
                   </div>
                   <DialogFooter>
@@ -137,16 +124,7 @@ export default function TeamPage() {
             <h2 className="text-sm font-semibold">{t("members")}</h2>
           </div>
           {members === undefined ? (
-            <div className="flex items-center justify-center py-10">
-              {loadTimedOut ? (
-                <div className="text-center space-y-2">
-                  <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
-                  <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
-                </div>
-              ) : (
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-              )}
-            </div>
+            <div className="flex items-center justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
           ) : members.length === 0 ? (
             <EmptyState icon={Users} title={t("emptyTitle")} description={t("emptyDescription")} />
           ) : (

@@ -36,7 +36,6 @@ export default function DashboardPage() {
 
   const invoices = useQuery(api.a2e_invoices.list, wsId ? { workspaceId: wsId } : "skip")
   const expenses = useQuery(api.a2e_expenses.list, wsId ? { workspaceId: wsId } : "skip")
-  const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
   const activities = useQuery(
     api.activities.list,
     wsId ? { workspaceId: wsId, limit: 6 } : "skip",

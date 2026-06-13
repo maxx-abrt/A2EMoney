@@ -10,13 +10,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { GlassCard } from "@/components/glass-card"
 import { LogoutCurve, Save2, Trash, Danger, DocumentDownload } from "@/components/iconsax"
 import { toast } from "sonner"
@@ -136,16 +129,13 @@ export default function SettingsPage() {
               </div>
               <div>
                 <Label>{tCommon("currency")}</Label>
-                <Select value={wsCurrency} onValueChange={setWsCurrency}>
-                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="EUR">EUR €</SelectItem>
-                    <SelectItem value="USD">USD $</SelectItem>
-                    <SelectItem value="GBP">GBP £</SelectItem>
-                    <SelectItem value="CHF">CHF</SelectItem>
-                    <SelectItem value="CAD">CAD $</SelectItem>
-                  </SelectContent>
-                </Select>
+                <select value={wsCurrency} onChange={(e) => setWsCurrency(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                  <option value="EUR">EUR €</option>
+                  <option value="USD">USD $</option>
+                  <option value="GBP">GBP £</option>
+                  <option value="CHF">CHF</option>
+                  <option value="CAD">CAD $</option>
+                </select>
               </div>
               <div className="flex flex-wrap justify-end gap-2">
                 <Button data-testid="export-gdpr-btn" type="button" variant="outline" onClick={handleExport} className="gap-2" disabled={!exportWs}>

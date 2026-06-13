@@ -89,44 +89,7 @@
     "income": "Income",
     "expense": "Expense",
     "pending": "Pending",
-    "linkedTo": "Linked to",
-    "name": "Name",
-    "amount": "Amount",
-    "category": "Category",
-    "cancel": "Cancel",
-    "create": "Create",
-    "description": "Description",
-    "date": "Date",
-    "notes": "Notes",
-    "save": "Save",
-    "client": "Client",
-    "status": "Status",
-    "close": "Close",
-    "currency": "Currency",
-    "project": "Project",
-    "edit": "Edit",
-    "color": "Color",
-    "errorOccurred": "An error occurred",
-    "categories": {
-      "food": "Food",
-      "transport": "Transport",
-      "housing": "Housing",
-      "office": "Office",
-      "marketing": "Marketing",
-      "software": "Software",
-      "travel": "Travel",
-      "salaries": "Salaries",
-      "taxes": "Taxes",
-      "utilities": "Utilities",
-      "other": "Other"
-    },
-    "paymentMethods": {
-      "card": "Card",
-      "bankTransfer": "Bank transfer",
-      "cash": "Cash",
-      "paypal": "PayPal",
-      "other": "Other"
-    }
+    "linkedTo": "Linked to"
   },
   "nav": {
     "features": "Features",
@@ -138,7 +101,6 @@
     "budget": "Budget",
     "expenses": "Expenses",
     "invoices": "Invoices",
-    "clients": "Clients",
     "projects": "Projects",
     "book": "Book",
     "documents": "Documents",
@@ -149,8 +111,7 @@
     "fiches": "Project sheets",
     "settings": "Settings",
     "signOut": "Sign Out",
-    "storage": "Storage",
-    "search": "Search or jump to..."
+    "storage": "Storage"
   },
   "landing": {
     "badge": "v1.0 · Now in beta",
@@ -589,9 +550,8 @@
   "pages": {
     "sections": {
       "workspace": "Workspace",
-      "projects": "Projects",
-      "operations": "Operations",
-      "management": "Management"
+      "manage": "Manage",
+      "tools": "Tools"
     },
     "dashboard": {
       "welcome": "Welcome back",
@@ -643,7 +603,9 @@
       "toasts": {
         "created": "Budget created",
         "failed": "Could not save"
-      }
+      },
+      "projectBudgets": "Project budgets",
+      "project": "Project"
     },
     "expenses": {
       "title": "Expenses & income",
@@ -660,31 +622,17 @@
       "totals": {
         "income": "Total income",
         "expenses": "Total expenses",
-        "net": "Net",
-        "count": "{count} transactions"
+        "net": "Net"
       },
-      "searchPlaceholder": "Search transactions...",
-      "filters": "Filters",
-      "allTypes": "All types",
-      "allCategories": "All categories",
-      "allProjects": "All projects",
-      "fromDate": "From",
-      "toDate": "To",
-      "deleteSelected": "Delete {count}",
-      "bulkDeleteConfirm": "Delete {count} selected transactions?",
-      "bulkDeleted": "{count} transactions deleted",
       "empty": {
         "title": "No transactions yet",
-        "description": "Log your first expense or income to see it here.",
-        "filteredTitle": "No matching transactions",
-        "filteredDescription": "Try adjusting your filters or search query."
+        "description": "Log your first expense or income to see it here."
       },
       "attach": {
         "title": "Attach receipts",
         "description": "Add receipts or supporting documents. They'll be linked automatically."
       },
       "done": "Done",
-      "book": "Book",
       "toasts": {
         "addedExpense": "Expense added",
         "addedIncome": "Income added",
@@ -722,19 +670,9 @@
         "overdue": "Overdue",
         "cancelled": "Cancelled"
       },
-      "searchPlaceholder": "Search invoices by client or number...",
-      "filters": "Filters",
-      "allStatuses": "All statuses",
-      "allProjects": "All projects",
-      "linkedClient": "Linked client",
-      "selectClient": "Select a client",
-      "noClient": "— No client —",
-      "paidDate": "Paid date",
       "empty": {
         "title": "No invoices yet",
-        "description": "Create your first invoice to start tracking client billing.",
-        "filteredTitle": "No matching invoices",
-        "filteredDescription": "Try adjusting your filters or search query."
+        "description": "Create your first invoice to start tracking client billing."
       },
       "attach": {
         "title": "Attach documents",
@@ -743,24 +681,6 @@
       "toasts": {
         "created": "Invoice created",
         "marked": "Marked as {status}",
-        "failed": "Could not save"
-      }
-    },
-    "clients": {
-      "title": "Clients",
-      "description": "Manage your client directory, track invoicing history and payment totals.",
-      "new": "New client",
-      "phone": "Phone",
-      "address": "Address",
-      "searchPlaceholder": "Search clients by name, email or SIRET...",
-      "invoices": "Invoices",
-      "totalPaid": "Paid",
-      "empty": {
-        "title": "No clients yet",
-        "description": "Add your first client to quickly generate invoices and track billing history."
-      },
-      "toasts": {
-        "created": "Client created",
         "failed": "Could not save"
       }
     },
@@ -777,40 +697,14 @@
       },
       "empty": {
         "title": "No projects yet",
-        "description": "Create a project to group invoices, expenses and tasks.",
-        "transactions": "No transactions yet.",
-        "fiches": "No fiches linked to this project.",
-        "documents": "No documents linked yet."
+        "description": "Create a project to group invoices, expenses and tasks."
       },
       "budget": "Budget",
-      "autoCreateBudget": "Create matching budget",
-      "autoCreateFiche": "Create project sheet (fiche)",
       "startDate": "Start date",
       "endDate": "End date",
-      "tabs": {
-        "transactions": "Transactions",
-        "fiches": "Fiches",
-        "documents": "Documents",
-        "details": "Details"
-      },
-      "stats": {
-        "income": "Income",
-        "expenses": "Expenses",
-        "net": "Net"
-      },
-      "color": "Color",
-      "quickAdd": {
-        "save": "Save",
-        "cancel": "Cancel",
-        "descriptionPlaceholder": "Description",
-        "amountPlaceholder": "Amount"
-      },
       "toasts": {
         "created": "Project created",
-        "updated": "Project updated",
-        "failed": "Could not save",
-        "addedIncome": "Income added",
-        "addedExpense": "Expense added"
+        "failed": "Could not save"
       }
     },
     "fiches": {
@@ -954,31 +848,9 @@
         "grants": "Grants tracker",
         "custom": "Blank sheet"
       },
-      "type": {
-        "ledger": "Ledger",
-        "grid": "Grid"
-      },
-      "table": {
-        "date": "Date",
-        "description": "Description",
-        "category": "Category",
-        "type": "Type",
-        "amount": "Amount",
-        "balance": "Balance",
-        "project": "Project",
-        "payment": "Payment",
-        "notes": "Notes"
-      },
-      "placeholder": {
-        "description": "Description",
-        "amount": "0.00",
-        "notes": "Notes"
-      },
       "toasts": {
         "created": "Sheet created",
-        "failed": "Could not save",
-        "addRowFailed": "Could not add row",
-        "addTransactionFailed": "Could not add transaction"
+        "failed": "Could not save"
       }
     },
     "documents": {
@@ -990,16 +862,9 @@
         "used": "Storage used",
         "files": "{count, plural, =0 {No files} =1 {1 file} other {# files}}"
       },
-      "linkTo": "Link to…",
-      "linkProject": "Project",
-      "linkExpense": "Expense",
       "empty": {
         "title": "No documents yet",
         "description": "Upload receipts, certificates and supporting files."
-      },
-      "toasts": {
-        "linked": "Linked",
-        "linkFailed": "Link failed"
       }
     },
     "reports": {

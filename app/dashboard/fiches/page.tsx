@@ -14,13 +14,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -30,7 +23,6 @@ import {
 } from "@/components/ui/dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
-import { useLoadingTimeout } from "@/lib/use-loading-timeout"
 import {
   ClipboardList,
   FilePlus2,
@@ -63,7 +55,6 @@ export default function FichesPage() {
   const [title, setTitle] = React.useState("")
   const [projectId, setProjectId] = React.useState<string>("")
   const [query, setQuery] = React.useState("")
-  const loadTimedOut = useLoadingTimeout(fiches === undefined)
   const [creating, setCreating] = React.useState(false)
 
   const filtered = React.useMemo(
@@ -130,7 +121,7 @@ export default function FichesPage() {
                 <DialogHeader>
                   <DialogTitle>{t("new")}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleCreate} className="space-y-5">
+                <form onSubmit={handleCreate} className="space-y-4">
                   <div>
                     <Label>{t("templateLabel")}</Label>
                     <div className="mt-2 grid grid-cols-2 gap-2">
@@ -160,15 +151,18 @@ export default function FichesPage() {
                   {(projects ?? []).length > 0 && (
                     <div>
                       <Label>{t("linkedProject")}</Label>
-                      <Select value={projectId} onValueChange={setProjectId}>
-                        <SelectTrigger className="w-full"><SelectValue placeholder={t("noProjectLinked")} /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="">{t("noProjectLinked")}</SelectItem>
-                          {(projects ?? []).map((p) => (
-                            <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <select
+                        value={projectId}
+                        onChange={(e) => setProjectId(e.target.value)}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                      >
+                        <option value="">{t("noProjectLinked")}</option>
+                        {(projects ?? []).map((p) => (
+                          <option key={p._id} value={p._id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   )}
                   <DialogFooter>
@@ -187,14 +181,7 @@ export default function FichesPage() {
 
         {fiches === undefined ? (
           <div className="flex items-center justify-center py-16">
-            {loadTimedOut ? (
-              <div className="text-center space-y-2">
-                <p className="text-sm text-muted-foreground">{tCommon("errorOccurred")}</p>
-                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Retry</Button>
-              </div>
-            ) : (
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            )}
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : filtered.length === 0 ? (
           <GlassCard>
