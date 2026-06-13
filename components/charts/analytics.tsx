@@ -22,9 +22,10 @@ const StackedNormalizedAreaSeries = dynamic(
   () => import("reaviz").then((m) => m.StackedNormalizedAreaSeries),
   { ssr: false },
 )
-const Sparkline = dynamic(() => import("reaviz").then((m) => m.Sparkline), {
-  ssr: false,
-})
+const SparklineChart = dynamic(
+  () => import("reaviz").then((m) => m.SparklineChart),
+  { ssr: false },
+)
 const RadialGauge = dynamic(() => import("reaviz").then((m) => m.RadialGauge), {
   ssr: false,
 })
@@ -39,8 +40,11 @@ const BarSeries = dynamic(() => import("reaviz").then((m) => m.BarSeries), {
   ssr: false,
 })
 const Bar = dynamic(() => import("reaviz").then((m) => m.Bar), { ssr: false })
-const LinearGradient = dynamic(
-  () => import("reaviz").then((m) => m.LinearGradient),
+const Gradient = dynamic(() => import("reaviz").then((m) => m.Gradient), {
+  ssr: false,
+})
+const GradientStop = dynamic(
+  () => import("reaviz").then((m) => m.GradientStop),
   { ssr: false },
 )
 
@@ -292,7 +296,7 @@ export function ActivityStatsCard({
         </div>
         <div className="-mx-2 mt-3 h-14">
           {data.length > 1 ? (
-            <Sparkline
+            <SparklineChart
               height={56}
               width={undefined as any}
               data={data as any}
@@ -347,12 +351,10 @@ export function CategoryBreakdownBar({
                 bar={
                   <Bar
                     gradient={
-                      <LinearGradient
-                        stops={[
-                          { offset: "0%", stopOpacity: 0.95 } as any,
-                          { offset: "100%", stopOpacity: 0.6 } as any,
-                        ]}
-                      />
+                      <Gradient>
+                        <GradientStop offset="0%" stopOpacity={0.95} />
+                        <GradientStop offset="100%" stopOpacity={0.6} />
+                      </Gradient>
                     }
                   />
                 }
