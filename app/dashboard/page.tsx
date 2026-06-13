@@ -40,6 +40,7 @@ export default function DashboardPage() {
     api.activities.list,
     wsId ? { workspaceId: wsId, limit: 6 } : "skip",
   )
+  const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
 
   const projectMap = React.useMemo(() => {
     const m = new Map<string, any>()

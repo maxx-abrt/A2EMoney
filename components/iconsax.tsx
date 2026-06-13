@@ -147,6 +147,7 @@ export const Bag2 = get("Bag2")
 export const Briefcase = get("Briefcase")
 export const Document = get("Document")
 export const DocumentText = get("DocumentText")
+export const Paperclip = get("Paperclip")
 
 /* ─────────────────────────────────────────────────────────────────────────
    lucide-react compatibility aliases (drop-in replacements).
@@ -215,6 +216,14 @@ export const Layers = get("HierarchySquare3")
 export const Link2Icon = get("Link21")
 export const Globe = get("Global")
 export const Languages = get("Translate")
+export const Search = get("SearchNormal1")
+export const FileImage = get("Image")
+export const UploadCloud = get("DocumentUpload")
+export const Bell = get("Notification")
+export const BellOff = get("Notification")
+export const CheckCheck = get("Check")
+export const FilePlus2 = get("DocumentText1")
+export const Save = get("Save2")
 
 // Generic proxy fallback: anything else still works via lazy lookup.
 const proxy = new Proxy(
