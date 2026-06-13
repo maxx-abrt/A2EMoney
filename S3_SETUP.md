@@ -185,6 +185,59 @@ users/
 5. **Block public access** to the bucket
 6. **Use HTTPS** in production
 
+## Backblaze B2 (Recommended)
+
+Backblaze B2 is the preferred storage provider for this project.
+
+### 1. Create a Bucket
+1. Go to [Backblaze B2](https://backblaze.com/b2) → Buckets → Create Bucket
+2. **Bucket name**: e.g. `A2E-Drive`
+3. **FileLock**: Off
+4. **Encryption**: Server-side (default)
+5. **Object Lock**: Disable
+
+### 2. Configure CORS (critical for browser uploads)
+In your B2 bucket → **Bucket Settings** → **CORS Rules**.
+
+Add exactly this rule (replace `your-domain.com` with your actual domain):
+
+```json
+[
+  {
+    "allowedOperations": ["s3_put"],
+    "allowedOrigins": [
+      "http://localhost:3000",
+      "https://a2e-money.vercel.app",
+      "https://your-domain.com"
+    ],
+    "allowedHeaders": ["*"],
+    "maxAgeSeconds": 3600
+  }
+]
+```
+
+**Important**: The `allowedOrigins` must match your exact domain (`http` vs `https`, no trailing slash). The browser will block uploads without this.
+
+### 3. Create Application Key
+1. B2 Console → **App Keys** → **Create Application Key**
+2. **Name**: `A2E-Money-Upload`
+3. **Access**: Read & Write
+4. **Bucket**: Select your bucket
+5. Copy **Key ID** and **Application Key** (secret)
+
+### 4. Convex Environment Variables
+Go to your [Convex Dashboard](https://dashboard.convex.dev) → Settings → Environment Variables and paste these 5 values:
+
+| Variable | Value |
+|----------|-------|
+| `B2_REGION` | `eu-central-003` |
+| `B2_ENDPOINT` | `https://s3.eu-central-003.backblazeb2.com` |
+| `B2_KEY_ID` | `00331a238f3df920000000003` |
+| `B2_APPLICATION_KEY` | `K0030P2cQpid9lMWWBM+kKXEit8n83I` |
+| `B2_BUCKET_NAME` | `A2E-Drive` |
+
+**Note**: These go in the **Convex Dashboard only**, not in `.env` or `.env.local`. Convex actions run server-side and read deployment env vars.
+
 ## Alternative S3-Compatible Services
 
 ### MinIO (Self-hosted)
@@ -210,18 +263,20 @@ S3_FORCE_PATH_STYLE=false
 
 ## Troubleshooting
 
-### CORS Errors
-- Verify CORS settings in S3 bucket permissions
-- Ensure origin matches exactly (http vs https, port numbers)
+### "Missing storage credentials" Error
+You see this in Convex logs when `B2_KEY_ID` + `B2_APPLICATION_KEY` (or AWS equivalents) are not set in the Convex dashboard. Fix: add the 5 B2 env vars in Convex Settings → Environment Variables.
 
-### Upload Fails
-- Check IAM user permissions
-- Verify environment variables are loaded
-- Check file size limits (10MB default)
+### CORS Errors
+- **Backblaze B2**: Verify CORS rules in bucket settings. The `allowedOrigins` must match your exact domain (including `https://`).
+- **AWS S3**: Go to bucket → Permissions → CORS configuration.
+- Ensure origin matches exactly (`http` vs `https`, port numbers).
+
+### Upload Fails / Wrong Endpoint
+If the browser tries to upload to `s3.amazonaws.com` instead of Backblaze, the B2 env vars are missing in Convex. The code now throws a clear error instead of silently falling back to AWS.
 
 ### Access Denied
-- Ensure IAM policy includes `s3:PutObject` and `s3:GetObject`
-- Verify bucket name in environment variables
+- Ensure the B2 Application Key has **Read & Write** access to the bucket.
+- Verify bucket name matches `B2_BUCKET_NAME` in Convex env vars.
 
 ## Next Steps
 

@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useTranslations, useLocale } from "next-intl"
-import { useMutation, useQuery } from "convex/react"
+import { useMutation, useQuery, useAction } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { GlassCard } from "@/components/glass-card"
 import { exportFicheToPdf } from "@/lib/fiche-pdf"
+import { useWorkspace } from "@/lib/workspace-context"
+import { formatBytes, cn } from "@/lib/utils"
 import {
   ArrowLeft,
   Download,
@@ -20,9 +22,11 @@ import {
   Loader2,
   Save,
   CheckCircle2,
+  Image as ImageIcon,
+  Trash2,
+  UploadCloud,
 } from "@/components/iconsax"
 import { toast } from "sonner"
-import { cn } from "@/lib/utils"
 
 export default function FichePage() {
   const params = useParams<{ id: string }>()
@@ -273,8 +277,35 @@ function FicheAssoEditor({
         </div>
       </Section>
 
-      {/* 2. Context */}
-      <Section number={2} title="Contexte & origine">
+      {/* 2. Branding */}
+      <Section number={2} title="Identité visuelle">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <LogoUpload
+            label="Logo association"
+            value={data.logoUrl ?? ""}
+            onChange={(url) => patch("logoUrl", url)}
+          />
+          <LogoUpload
+            label="Logo partenaire"
+            value={data.partnerLogoUrl ?? ""}
+            onChange={(url) => patch("partnerLogoUrl", url)}
+          />
+        </div>
+        <Field label="Couleur d'accent">
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={data.accentColor || "#16a34a"}
+              onChange={(e) => patch("accentColor", e.target.value)}
+              className="h-9 w-16 cursor-pointer rounded border border-input bg-transparent"
+            />
+            <span className="text-sm text-muted-foreground">{data.accentColor || "#16a34a"}</span>
+          </div>
+        </Field>
+      </Section>
+
+      {/* 3. Context */}
+      <Section number={3} title="Contexte & origine">
         <Field label={t("context")}>
           <Textarea rows={3} value={data.context ?? ""} onChange={(e) => patch("context", e.target.value)} />
         </Field>
@@ -473,6 +504,82 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div>
       <Label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</Label>
       <div className="mt-1">{children}</div>
+    </div>
+  )
+}
+
+function LogoUpload({ label, value, onChange }: { label: string; value: string; onChange: (url: string) => void }) {
+  const { activeWorkspace } = useWorkspace()
+  const wsId = activeWorkspace?._id
+  const presignUpload = useAction(api.a2e_documents.presignUpload)
+  const inputRef = React.useRef<HTMLInputElement | null>(null)
+  const [uploading, setUploading] = React.useState(false)
+
+  async function handleFile(file: File) {
+    if (!wsId) { toast.error("Select a workspace first"); return }
+    if (!file.type.startsWith("image/")) { toast.error("Please upload an image file"); return }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image too large (max 5MB)"); return }
+    setUploading(true)
+    try {
+      const { uploadUrl, publicUrl } = await presignUpload({
+        workspaceId: wsId,
+        fileName: file.name,
+        contentType: file.type,
+        size: file.size,
+      })
+      const res = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      })
+      if (!res.ok) throw new Error(`Upload failed (${res.status})`)
+      onChange(publicUrl)
+      toast.success("Logo uploaded")
+    } catch (err: any) {
+      toast.error(err?.message || "Upload failed")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div>
+      <Label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</Label>
+      <div className="mt-1">
+        {value ? (
+          <div className="relative inline-block">
+            <img src={value} alt={label} className="h-20 max-w-[200px] rounded-lg border border-border object-contain" />
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-white shadow-sm"
+              title="Remove"
+            >
+              <Trash2 className="h-3 w-3" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="flex items-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3 text-sm transition-colors hover:bg-muted/50"
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : <UploadCloud className="h-4 w-4 text-muted-foreground" />}
+            <span className="text-muted-foreground">{uploading ? "Uploading…" : "Upload image"}</span>
+          </button>
+        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) handleFile(file)
+            e.target.value = ""
+          }}
+        />
+      </div>
     </div>
   )
 }
