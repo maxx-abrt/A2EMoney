@@ -194,6 +194,7 @@ export default defineSchema({
   a2e_expenses: defineTable({
     workspaceId: v.id("workspaces"),
     projectId: v.optional(v.id("projects")),
+    sheetId: v.optional(v.id("a2e_bookSheets")),
     description: v.string(),
     amount: v.number(),
     category: v.string(),
@@ -221,7 +222,8 @@ export default defineSchema({
     .index("by_workspace", ["workspaceId"])
     .index("by_workspace_date", ["workspaceId", "date"])
     .index("by_category", ["workspaceId", "category"])
-    .index("by_project", ["projectId"]),
+    .index("by_project", ["projectId"])
+    .index("by_sheet", ["sheetId"]),
 
   a2e_documents: defineTable({
     workspaceId: v.id("workspaces"),
@@ -256,9 +258,10 @@ export default defineSchema({
   a2e_bookSheets: defineTable({
     workspaceId: v.id("workspaces"),
     name: v.string(),
+    type: v.optional(v.union(v.literal("grid"), v.literal("ledger"))),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
-    columns: v.array(
+    columns: v.optional(v.array(
       v.object({
         id: v.string(),
         name: v.string(),
@@ -269,7 +272,7 @@ export default defineSchema({
         required: v.optional(v.boolean()),
         linkedType: v.optional(v.string()),
       }),
-    ),
+    )),
     isTemplate: v.optional(v.boolean()),
     description: v.optional(v.string()),
     createdBy: v.id("users"),

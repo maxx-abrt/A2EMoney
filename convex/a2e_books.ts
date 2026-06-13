@@ -28,10 +28,11 @@ export const createSheet = mutation({
   args: {
     workspaceId: v.id("workspaces"),
     name: v.string(),
+    type: v.optional(v.union(v.literal("grid"), v.literal("ledger"))),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
     description: v.optional(v.string()),
-    columns: v.array(
+    columns: v.optional(v.array(
       v.object({
         id: v.string(),
         name: v.string(),
@@ -42,7 +43,7 @@ export const createSheet = mutation({
         required: v.optional(v.boolean()),
         linkedType: v.optional(v.string()),
       }),
-    ),
+    )),
     isTemplate: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
@@ -74,6 +75,7 @@ export const updateSheet = mutation({
   args: {
     sheetId: v.id("a2e_bookSheets"),
     name: v.optional(v.string()),
+    type: v.optional(v.union(v.literal("grid"), v.literal("ledger"))),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
     description: v.optional(v.string()),
@@ -132,6 +134,14 @@ export const removeSheet = mutation({
       .withIndex("by_sheet", (q) => q.eq("sheetId", args.sheetId))
       .collect();
     for (const e of entries) await ctx.db.delete(e._id);
+    // Unlink any expenses tied to this ledger sheet
+    const expenses = await ctx.db
+      .query("a2e_expenses")
+      .withIndex("by_sheet", (q) => q.eq("sheetId", args.sheetId))
+      .collect();
+    for (const exp of expenses) {
+      await ctx.db.patch(exp._id, { sheetId: undefined });
+    }
     await ctx.db.delete(args.sheetId);
     await logActivity(ctx, {
       workspaceId: s.workspaceId,

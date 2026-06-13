@@ -82,24 +82,24 @@ interface NavItem {
   key: string
   href: string
   icon: React.ComponentType<{ className?: string }>
-  group: "main" | "secondary"
+  section: "workspace" | "projects" | "operations" | "management"
   businessOnly?: boolean
 }
 
 const navItems: NavItem[] = [
-  { key: "dashboard", href: "/dashboard", icon: LayoutDashboard, group: "main" },
-  { key: "budget", href: "/dashboard/budget", icon: PiggyBank, group: "main" },
-  { key: "expenses", href: "/dashboard/expenses", icon: Receipt, group: "main" },
-  { key: "invoices", href: "/dashboard/invoices", icon: FileText, group: "main" },
-  { key: "projects", href: "/dashboard/projects", icon: FolderOpenIcon, group: "main" },
-  { key: "fiches", href: "/dashboard/fiches", icon: ClipboardList, group: "main" },
-  { key: "book", href: "/dashboard/book", icon: BookOpen, group: "main" },
-  { key: "documents", href: "/dashboard/documents", icon: HardDrive, group: "main" },
-  { key: "reports", href: "/dashboard/reports", icon: BarChart3, group: "secondary" },
-  { key: "team", href: "/dashboard/team", icon: Users, group: "secondary" },
-  { key: "activity", href: "/dashboard/activity", icon: Activity, group: "secondary" },
-  { key: "legal", href: "/dashboard/legal", icon: Gavel, group: "secondary" },
-  { key: "settings", href: "/dashboard/settings", icon: Settings, group: "secondary" },
+  { key: "dashboard", href: "/dashboard", icon: LayoutDashboard, section: "workspace" },
+  { key: "book", href: "/dashboard/book", icon: BookOpen, section: "workspace" },
+  { key: "expenses", href: "/dashboard/expenses", icon: Receipt, section: "workspace" },
+  { key: "projects", href: "/dashboard/projects", icon: FolderOpenIcon, section: "projects" },
+  { key: "budget", href: "/dashboard/budget", icon: PiggyBank, section: "projects" },
+  { key: "fiches", href: "/dashboard/fiches", icon: ClipboardList, section: "projects" },
+  { key: "invoices", href: "/dashboard/invoices", icon: FileText, section: "operations" },
+  { key: "documents", href: "/dashboard/documents", icon: HardDrive, section: "operations" },
+  { key: "reports", href: "/dashboard/reports", icon: BarChart3, section: "management" },
+  { key: "team", href: "/dashboard/team", icon: Users, section: "management" },
+  { key: "activity", href: "/dashboard/activity", icon: Activity, section: "management" },
+  { key: "legal", href: "/dashboard/legal", icon: Gavel, section: "management" },
+  { key: "settings", href: "/dashboard/settings", icon: Settings, section: "management" },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -186,8 +186,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     )
   }
 
-  const mainNav = navItems.filter((i) => i.group === "main")
-  const secondaryNav = navItems.filter((i) => i.group === "secondary")
+  const workspaceNav = navItems.filter((i) => i.section === "workspace")
+  const projectsNav = navItems.filter((i) => i.section === "projects")
+  const operationsNav = navItems.filter((i) => i.section === "operations")
+  const managementNav = navItems.filter((i) => i.section === "management")
+
+  const renderSection = (label: string, items: NavItem[], forceExpanded = false) => (
+    <div className="space-y-1">
+      {(!collapsed || forceExpanded) && items.length > 0 && (
+        <p className="px-3 pb-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          {label}
+        </p>
+      )}
+      {items.map((item) => renderNavLink(item, forceExpanded))}
+    </div>
+  )
 
   const sidebar = (forceExpanded = false) => (
     <div
@@ -229,23 +242,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-        <div className="space-y-1">
-          {(!collapsed || forceExpanded) && (
-            <p className="px-3 pb-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              {tSections("workspace")}
-            </p>
-          )}
-          {mainNav.map((item) => renderNavLink(item, forceExpanded))}
-        </div>
-        <div className="space-y-1">
-          {(!collapsed || forceExpanded) && (
-            <p className="px-3 pb-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              {tSections("manage")}
-            </p>
-          )}
-          {secondaryNav.map((item) => renderNavLink(item, forceExpanded))}
-        </div>
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+        {renderSection(tSections("workspace"), workspaceNav, forceExpanded)}
+        {renderSection(tSections("projects"), projectsNav, forceExpanded)}
+        {renderSection(tSections("operations"), operationsNav, forceExpanded)}
+        {renderSection(tSections("management"), managementNav, forceExpanded)}
       </nav>
 
       {/* Storage + Logout */}

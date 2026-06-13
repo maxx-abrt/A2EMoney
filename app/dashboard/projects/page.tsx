@@ -24,6 +24,8 @@ import {
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { Plus, FolderOpen, Trash2, Loader2, ClipboardList } from "@/components/iconsax"
+
+const COLORS = ["#22c55e", "#3b82f6", "#a855f7", "#ec4899", "#f59e0b", "#ef4444", "#10b981", "#06b6d4"]
 import { toast } from "sonner"
 
 export default function ProjectsPage() {
@@ -45,6 +47,7 @@ export default function ProjectsPage() {
   const [status, setStatus] = React.useState<"planning" | "active" | "on_hold" | "completed">("planning")
   const [startDate, setStartDate] = React.useState(new Date().toISOString().split("T")[0])
   const [endDate, setEndDate] = React.useState("")
+  const [color, setColor] = React.useState(COLORS[0])
   const [saving, setSaving] = React.useState(false)
 
   const STATUS_COLORS: Record<string, string> = {
@@ -66,12 +69,13 @@ export default function ProjectsPage() {
         status,
         budget: budget ? parseFloat(budget) : undefined,
         description: description.trim() || undefined,
+        color,
         startDate: startDate ? new Date(startDate).getTime() : undefined,
         endDate: endDate ? new Date(endDate).getTime() : undefined,
       })
       toast.success(t("toasts.created"))
       setOpen(false)
-      setName(""); setClient(""); setBudget(""); setDescription(""); setEndDate("")
+      setName(""); setClient(""); setBudget(""); setDescription(""); setEndDate(""); setColor(COLORS[0])
     } catch (err: any) {
       toast.error(err?.message || t("toasts.failed"))
     } finally { setSaving(false) }
@@ -108,6 +112,19 @@ export default function ProjectsPage() {
                   </select>
                 </div>
                 <div><Label>{tCommon("description")}</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} /></div>
+                <div><Label>{tCommon("color")}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {COLORS.map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setColor(c)}
+                        className={`h-7 w-7 rounded-full border-2 transition ${color === c ? "border-foreground scale-110" : "border-transparent hover:scale-105"}`}
+                        style={{ background: c }}
+                      />
+                    ))}
+                  </div>
+                </div>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>{tCommon("cancel")}</Button>
                   <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("create")}</Button>
@@ -129,38 +146,41 @@ export default function ProjectsPage() {
               const budgetUsage = p.budget ? Math.min(100, ((p.spent || 0) / p.budget) * 100) : 0
               return (
                 <motion.div key={p._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.03 * idx }}>
-                  <GlassCard className="p-5">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <h3 className="truncate text-base font-semibold">{p.name}</h3>
-                        <p className="truncate text-xs text-muted-foreground">{p.client}</p>
-                      </div>
-                      <Badge variant="secondary" className={STATUS_COLORS[p.status]}>{t(`status.${p.status}`)}</Badge>
-                    </div>
-                    {p.description && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
-                    {p.budget ? (
-                      <div className="mt-4">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">{t("budget")}</span>
-                          <span className="font-medium">{formatCurrency(p.spent || 0, currency)} / {formatCurrency(p.budget, currency)}</span>
+                  <Link href={`/dashboard/projects/${p._id}`}>
+                    <GlassCard className="group relative p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="absolute left-0 top-0 h-full w-1 rounded-l-lg" style={{ background: p.color || "transparent" }} />
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h3 className="truncate text-base font-semibold group-hover:underline">{p.name}</h3>
+                          <p className="truncate text-xs text-muted-foreground">{p.client}</p>
                         </div>
-                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${budgetUsage}%` }} transition={{ duration: 0.6 }} className="h-full bg-accent" />
-                        </div>
+                        <Badge variant="secondary" className={STATUS_COLORS[p.status]}>{t(`status.${p.status}`)}</Badge>
                       </div>
-                    ) : null}
-                    <div className="mt-4 flex items-center justify-between">
-                      <Button asChild variant="ghost" size="sm" className="gap-1 text-xs">
-                        <Link href={`/dashboard/fiches?project=${p._id}`}><ClipboardList className="h-3.5 w-3.5" /> {t("openFiche")}</Link>
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => remove({ projectId: p._id })}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                    {p.startDate && (
-                      <p className="mt-2 text-xs text-muted-foreground">{formatDate(p.startDate)}</p>
-                    )}
-                  </GlassCard>
+                      {p.description && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
+                      {p.budget ? (
+                        <div className="mt-4">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">{t("budget")}</span>
+                            <span className="font-medium">{formatCurrency(p.spent || 0, currency)} / {formatCurrency(p.budget, currency)}</span>
+                          </div>
+                          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                            <motion.div initial={{ width: 0 }} animate={{ width: `${budgetUsage}%` }} transition={{ duration: 0.6 }} className="h-full bg-accent" />
+                          </div>
+                        </div>
+                      ) : null}
+                      <div className="mt-4 flex items-center justify-between">
+                        <Button asChild variant="ghost" size="sm" className="gap-1 text-xs" onClick={(e) => e.stopPropagation()}>
+                          <Link href={`/dashboard/fiches?project=${p._id}`}><ClipboardList className="h-3.5 w-3.5" /> {t("openFiche")}</Link>
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-0 transition-opacity group-hover:opacity-100" onClick={(e) => { e.preventDefault(); e.stopPropagation(); remove({ projectId: p._id }) }}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                      {p.startDate && (
+                        <p className="mt-2 text-xs text-muted-foreground">{formatDate(p.startDate)}</p>
+                      )}
+                    </GlassCard>
+                  </Link>
                 </motion.div>
               )
             })}

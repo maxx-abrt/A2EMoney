@@ -30,6 +30,7 @@ export const create = mutation({
   args: {
     workspaceId: v.id("workspaces"),
     projectId: v.optional(v.id("projects")),
+    sheetId: v.optional(v.id("a2e_bookSheets")),
     description: v.string(),
     amount: v.number(),
     category: v.string(),
@@ -59,6 +60,7 @@ export const create = mutation({
     const id = await ctx.db.insert("a2e_expenses", {
       workspaceId: args.workspaceId,
       projectId: args.projectId,
+      sheetId: args.sheetId,
       description: args.description,
       amount: args.amount,
       category: args.category,
@@ -93,6 +95,7 @@ export const update = mutation({
   args: {
     expenseId: v.id("a2e_expenses"),
     projectId: v.optional(v.id("projects")),
+    sheetId: v.optional(v.id("a2e_bookSheets")),
     description: v.optional(v.string()),
     amount: v.optional(v.number()),
     category: v.optional(v.string()),
@@ -136,6 +139,35 @@ export const update = mutation({
       targetId: args.expenseId,
     });
     return args.expenseId;
+  },
+});
+
+export const listBySheet = query({
+  args: { sheetId: v.id("a2e_bookSheets") },
+  handler: async (ctx, args) => {
+    const s = await ctx.db.get(args.sheetId);
+    if (!s) return [];
+    await assertWorkspaceMember(ctx, s.workspaceId);
+    const exps = await ctx.db
+      .query("a2e_expenses")
+      .withIndex("by_sheet", (q) => q.eq("sheetId", args.sheetId))
+      .order("desc")
+      .collect();
+    return exps;
+  },
+});
+
+export const listByProject = query({
+  args: { projectId: v.id("projects") },
+  handler: async (ctx, args) => {
+    const project = await ctx.db.get(args.projectId);
+    if (!project) return [];
+    await assertWorkspaceMember(ctx, project.workspaceId);
+    return ctx.db
+      .query("a2e_expenses")
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .order("desc")
+      .collect();
   },
 });
 

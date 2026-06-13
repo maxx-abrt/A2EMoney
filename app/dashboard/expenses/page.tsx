@@ -24,7 +24,7 @@ import {
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
 import { AttachmentsField } from "@/components/attachments-field"
-import { Plus, Receipt, Trash2, Loader2, ArrowDownRight, ArrowUpRight } from "@/components/iconsax"
+import { Plus, Receipt, Trash2, Loader2, ArrowDownRight, ArrowUpRight, Paperclip } from "@/components/iconsax"
 import { toast } from "sonner"
 
 const CATEGORIES = ["Food", "Transport", "Housing", "Office", "Marketing", "Software", "Travel", "Salaries", "Taxes", "Utilities", "Other"]
@@ -40,8 +40,17 @@ export default function ExpensesPage() {
 
   const expenses = useQuery(api.a2e_expenses.list, wsId ? { workspaceId: wsId } : "skip")
   const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
+  const sheets = useQuery(api.a2e_books.listSheets, wsId ? { workspaceId: wsId } : "skip")
   const create = useMutation(api.a2e_expenses.create)
   const remove = useMutation(api.a2e_expenses.remove)
+
+  const ledgerSheets = React.useMemo(() => (sheets ?? []).filter((s) => (s as any).type === "ledger"), [sheets])
+
+  const projectMap = React.useMemo(() => {
+    const m = new Map<string, any>()
+    for (const p of projects ?? []) m.set(p._id, p)
+    return m
+  }, [projects])
 
   const [open, setOpen] = React.useState(false)
   const [type, setType] = React.useState<"expense" | "income">("expense")
@@ -51,6 +60,7 @@ export default function ExpensesPage() {
   const [date, setDate] = React.useState(new Date().toISOString().split("T")[0])
   const [paymentMethod, setPaymentMethod] = React.useState("Card")
   const [projectId, setProjectId] = React.useState<string>("")
+  const [sheetId, setSheetId] = React.useState<string>("")
   const [notes, setNotes] = React.useState("")
   const [savedId, setSavedId] = React.useState<Id<"a2e_expenses"> | null>(null)
   const [saving, setSaving] = React.useState(false)
@@ -76,6 +86,7 @@ export default function ExpensesPage() {
         notes: notes.trim() || undefined,
         currency,
         projectId: projectId ? (projectId as Id<"projects">) : undefined,
+        sheetId: sheetId ? (sheetId as Id<"a2e_bookSheets">) : undefined,
       })
       setSavedId(id)
       toast.success(type === "income" ? t("toasts.addedIncome") : t("toasts.addedExpense"))
@@ -87,7 +98,7 @@ export default function ExpensesPage() {
   }
 
   function resetForm() {
-    setDescription(""); setAmount(""); setCategory("Other"); setNotes(""); setProjectId(""); setSavedId(null); setType("expense")
+    setDescription(""); setAmount(""); setCategory("Other"); setNotes(""); setProjectId(""); setSheetId(""); setSavedId(null); setType("expense")
   }
   function closeDialog() { setOpen(false); setTimeout(resetForm, 200) }
 
@@ -137,14 +148,22 @@ export default function ExpensesPage() {
                       </select>
                     </div>
                   </div>
-                  {(projects ?? []).length > 0 && (
+                  <div className="grid grid-cols-2 gap-4">
                     <div><Label>{t("project")}</Label>
                       <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
                         <option value="">{t("noProject")}</option>
                         {(projects ?? []).map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
                       </select>
                     </div>
-                  )}
+                    {ledgerSheets.length > 0 && (
+                      <div><Label>{t("book")}</Label>
+                        <select value={sheetId} onChange={(e) => setSheetId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                          <option value="">—</option>
+                          {ledgerSheets.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
+                        </select>
+                      </div>
+                    )}
+                  </div>
                   <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
                   <DialogFooter>
                     <Button type="button" variant="outline" onClick={closeDialog}>{tCommon("cancel")}</Button>
@@ -191,6 +210,17 @@ export default function ExpensesPage() {
                       <p className="truncate text-sm font-medium">{e.description}</p>
                       <p className="text-xs text-muted-foreground">
                         {formatDate(e.date)} · {e.category} · {e.paymentMethod}
+                        {e.projectId && projectMap.get(e.projectId) && (
+                          <span className="ml-1 inline-flex items-center gap-1">
+                            · <span className="h-1.5 w-1.5 rounded-full" style={{ background: projectMap.get(e.projectId).color || "#ccc" }} />
+                            {projectMap.get(e.projectId).name}
+                          </span>
+                        )}
+                        {(e.linkedDocuments?.length ?? 0) > 0 && (
+                          <span className="ml-1 inline-flex items-center gap-0.5">
+                            · <Paperclip className="h-3 w-3" />
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>

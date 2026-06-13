@@ -36,10 +36,17 @@ export default function DashboardPage() {
 
   const invoices = useQuery(api.a2e_invoices.list, wsId ? { workspaceId: wsId } : "skip")
   const expenses = useQuery(api.a2e_expenses.list, wsId ? { workspaceId: wsId } : "skip")
+  const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
   const activities = useQuery(
     api.activities.list,
     wsId ? { workspaceId: wsId, limit: 6 } : "skip",
   )
+
+  const projectMap = React.useMemo(() => {
+    const m = new Map<string, any>()
+    for (const p of projects ?? []) m.set(p._id, p)
+    return m
+  }, [projects])
 
   const now = Date.now()
   const monthAgo = now - 30 * 24 * 60 * 60 * 1000
@@ -210,6 +217,12 @@ export default function DashboardPage() {
                           <p className="truncate text-sm font-medium">{tr.description}</p>
                           <p className="text-xs text-muted-foreground">
                             {formatDate(tr.date)} · {tr.category}
+                            {tr.projectId && projectMap.get(tr.projectId) && (
+                              <span className="ml-1 inline-flex items-center gap-1">
+                                · <span className="h-1.5 w-1.5 rounded-full" style={{ background: projectMap.get(tr.projectId).color || "#ccc" }} />
+                                {projectMap.get(tr.projectId).name}
+                              </span>
+                            )}
                           </p>
                         </div>
                       </div>

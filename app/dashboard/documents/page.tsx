@@ -3,7 +3,7 @@
 import * as React from "react"
 import { motion } from "framer-motion"
 import { useTranslations } from "next-intl"
-import { useAction, useQuery } from "convex/react"
+import { useAction, useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
 import { useWorkspace } from "@/lib/workspace-context"
@@ -25,13 +25,29 @@ export default function DocumentsPage() {
   const storage = useQuery(api.workspaces.getStorage, wsId ? { workspaceId: wsId } : "skip")
   const presignDownload = useAction(api.a2e_documents.presignDownload)
   const removeDoc = useAction(api.a2e_documents.remove)
+  const linkDoc = useMutation(api.a2e_documents.linkDocument)
   const { preview } = useFilePreview()
+
+  const expenses = useQuery(api.a2e_expenses.list, wsId ? { workspaceId: wsId } : "skip")
+  const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
+
+  const expenseMap = React.useMemo(() => {
+    const m = new Map<string, any>()
+    for (const e of expenses ?? []) m.set(e._id, e)
+    return m
+  }, [expenses])
+
+  const projectMap = React.useMemo(() => {
+    const m = new Map<string, any>()
+    for (const p of projects ?? []) m.set(p._id, p)
+    return m
+  }, [projects])
 
   async function handleDownload(id: Id<"a2e_documents">) {
     try {
       const res = await presignDownload({ documentId: id })
       if (res?.url) window.open(res.url, "_blank")
-    } catch (err: any) { toast.error(err?.message || "Download failed") }
+    } catch (err: any) { toast.error(err?.message || t("toasts.linkFailed")) }
   }
 
   return (
@@ -94,7 +110,36 @@ export default function DocumentsPage() {
                         <p className="text-xs text-muted-foreground">{formatBytes(d.size)} · {formatDate(d.createdAt)} · {d.type}</p>
                       </div>
                     </button>
-                    {d.linkedToType && <Badge variant="secondary" className="shrink-0">{d.linkedToType}</Badge>}
+                    {d.linkedToType && d.linkedToId ? (
+                      <Badge variant="secondary" className="shrink-0">
+                        {d.linkedToType === "project" && projectMap.get(d.linkedToId)
+                          ? projectMap.get(d.linkedToId).name
+                          : d.linkedToType === "expense" && expenseMap.get(d.linkedToId)
+                          ? expenseMap.get(d.linkedToId).description
+                          : d.linkedToType}
+                      </Badge>
+                    ) : (
+                      <select
+                        className="h-7 rounded-md border border-input bg-transparent px-1 text-[10px]"
+                        onChange={async (e) => {
+                          const val = e.target.value
+                          if (!val) return
+                          const [type, id] = val.split(":")
+                          try {
+                            await linkDoc({ documentId: d._id, linkedToType: type as any, linkedToId: id })
+                            toast.success(t("toasts.linked"))
+                          } catch (err: any) { toast.error(err?.message || t("toasts.linkFailed")) }
+                        }}
+                      >
+                        <option value="">{t("linkTo")}</option>
+                        <optgroup label={t("linkProject")}>
+                          {(projects ?? []).map((p) => <option key={p._id} value={`project:${p._id}`}>{p.name}</option>)}
+                        </optgroup>
+                        <optgroup label={t("linkExpense")}>
+                          {(expenses ?? []).slice(0, 20).map((ex) => <option key={ex._id} value={`expense:${ex._id}`}>{ex.description}</option>)}
+                        </optgroup>
+                      </select>
+                    )}
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => preview({ _id: d._id, name: d.name, contentType: d.contentType, size: d.size })}>
                       <Eye className="h-3.5 w-3.5" />
                     </Button>

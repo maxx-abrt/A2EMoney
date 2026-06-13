@@ -104,6 +104,8 @@
     "close": "Close",
     "currency": "Currency",
     "project": "Project",
+    "edit": "Edit",
+    "color": "Color",
     "errorOccurred": "An error occurred"
   },
   "nav": {
@@ -565,8 +567,9 @@
   "pages": {
     "sections": {
       "workspace": "Workspace",
-      "manage": "Manage",
-      "tools": "Tools"
+      "projects": "Projects",
+      "operations": "Operations",
+      "management": "Management"
     },
     "dashboard": {
       "welcome": "Welcome back",
@@ -646,6 +649,7 @@
         "description": "Add receipts or supporting documents. They'll be linked automatically."
       },
       "done": "Done",
+      "book": "Book",
       "toasts": {
         "addedExpense": "Expense added",
         "addedIncome": "Income added",
@@ -710,14 +714,38 @@
       },
       "empty": {
         "title": "No projects yet",
-        "description": "Create a project to group invoices, expenses and tasks."
+        "description": "Create a project to group invoices, expenses and tasks.",
+        "transactions": "No transactions yet.",
+        "fiches": "No fiches linked to this project.",
+        "documents": "No documents linked yet."
       },
       "budget": "Budget",
       "startDate": "Start date",
       "endDate": "End date",
+      "tabs": {
+        "transactions": "Transactions",
+        "fiches": "Fiches",
+        "documents": "Documents",
+        "details": "Details"
+      },
+      "stats": {
+        "income": "Income",
+        "expenses": "Expenses",
+        "net": "Net"
+      },
+      "color": "Color",
+      "quickAdd": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "descriptionPlaceholder": "Description",
+        "amountPlaceholder": "Amount"
+      },
       "toasts": {
         "created": "Project created",
-        "failed": "Could not save"
+        "updated": "Project updated",
+        "failed": "Could not save",
+        "addedIncome": "Income added",
+        "addedExpense": "Expense added"
       }
     },
     "fiches": {
@@ -861,9 +889,30 @@
         "grants": "Grants tracker",
         "custom": "Blank sheet"
       },
+      "type": {
+        "ledger": "Ledger",
+        "grid": "Grid"
+      },
+      "table": {
+        "date": "Date",
+        "description": "Description",
+        "category": "Category",
+        "type": "Type",
+        "amount": "Amount",
+        "project": "Project",
+        "payment": "Payment",
+        "notes": "Notes"
+      },
+      "placeholder": {
+        "description": "Description",
+        "amount": "0.00",
+        "notes": "Notes"
+      },
       "toasts": {
         "created": "Sheet created",
-        "failed": "Could not save"
+        "failed": "Could not save",
+        "addRowFailed": "Could not add row",
+        "addTransactionFailed": "Could not add transaction"
       }
     },
     "documents": {
@@ -875,9 +924,16 @@
         "used": "Storage used",
         "files": "{count, plural, =0 {No files} =1 {1 file} other {# files}}"
       },
+      "linkTo": "Link to…",
+      "linkProject": "Project",
+      "linkExpense": "Expense",
       "empty": {
         "title": "No documents yet",
         "description": "Upload receipts, certificates and supporting files."
+      },
+      "toasts": {
+        "linked": "Linked",
+        "linkFailed": "Link failed"
       }
     },
     "reports": {

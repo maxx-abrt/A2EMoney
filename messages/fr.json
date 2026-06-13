@@ -104,6 +104,8 @@
     "close": "Fermer",
     "currency": "Devise",
     "project": "Projet",
+    "edit": "Modifier",
+    "color": "Couleur",
     "errorOccurred": "Une erreur est survenue"
   },
   "nav": {
@@ -565,8 +567,9 @@
   "pages": {
     "sections": {
       "workspace": "Espace",
-      "manage": "Gestion",
-      "tools": "Outils"
+      "projects": "Projets",
+      "operations": "Operations",
+      "management": "Gestion"
     },
     "dashboard": {
       "welcome": "Bon retour",
@@ -646,6 +649,7 @@
         "description": "Ajoutez les reçus ou pièces justificatives. Ils seront liés automatiquement."
       },
       "done": "Terminé",
+      "book": "Livre",
       "toasts": {
         "addedExpense": "Dépense ajoutée",
         "addedIncome": "Recette ajoutée",
@@ -710,14 +714,38 @@
       },
       "empty": {
         "title": "Aucun projet pour l'instant",
-        "description": "Créez un projet pour regrouper factures, dépenses et tâches."
+        "description": "Créez un projet pour regrouper factures, dépenses et tâches.",
+        "transactions": "Aucune transaction pour l'instant.",
+        "fiches": "Aucune fiche liée à ce projet.",
+        "documents": "Aucun document lié pour l'instant."
       },
       "budget": "Budget",
       "startDate": "Date de début",
       "endDate": "Date de fin",
+      "tabs": {
+        "transactions": "Transactions",
+        "fiches": "Fiches",
+        "documents": "Documents",
+        "details": "Détails"
+      },
+      "stats": {
+        "income": "Revenus",
+        "expenses": "Dépenses",
+        "net": "Net"
+      },
+      "color": "Couleur",
+      "quickAdd": {
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "descriptionPlaceholder": "Description",
+        "amountPlaceholder": "Montant"
+      },
       "toasts": {
         "created": "Projet créé",
-        "failed": "Impossible d'enregistrer"
+        "updated": "Projet mis à jour",
+        "failed": "Impossible d'enregistrer",
+        "addedIncome": "Revenu ajouté",
+        "addedExpense": "Dépense ajoutée"
       }
     },
     "fiches": {
@@ -861,9 +889,30 @@
         "grants": "Suivi des subventions",
         "custom": "Feuille vierge"
       },
+      "type": {
+        "ledger": "Grand livre",
+        "grid": "Tableau"
+      },
+      "table": {
+        "date": "Date",
+        "description": "Description",
+        "category": "Catégorie",
+        "type": "Type",
+        "amount": "Montant",
+        "project": "Projet",
+        "payment": "Paiement",
+        "notes": "Notes"
+      },
+      "placeholder": {
+        "description": "Description",
+        "amount": "0,00",
+        "notes": "Notes"
+      },
       "toasts": {
         "created": "Feuille créée",
-        "failed": "Impossible d'enregistrer"
+        "failed": "Impossible d'enregistrer",
+        "addRowFailed": "Impossible d'ajouter la ligne",
+        "addTransactionFailed": "Impossible d'ajouter la transaction"
       }
     },
     "documents": {
@@ -875,9 +924,16 @@
         "used": "Stockage utilisé",
         "files": "{count, plural, =0 {Aucun fichier} =1 {1 fichier} other {# fichiers}}"
       },
+      "linkTo": "Lier à…",
+      "linkProject": "Projet",
+      "linkExpense": "Dépense",
       "empty": {
         "title": "Aucun document pour l'instant",
         "description": "Téléversez vos reçus, certificats et pièces justificatives."
+      },
+      "toasts": {
+        "linked": "Lié",
+        "linkFailed": "Échec du lien"
       }
     },
     "reports": {

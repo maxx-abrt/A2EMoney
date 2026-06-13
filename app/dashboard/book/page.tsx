@@ -25,28 +25,28 @@ import { Plus, BookOpen, Trash2, Loader2 } from "@/components/iconsax"
 import { toast } from "sonner"
 
 const TEMPLATES = [
-  { id: "cashflow", icon: "💰", color: "#22c55e", columns: [
+  { id: "cashflow", type: "ledger" as const, icon: "💰", color: "#22c55e", columns: [
     { id: "date", name: "Date", type: "date" },
     { id: "description", name: "Description", type: "text" },
     { id: "category", name: "Category", type: "select", options: ["Income", "Expense"] },
     { id: "amount", name: "Amount", type: "currency" },
     { id: "notes", name: "Notes", type: "text" },
   ] },
-  { id: "donations", icon: "💝", color: "#ec4899", columns: [
+  { id: "donations", type: "grid" as const, icon: "💝", color: "#ec4899", columns: [
     { id: "date", name: "Date", type: "date" },
     { id: "donor", name: "Donor", type: "text" },
     { id: "amount", name: "Amount", type: "currency" },
     { id: "method", name: "Method", type: "select", options: ["Card", "Cash", "Bank transfer"] },
     { id: "receipt", name: "Receipt", type: "checkbox" },
   ] },
-  { id: "grants", icon: "🎯", color: "#3b82f6", columns: [
+  { id: "grants", type: "grid" as const, icon: "🎯", color: "#3b82f6", columns: [
     { id: "name", name: "Grant", type: "text" },
     { id: "funder", name: "Funder", type: "text" },
     { id: "amount", name: "Amount", type: "currency" },
     { id: "status", name: "Status", type: "select", options: ["Draft", "Submitted", "Approved", "Rejected"] },
     { id: "deadline", name: "Deadline", type: "date" },
   ] },
-  { id: "custom", icon: "📄", color: "#a855f7", columns: [
+  { id: "custom", type: "grid" as const, icon: "📄", color: "#a855f7", columns: [
     { id: "col1", name: "Column A", type: "text" },
     { id: "col2", name: "Column B", type: "text" },
   ] },
@@ -75,6 +75,7 @@ export default function BookPage() {
       await createSheet({
         workspaceId: wsId,
         name: name.trim() || t(`templates.${tpl.id}`),
+        type: tpl.type,
         icon: tpl.icon,
         color: tpl.color,
         columns: tpl.columns,
@@ -139,7 +140,12 @@ export default function BookPage() {
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg text-lg" style={{ background: (s.color || "#22c55e") + "20" }}>{s.icon || "📒"}</div>
                         <div>
                           <h3 className="text-base font-semibold">{s.name}</h3>
-                          <p className="text-xs text-muted-foreground">{t("columns", { count: (s.columns || []).length })}</p>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`inline-flex rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${(s as any).type === "ledger" ? "bg-accent/10 text-accent" : "bg-muted text-muted-foreground"}`}>
+                              {(s as any).type === "ledger" ? t("type.ledger") : t("type.grid")}
+                            </span>
+                            <p className="text-xs text-muted-foreground">{t("columns", { count: (s.columns || []).length })}</p>
+                          </div>
                         </div>
                       </div>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-0 transition-opacity group-hover:opacity-100" onClick={(e) => { e.preventDefault(); removeSheet({ sheetId: s._id }) }}>
