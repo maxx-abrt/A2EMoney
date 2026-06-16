@@ -1,8 +1,7 @@
 import { httpRouter } from "convex/server";
-import { auth } from "./auth";
 
+// Auth is handled by WorkOS AuthKit at the Next.js layer (no Convex auth HTTP
+// routes needed). Kept for future custom HTTP actions (webhooks, etc.).
 const http = httpRouter();
-
-auth.addHttpRoutes(http);
 
 export default http;

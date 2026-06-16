@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
-import { useAuthActions } from "@convex-dev/auth/react"
+import { useAuth } from "@workos-inc/authkit-nextjs/components"
 import { useConvexAuth, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useWorkspace } from "@/lib/workspace-context"
@@ -105,7 +105,7 @@ const navItems: NavItem[] = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
-  const { signOut } = useAuthActions()
+  const { signOut } = useAuth()
   const { isAuthenticated, isLoading: authLoading } = useConvexAuth()
   const me = useQuery(api.users.me, isAuthenticated ? {} : "skip")
   const { workspaces, activeWorkspace, isLoading: wsLoading } = useWorkspace()
@@ -129,6 +129,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       localStorage.setItem("a2e_sidebar_collapsed", collapsed ? "1" : "0")
   }, [collapsed])
 
+  // Redirect unauthenticated users to the WorkOS hosted login.
+  useEffect(() => {
+    if (authLoading) return
+    if (!isAuthenticated) {
+      const search = typeof window !== "undefined" ? window.location.search : ""
+      const next = pathname + search
+      router.replace(`/sign-in?returnPathname=${encodeURIComponent(next)}`)
+    }
+  }, [authLoading, isAuthenticated, pathname, router])
+
   // Redirect to onboarding if authenticated and no workspaces
   useEffect(() => {
     if (authLoading || wsLoading) return
@@ -140,7 +150,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const storagePercent = storage ? Math.min(100, storage.percentage) : 0
 
-  if (authLoading || (isAuthenticated && wsLoading)) {
+  // Wait while auth resolves, the user is provisioned in Convex, or workspaces load.
+  const provisioning = isAuthenticated && (me === undefined || me === null)
+  if (authLoading || !isAuthenticated || (isAuthenticated && wsLoading) || provisioning) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
@@ -169,7 +181,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         {active && (
           <span
-            className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-accent"
+            className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-[var(--brand-green)]"
             aria-hidden
           />
         )}
@@ -260,7 +272,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-accent"
+                className="h-full rounded-full bg-[var(--brand-green)]"
                 style={{ width: `${storagePercent}%` }}
               />
             </div>
@@ -338,7 +350,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="ml-1 flex h-9 items-center gap-2 rounded-full border border-border bg-card px-2 pr-3 transition-colors hover:bg-muted">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-xs font-medium text-accent">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-xs font-medium text-primary">
                       {(me?.name || me?.email || "?")
                         .split(" ")
                         .map((n: string) => n[0])

@@ -119,7 +119,7 @@ export function WorkspaceSwitcher({ collapsed }: { collapsed?: boolean }) {
                   {t("switcher.members", { count: w.memberCount })} · {w.role}
                 </div>
               </div>
-              {activeWorkspace?._id === w._id && <Check className="h-4 w-4 text-accent" />}
+              {activeWorkspace?._id === w._id && <Check className="h-4 w-4 text-primary" />}
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />

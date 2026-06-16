@@ -70,10 +70,10 @@ export function Tip({
         className={cn(
           "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
           variant === "ai"
-            ? "bg-accent/10 text-accent"
+            ? "bg-accent/10 text-primary"
             : variant === "info"
               ? "bg-muted text-muted-foreground"
-              : "bg-accent/10 text-accent",
+              : "bg-accent/10 text-primary",
         )}
       >
         <Icon className="h-4 w-4" />

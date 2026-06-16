@@ -43,9 +43,9 @@ import { toast } from "sonner"
 import { CATEGORIES, CATEGORY_I18N } from "@/lib/options"
 
 const STATUS_COLORS: Record<string, string> = {
-  planning: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
-  active: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  on_hold: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  planning: "bg-primary/10 text-primary",
+  active: "bg-success/10 text-success",
+  on_hold: "bg-warning/15 text-warning",
   completed: "bg-muted text-muted-foreground",
 }
 
@@ -214,13 +214,13 @@ export default function ProjectHubPage() {
                 <span className="text-sm text-muted-foreground">/ {formatCurrency(project.budget, currency)}</span>
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${budgetUsage}%` }} transition={{ duration: 0.6 }} className="h-full bg-accent" />
+                <motion.div initial={{ width: 0 }} animate={{ width: `${budgetUsage}%` }} transition={{ duration: 0.6 }} className="h-full bg-[var(--brand-green)]" />
               </div>
             </GlassCard>
           ) : null}
           <GlassCard className="p-5">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("stats.income")}</p>
-            <p className="mt-2 font-numeric text-2xl font-semibold text-accent">{formatCurrency(totalIncome, currency)}</p>
+            <p className="mt-2 font-numeric text-2xl font-semibold text-primary">{formatCurrency(totalIncome, currency)}</p>
           </GlassCard>
           <GlassCard className="p-5">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("stats.expenses")}</p>
@@ -228,7 +228,7 @@ export default function ProjectHubPage() {
           </GlassCard>
           <GlassCard className="p-5">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("stats.net")}</p>
-            <p className={`mt-2 font-numeric text-2xl font-semibold ${totalIncome - totalExpense >= 0 ? "text-accent" : "text-destructive"}`}>
+            <p className={`mt-2 font-numeric text-2xl font-semibold ${totalIncome - totalExpense >= 0 ? "text-primary" : "text-destructive"}`}>
               {formatCurrency(totalIncome - totalExpense, currency)}
             </p>
           </GlassCard>
@@ -285,7 +285,7 @@ export default function ProjectHubPage() {
                   {(expenses ?? []).map((e) => (
                     <li key={e._id} className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/20">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${e.type === "income" ? "bg-accent/10 text-accent" : "bg-muted"}`}>
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${e.type === "income" ? "bg-accent/10 text-primary" : "bg-muted"}`}>
                           {e.type === "income" ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
                         </div>
                         <div className="min-w-0">
@@ -293,7 +293,7 @@ export default function ProjectHubPage() {
                           <p className="text-xs text-muted-foreground">{formatDate(e.date)} · {e.category} · {e.paymentMethod}</p>
                         </div>
                       </div>
-                      <span className={`shrink-0 font-numeric text-sm font-medium ${e.type === "income" ? "text-accent" : "text-foreground"}`}>
+                      <span className={`shrink-0 font-numeric text-sm font-medium ${e.type === "income" ? "text-primary" : "text-foreground"}`}>
                         {e.type === "income" ? "+" : "-"}{formatCurrency(e.amount, e.currency ?? currency)}
                       </span>
                     </li>

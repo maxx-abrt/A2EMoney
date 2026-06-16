@@ -12,8 +12,22 @@ import { authTables } from "@convex-dev/auth/server";
  * - App tables are prefixed `a2e_` for A2EMoney.
  */
 export default defineSchema({
-  // ---- convex-auth tables ----
+  // ---- auth tables (users table reused; auth itself handled by WorkOS) ----
   ...authTables,
+
+  // Maps a verified WorkOS user (JWT `sub`) to a Convex `users` record.
+  // Populated by `users.store` on first login.
+  authIdentities: defineTable({
+    workosId: v.string(),
+    userId: v.id("users"),
+    email: v.optional(v.string()),
+    name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    createdAt: v.number(),
+    lastSeenAt: v.optional(v.number()),
+  })
+    .index("by_workos", ["workosId"])
+    .index("by_user", ["userId"]),
 
   // ---- SHARED TABLES (used by every app in the suite) ----
   workspaces: defineTable({
@@ -340,6 +354,44 @@ export default defineSchema({
     title: v.string(),
     subtitle: v.optional(v.string()),
     data: v.any(), // template-specific JSON payload
+    status: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("submitted"),
+        v.literal("approved"),
+        v.literal("archived"),
+      ),
+    ),
+    locale: v.optional(v.string()),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_workspace", ["workspaceId"])
+    .index("by_project", ["projectId"]),
+
+  /** Clients / donors / partners directory. */
+  a2e_clients: defineTable({
+    workspaceId: v.id("workspaces"),
+    name: v.string(),
+    email: v.optional(v.string()),
+    address: v.optional(v.string()),
+    siret: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    totalInvoiced: v.optional(v.number()),
+    totalPaid: v.optional(v.number()),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_workspace", ["workspaceId"]),
+
+  /** CERFA 15059 grant financial reports (compte-rendu financier de subvention). */
+  a2e_grantReports: defineTable({
+    workspaceId: v.id("workspaces"),
+    projectId: v.optional(v.id("projects")),
+    title: v.string(),
+    data: v.any(),
     status: v.optional(
       v.union(
         v.literal("draft"),

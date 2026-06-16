@@ -49,7 +49,7 @@ export default function DocumentsPage() {
               <span className="text-muted-foreground">{formatBytes(storage.used)} / {formatBytes(storage.total)}</span>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, storage.percentage)}%` }} transition={{ duration: 0.6 }} className="h-full rounded-full bg-accent" />
+              <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, storage.percentage)}%` }} transition={{ duration: 0.6 }} className="h-full rounded-full bg-[var(--brand-green)]" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
               {t("storage.files", { count: storage.count })} · {Math.round(storage.percentage)}%

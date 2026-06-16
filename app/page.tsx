@@ -46,9 +46,9 @@ export default async function LandingPage() {
         aria-hidden
         className="pointer-events-none fixed inset-0 -z-10 [mask-image:radial-gradient(70%_55%_at_50%_30%,black,transparent)]"
       >
-        <div className="absolute left-[10%] top-32 h-72 w-72 rounded-full bg-accent/20 blur-[120px]" />
-        <div className="absolute right-[5%] top-10 h-80 w-80 rounded-full bg-fuchsia-400/15 blur-[120px]" />
-        <div className="absolute left-1/2 top-[60%] h-72 w-72 -translate-x-1/2 rounded-full bg-blue-400/10 blur-[120px]" />
+        <div className="absolute left-[10%] top-32 h-72 w-72 rounded-full bg-primary/15 blur-[120px]" />
+        <div className="absolute right-[5%] top-10 h-80 w-80 rounded-full bg-[var(--brand-green)]/20 blur-[120px]" />
+        <div className="absolute left-1/2 top-[60%] h-72 w-72 -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
       </div>
 
       {/* Header */}
@@ -101,7 +101,7 @@ export default async function LandingPage() {
                 <span
                   key={i}
                   className={`h-[3px] w-[3px] ${
-                    [0, 4, 8, 2].includes(i) ? "bg-accent" : "bg-foreground/40"
+                    [0, 4, 8, 2].includes(i) ? "bg-[var(--brand-green)]" : "bg-foreground/40"
                   }`}
                 />
               ))}
@@ -112,11 +112,11 @@ export default async function LandingPage() {
           <h1 className="mx-auto max-w-4xl text-balance text-center text-5xl font-semibold tracking-tight sm:text-6xl md:text-7xl">
             {t("hero.title")}{" "}
             <span className="relative inline-flex items-baseline align-middle">
-              <span className="relative inline-block bg-gradient-to-br from-accent via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+              <span className="relative inline-block text-primary">
                 {t("hero.highlight")}
                 <span
                   aria-hidden
-                  className="absolute -bottom-1 left-0 right-0 h-[6px] bg-gradient-to-r from-accent/60 via-accent/30 to-transparent"
+                  className="absolute -bottom-1 left-0 right-0 h-[8px] bg-[var(--brand-green)]"
                   style={{ clipPath: "polygon(0 0, 100% 0, 96% 100%, 4% 100%)" }}
                 />
               </span>
@@ -144,7 +144,7 @@ export default async function LandingPage() {
           <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 items-center gap-6 sm:grid-cols-3">
             <div className="flex flex-col items-center sm:items-start">
               <div className="flex -space-x-3">
-                {["bg-gradient-to-br from-rose-300 to-rose-400", "bg-gradient-to-br from-amber-300 to-amber-400", "bg-gradient-to-br from-emerald-300 to-emerald-400"].map((c, i) => (
+                {["bg-primary", "bg-[var(--brand-green)]", "bg-foreground"].map((c, i) => (
                   <div
                     key={i}
                     className={`h-9 w-9 rounded-full border-2 border-background ${c}`}
@@ -181,7 +181,7 @@ export default async function LandingPage() {
             <ul className="mt-6 space-y-2.5">
               {(t.raw("intuitive.bullets") as string[]).map((b) => (
                 <li key={b} className="flex items-center gap-2 text-sm">
-                  <TickCircle size={16} variant="Bulk" className="text-accent" />
+                  <TickCircle size={16} variant="Bulk" className="text-primary" />
                   {b}
                 </li>
               ))}
@@ -203,7 +203,7 @@ export default async function LandingPage() {
             <ul className="mt-6 space-y-2.5">
               {(t.raw("evolve.bullets") as string[]).map((b) => (
                 <li key={b} className="flex items-center gap-2 text-sm">
-                  <TickCircle size={16} variant="Bulk" className="text-accent" />
+                  <TickCircle size={16} variant="Bulk" className="text-primary" />
                   {b}
                 </li>
               ))}
@@ -219,27 +219,48 @@ export default async function LandingPage() {
       <section id="why" className="relative border-y border-border/40 bg-muted/30 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{t("why.tag")}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("why.tag")}</p>
             <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
               {t("why.title")}
             </h2>
             <p className="mt-4 text-muted-foreground">{t("why.description")}</p>
           </div>
           <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {whyItems.map((key) => {
+            {whyItems.map((key, idx) => {
               const Icon = whyIcons[key]
+              // Bento color-blocking: 1 ink + 1 lime + 1 purple tile, rest white
+              const tone =
+                idx === 0 ? "ink" : idx === 2 ? "lime" : idx === 4 ? "purple" : "white"
+              const tileCls =
+                tone === "ink"
+                  ? "tile-ink"
+                  : tone === "lime"
+                  ? "tile-lime"
+                  : tone === "purple"
+                  ? "tile-purple"
+                  : "bento-tile"
+              const iconWrap =
+                tone === "white"
+                  ? "bg-[var(--brand-green)] text-[var(--brand-green-ink)] border-2 border-border"
+                  : tone === "lime"
+                  ? "bg-foreground text-background"
+                  : "bg-white/15 text-current"
+              const descCls = tone === "white" ? "text-muted-foreground" : "opacity-80"
               return (
                 <div
                   key={key}
-                  className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-foreground/20 hover:shadow-lg"
+                  className={`group relative overflow-hidden p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_10px_0_-2px_var(--border)] ${tileCls}`}
+                  data-testid={`why-card-${key}`}
                 >
-                  <PixelCorner />
-                  <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/0 blur-2xl transition-colors group-hover:bg-accent/15" />
-                  <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 text-accent ring-1 ring-accent/30 transition-transform group-hover:scale-110">
+                  <div
+                    className={`relative flex h-11 w-11 items-center justify-center rounded-xl transition-transform group-hover:scale-110 ${iconWrap}`}
+                  >
                     <Icon size={22} variant="Bulk" />
                   </div>
-                  <h3 className="relative mt-5 text-lg font-semibold">{t(`why.items.${key}.title`)}</h3>
-                  <p className="relative mt-2 text-sm text-muted-foreground">
+                  <h3 className="relative mt-5 text-lg font-semibold tracking-tight">
+                    {t(`why.items.${key}.title`)}
+                  </h3>
+                  <p className={`relative mt-2 text-sm ${descCls}`}>
                     {t(`why.items.${key}.description`)}
                   </p>
                 </div>
@@ -253,7 +274,7 @@ export default async function LandingPage() {
       <section id="pricing" className="border-b border-border/40 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <Badge variant="secondary" className="rounded-full bg-accent/10 text-accent">
+            <Badge variant="secondary" className="rounded-full bg-accent/10 text-primary">
               {t("profiles.title")}
             </Badge>
             <p className="mt-4 text-muted-foreground">{t("profiles.description")}</p>
@@ -269,7 +290,7 @@ export default async function LandingPage() {
               <ul className="mt-6 space-y-2.5">
                 {(t.raw("profiles.individual.features") as string[]).map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm">
-                    <TickCircle size={14} variant="Bulk" className="text-accent" />
+                    <TickCircle size={14} variant="Bulk" className="text-primary" />
                     {f}
                   </li>
                 ))}
@@ -284,7 +305,7 @@ export default async function LandingPage() {
             {/* Business */}
             <div className="group relative overflow-hidden rounded-2xl border border-foreground/30 bg-gradient-to-br from-foreground to-neutral-900 p-8 text-background shadow-xl">
               <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent/30 blur-3xl" />
-              <Badge className="relative z-10 bg-accent text-accent-foreground">
+              <Badge className="relative z-10 bg-[var(--brand-green)] text-[var(--brand-green-ink)] border-2 border-border">
                 {t("profiles.business.badge")}
               </Badge>
               <div className="relative mt-5 flex h-11 w-11 items-center justify-center rounded-xl bg-background/10">
@@ -295,7 +316,7 @@ export default async function LandingPage() {
               <ul className="relative mt-6 space-y-2.5">
                 {(t.raw("profiles.business.features") as string[]).map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm">
-                    <TickCircle size={14} variant="Bulk" className="text-accent" />
+                    <TickCircle size={14} variant="Bulk" className="text-primary" />
                     {f}
                   </li>
                 ))}
@@ -315,7 +336,7 @@ export default async function LandingPage() {
       <section id="testimonials" className="bg-muted/30 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{t("testimonials.title")}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("testimonials.title")}</p>
             <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
               {t("testimonials.description")}
             </h2>
@@ -327,7 +348,7 @@ export default async function LandingPage() {
                 className="group flex h-full flex-col justify-between rounded-2xl border border-border/60 bg-card/70 p-6 backdrop-blur-xl transition-all hover:-translate-y-1 hover:shadow-lg"
               >
                 <div>
-                  <div className="flex gap-0.5 text-accent">
+                  <div className="flex gap-0.5 text-primary">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star1 key={i} size={14} variant="Bulk" />
                     ))}
@@ -349,7 +370,7 @@ export default async function LandingPage() {
       {/* FAQ */}
       <section id="faq" className="border-y border-border/40 py-20 sm:py-28">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             {t("faqs.tag")}
           </p>
           <h2 className="mt-3 text-balance text-center text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -374,12 +395,12 @@ export default async function LandingPage() {
       {/* CTA */}
       <section className="relative overflow-hidden bg-foreground py-20 text-background sm:py-28">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 opacity-50">
-          <div className="absolute -left-20 top-1/2 h-96 w-96 -translate-y-1/2 rounded-full bg-accent/30 blur-[120px]" />
-          <div className="absolute -right-20 top-1/3 h-96 w-96 -translate-y-1/2 rounded-full bg-fuchsia-400/20 blur-[120px]" />
+          <div className="absolute -left-20 top-1/2 h-96 w-96 -translate-y-1/2 rounded-full bg-[var(--brand-green)]/30 blur-[120px]" />
+          <div className="absolute -right-20 top-1/3 h-96 w-96 -translate-y-1/2 rounded-full bg-primary/30 blur-[120px]" />
         </div>
         <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
           <div className="mx-auto mb-7 flex w-fit items-center gap-2">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/20 text-accent">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/20 text-primary">
               <Flash size={18} variant="Bulk" />
             </span>
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-background/10">
@@ -431,33 +452,19 @@ export default async function LandingPage() {
   )
 }
 
-/* ---------- Decorative product mocks (OriginX-style imagery substitutes) ---------- */
-
-/** Pixel-style corner accent used across cards for that "slight pixelated UI". */
-function PixelCorner() {
-  return (
-    <span aria-hidden className="pointer-events-none absolute right-3 top-3 grid grid-cols-3 gap-[2px] opacity-60">
-      {[1, 0, 0, 1, 1, 0, 0, 1, 1].map((on, i) => (
-        <span
-          key={i}
-          className={`h-[3px] w-[3px] ${on ? "bg-accent" : "bg-foreground/15"}`}
-        />
-      ))}
-    </span>
-  )
-}
+/* ---------- Decorative product mocks ---------- */
 
 function DashboardMock() {
   return (
     <div className="relative">
-      <div className="absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-accent/20 via-transparent to-fuchsia-400/10 blur-2xl" />
+      <div className="absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-primary/15 via-transparent to-[var(--brand-green)]/12 blur-2xl" />
       <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/70 shadow-xl ring-1 ring-foreground/5 backdrop-blur-xl">
         <div className="flex items-center gap-1.5 border-b border-border/60 px-4 py-3">
           <div className="h-2.5 w-2.5 rounded-full bg-border" />
           <div className="h-2.5 w-2.5 rounded-full bg-border" />
           <div className="h-2.5 w-2.5 rounded-full bg-border" />
           <div className="ml-4 flex h-5 flex-1 items-center gap-1.5 rounded-md bg-background/50 px-2 text-[10px] text-muted-foreground">
-            <span className="inline-block h-1 w-1 rounded-full bg-accent" /> a2emoney.app/dashboard
+            <span className="inline-block h-1 w-1 rounded-full bg-[var(--brand-green)]" /> a2emoney.app/dashboard
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3 p-5">
@@ -468,7 +475,7 @@ function DashboardMock() {
               {[45, 60, 40, 75, 55, 80, 65, 90, 70, 85, 95, 100].map((h, i) => (
                 <div
                   key={i}
-                  className="rounded-sm bg-gradient-to-t from-accent/30 to-accent"
+                  className="rounded-sm bg-gradient-to-t from-primary/30 to-primary"
                   style={{ height: `${h}%` }}
                 />
               ))}
@@ -497,11 +504,11 @@ function DashboardMock() {
 function BookMock() {
   return (
     <div className="relative">
-      <div className="absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-fuchsia-400/15 via-transparent to-accent/15 blur-2xl" />
+      <div className="absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-[var(--brand-green)]/14 via-transparent to-primary/14 blur-2xl" />
       <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/70 shadow-xl ring-1 ring-foreground/5 backdrop-blur-xl">
         <div className="flex items-center justify-between border-b border-border/60 px-4 py-3 text-xs font-medium text-muted-foreground">
           <span className="inline-flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-accent" />
+            <span className="h-2 w-2 rounded-full bg-[var(--brand-green)]" />
             finances-q4.book
           </span>
           <span>synced</span>
@@ -511,10 +518,10 @@ function BookMock() {
             <span>Date</span><span>Description</span><span>Category</span><span className="text-right">Amount</span>
           </div>
           {[
-            ["04 Oct", "Invoice #1082", "Income", "+€2,400.00", "text-accent"],
+            ["04 Oct", "Invoice #1082", "Income", "+€2,400.00", "text-primary"],
             ["02 Oct", "Office supplies", "Expense", "-€187.50", "text-foreground"],
             ["29 Sep", "Subscription", "Expense", "-€49.00", "text-foreground"],
-            ["27 Sep", "Consulting", "Income", "+€1,200.00", "text-accent"],
+            ["27 Sep", "Consulting", "Income", "+€1,200.00", "text-primary"],
             ["25 Sep", "Transport", "Expense", "-€72.40", "text-foreground"],
           ].map(([d, desc, cat, amt, color]) => (
             <div key={String(desc)} className="grid grid-cols-4 items-center gap-2 px-4 py-2.5 text-xs">

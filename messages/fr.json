@@ -89,7 +89,45 @@
     "income": "Revenu",
     "expense": "Dépense",
     "pending": "En attente",
-    "linkedTo": "Lié à"
+    "linkedTo": "Lié à",
+    "add": "Ajouter",
+    "amount": "Montant",
+    "cancel": "Annuler",
+    "category": "Catégorie",
+    "client": "Client",
+    "close": "Fermer",
+    "color": "Couleur",
+    "create": "Créer",
+    "currency": "Devise",
+    "date": "Date",
+    "description": "Description",
+    "edit": "Modifier",
+    "errorOccurred": "Une erreur est survenue",
+    "name": "Nom",
+    "notes": "Notes",
+    "project": "Projet",
+    "save": "Enregistrer",
+    "status": "Statut",
+    "delete": "Supprimer",
+    "loading": "Chargement…",
+    "search": "Rechercher",
+    "actions": "Actions",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "yes": "Oui",
+    "no": "Non",
+    "optional": "Facultatif",
+    "required": "Requis",
+    "all": "Tous",
+    "none": "Aucun",
+    "export": "Exporter",
+    "download": "Télécharger",
+    "view": "Voir",
+    "open": "Ouvrir",
+    "update": "Mettre à jour",
+    "title": "Titre"
   },
   "nav": {
     "features": "Fonctionnalités",
@@ -738,6 +776,14 @@
         "blank": {
           "name": "Fiche vierge",
           "description": "Démarrez avec un éditeur de texte enrichi libre."
+        },
+        "recu_don": {
+          "name": "Reçu fiscal de dons (CERFA 11580*05)",
+          "description": "Reçu au titre des dons à certains organismes d'intérêt général (art. 200, 238 bis et 978 du CGI). PDF légal prêt à signer."
+        },
+        "budget_equilibre": {
+          "name": "Budget prévisionnel à l'équilibre",
+          "description": "Budget annuel ou par action — charges et produits équilibrés (plan comptable associatif)."
         }
       },
       "fields": {

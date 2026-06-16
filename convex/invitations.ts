@@ -5,6 +5,7 @@ import {
   assertWorkspaceMember,
   logActivity,
   notifyWorkspaceMembers,
+  requireUserId,
 } from "./lib/auth";
 
 function makeToken() {
@@ -98,10 +99,7 @@ export const getByToken = query({
 export const accept = mutation({
   args: { token: v.string() },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
-    const [userId] = (identity.subject as string).split("|");
-    const userIdT = userId as any;
+    const userIdT = await requireUserId(ctx);
 
     const inv = await ctx.db
       .query("invitations")
@@ -144,8 +142,8 @@ export const accept = mutation({
     await notifyWorkspaceMembers(ctx, {
       workspaceId: inv.workspaceId,
       type: "member_joined",
-      title: "New team member",
-      message: `${user?.name ?? user?.email ?? "A new member"} joined the workspace.`,
+      title: "Nouveau membre",
+      message: `${user?.name ?? user?.email ?? "Un nouveau membre"} a rejoint l'espace de travail.`,
       exceptUserId: userIdT,
     });
     return inv.workspaceId;

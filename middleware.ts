@@ -1,40 +1,14 @@
-import {
-  convexAuthNextjsMiddleware,
-  createRouteMatcher,
-  nextjsMiddlewareRedirect,
-  isAuthenticatedNextjs,
-} from "@convex-dev/auth/nextjs/server";
+import { authkitMiddleware } from "@workos-inc/authkit-nextjs"
 
-const isAuthPage = createRouteMatcher(["/auth", "/auth/(.*)"]);
-const isPublicPage = createRouteMatcher([
-  "/",
-  "/auth",
-  "/auth/(.*)",
-  "/invite/(.*)",
-  "/legal/(.*)",
-]);
-
-export default convexAuthNextjsMiddleware(
-  async (request, { convexAuth }) => {
-    const isAuth = await convexAuth.isAuthenticated();
-    if (isAuthPage(request) && isAuth) {
-      return nextjsMiddlewareRedirect(request, "/dashboard");
-    }
-    if (!isPublicPage(request) && !isAuth) {
-      const next = request.nextUrl.pathname + request.nextUrl.search;
-      return nextjsMiddlewareRedirect(
-        request,
-        `/auth?next=${encodeURIComponent(next)}`,
-      );
-    }
-  },
-  { shouldHandleCode: false },
-);
+// WorkOS AuthKit middleware: refreshes the session cookie and makes auth state
+// available throughout the app. Route protection is enforced in-app (dashboard
+// layout + Convex <Authenticated> helpers) so all public marketing/legal/invite
+// routes stay reachable.
+export default authkitMiddleware()
 
 export const config = {
   matcher: [
-    "/((?!.*\\..*|_next|favicon\\.ico).*)",
-    "/",
-    "/(api|trpc)(.*)",
+    // Skip Next.js internals, the ingress-routed /api/*, and static files.
+    "/((?!_next|api|.*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
   ],
-};
+}

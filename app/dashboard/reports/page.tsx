@@ -304,7 +304,7 @@ export default function ReportsPage() {
               <GlassCard className="p-5">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="flex items-center gap-2 text-sm font-semibold">
-                    <FolderOpen size={16} variant="Bulk" className="text-accent" />
+                    <FolderOpen size={16} variant="Bulk" className="text-primary" />
                     Projects
                   </h3>
                   <Link href="/dashboard/projects" className="text-xs text-muted-foreground hover:text-foreground">
@@ -338,7 +338,7 @@ export default function ReportsPage() {
                                 initial={{ width: 0 }}
                                 animate={{ width: `${pct}%` }}
                                 transition={{ duration: 0.6 }}
-                                className="h-full bg-accent"
+                                className="h-full bg-[var(--brand-green)]"
                               />
                             </div>
                           )}
@@ -353,7 +353,7 @@ export default function ReportsPage() {
               <GlassCard className="p-5">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="flex items-center gap-2 text-sm font-semibold">
-                    <ClipboardText size={16} variant="Bulk" className="text-accent" />
+                    <ClipboardText size={16} variant="Bulk" className="text-primary" />
                     Invoice statuses
                   </h3>
                   <Link href="/dashboard/invoices" className="text-xs text-muted-foreground hover:text-foreground">
@@ -380,7 +380,7 @@ export default function ReportsPage() {
               <GlassCard className="p-5">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="flex items-center gap-2 text-sm font-semibold">
-                    <Activity size={16} variant="Bulk" className="text-accent" />
+                    <Activity size={16} variant="Bulk" className="text-primary" />
                     Recent activity
                   </h3>
                   <Link href="/dashboard/activity" className="text-xs text-muted-foreground hover:text-foreground">
@@ -395,7 +395,7 @@ export default function ReportsPage() {
                       <li key={a._id} className="flex items-start justify-between gap-3 text-xs">
                         <span className="min-w-0 flex-1 truncate">{a.action.replace(/\./g, " ")}</span>
                         <span className="shrink-0 text-muted-foreground">
-                          {new Date(a.createdAt).toLocaleDateString()}
+                          {new Date(a.createdAt).toLocaleDateString("fr-FR")}
                         </span>
                       </li>
                     ))}
@@ -413,8 +413,8 @@ export default function ReportsPage() {
 function BgGlow() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 overflow-hidden">
-      <div className="absolute left-1/4 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-accent/10 blur-3xl" />
-      <div className="absolute right-1/4 top-10 h-64 w-64 translate-x-1/2 rounded-full bg-fuchsia-400/10 blur-3xl" />
+      <div className="absolute left-1/4 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+      <div className="absolute right-1/4 top-10 h-64 w-64 translate-x-1/2 rounded-full bg-[var(--brand-green)]/12 blur-3xl" />
     </div>
   )
 }

@@ -51,7 +51,7 @@ export default function FichesPage() {
   const remove = useMutation(api.a2e_fiches.remove)
 
   const [open, setOpen] = React.useState(false)
-  const [templateId, setTemplateId] = React.useState<"asso_fr" | "blank">("asso_fr")
+  const [templateId, setTemplateId] = React.useState<keyof typeof FICHE_TEMPLATES>("recu_don")
   const [title, setTitle] = React.useState("")
   const [projectId, setProjectId] = React.useState<string>("")
   const [query, setQuery] = React.useState("")
@@ -93,13 +93,13 @@ export default function FichesPage() {
   return (
     <div className="relative px-4 py-8 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 overflow-hidden">
-        <div className="absolute left-1/2 top-0 h-72 w-96 -translate-x-1/2 rounded-full bg-fuchsia-400/15 blur-3xl" />
+        <div className="absolute left-1/2 top-0 h-72 w-96 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
       </div>
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-              <Sparkles className="h-5 w-5 text-accent" />
+              <Sparkles className="h-5 w-5 text-primary" />
               {t("title")}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
@@ -125,7 +125,7 @@ export default function FichesPage() {
                   <div>
                     <Label>{t("templateLabel")}</Label>
                     <div className="mt-2 grid grid-cols-2 gap-2">
-                      {(["asso_fr", "blank"] as const).map((id) => (
+                      {(Object.keys(FICHE_TEMPLATES) as Array<keyof typeof FICHE_TEMPLATES>).map((id) => (
                         <button
                           key={id}
                           type="button"
@@ -133,11 +133,11 @@ export default function FichesPage() {
                           className={cn(
                             "flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition",
                             templateId === id
-                              ? "border-foreground bg-foreground/5"
+                              ? "border-primary bg-primary/5 ring-1 ring-primary/30"
                               : "border-border hover:bg-muted",
                           )}
                         >
-                          <FileText className="h-4 w-4" />
+                          <FileText className="h-4 w-4 text-primary" />
                           <span className="text-sm font-medium">{t(`templates.${id}.name`)}</span>
                           <span className="text-xs text-muted-foreground">{t(`templates.${id}.description`)}</span>
                         </button>
@@ -205,7 +205,7 @@ export default function FichesPage() {
                   <div className="flex items-start justify-between gap-2">
                     <Link href={`/dashboard/fiches/${f._id}`} className="min-w-0 flex-1">
                       <h3 className="truncate text-base font-semibold hover:underline">{f.title}</h3>
-                      <p className="text-xs text-muted-foreground">{t(`templates.${f.template === "asso_fr" ? "asso_fr" : "blank"}.name`)}</p>
+                      <p className="text-xs text-muted-foreground">{t(`templates.${FICHE_TEMPLATES[f.template as keyof typeof FICHE_TEMPLATES] ? f.template : "blank"}.name`)}</p>
                     </Link>
                     <div className="flex shrink-0 gap-1">
                       <Button

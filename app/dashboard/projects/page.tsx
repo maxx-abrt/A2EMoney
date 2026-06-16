@@ -48,9 +48,9 @@ export default function ProjectsPage() {
   const [saving, setSaving] = React.useState(false)
 
   const STATUS_COLORS: Record<string, string> = {
-    planning: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
-    active: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-    on_hold: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+    planning: "bg-primary/10 text-primary",
+    active: "bg-success/10 text-success",
+    on_hold: "bg-warning/15 text-warning",
     completed: "bg-muted text-muted-foreground",
   }
 
@@ -145,7 +145,7 @@ export default function ProjectsPage() {
                           <span className="font-medium">{formatCurrency(p.spent || 0, currency)} / {formatCurrency(p.budget, currency)}</span>
                         </div>
                         <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${budgetUsage}%` }} transition={{ duration: 0.6 }} className="h-full bg-accent" />
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${budgetUsage}%` }} transition={{ duration: 0.6 }} className="h-full bg-[var(--brand-green)]" />
                         </div>
                       </div>
                     ) : null}

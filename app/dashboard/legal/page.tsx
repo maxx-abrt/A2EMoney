@@ -18,18 +18,18 @@ export default function LegalPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <Link href="/legal/privacy">
             <GlassCard className="p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
-              <Shield className="h-5 w-5 text-accent" />
+              <Shield className="h-5 w-5 text-primary" />
               <h2 className="mt-3 text-base font-semibold">{t("privacyDesc").split(".")[0]}</h2>
               <p className="mt-1 text-xs text-muted-foreground">{t("privacyDesc")}</p>
-              <p className="mt-3 inline-flex items-center gap-1 text-xs text-accent">{t("read")} <ExternalLink className="h-3 w-3" /></p>
+              <p className="mt-3 inline-flex items-center gap-1 text-xs text-primary">{t("read")} <ExternalLink className="h-3 w-3" /></p>
             </GlassCard>
           </Link>
           <Link href="/legal/terms">
             <GlassCard className="p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
-              <Scale className="h-5 w-5 text-accent" />
+              <Scale className="h-5 w-5 text-primary" />
               <h2 className="mt-3 text-base font-semibold">{t("termsDesc").split(".")[0]}</h2>
               <p className="mt-1 text-xs text-muted-foreground">{t("termsDesc")}</p>
-              <p className="mt-3 inline-flex items-center gap-1 text-xs text-accent">{t("read")} <ExternalLink className="h-3 w-3" /></p>
+              <p className="mt-3 inline-flex items-center gap-1 text-xs text-primary">{t("read")} <ExternalLink className="h-3 w-3" /></p>
             </GlassCard>
           </Link>
         </div>

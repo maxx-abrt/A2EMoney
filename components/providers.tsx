@@ -1,30 +1,65 @@
 "use client"
 
+import "@/lib/intl-guard"
 import * as React from "react"
-import { ConvexReactClient } from "convex/react"
-import { ConvexAuthNextjsProvider } from "@convex-dev/auth/nextjs"
+import { useConvexAuth, useMutation } from "convex/react"
+import { useAuth } from "@workos-inc/authkit-nextjs/components"
+import { api } from "@/convex/_generated/api"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "sonner"
 import { WorkspaceProvider } from "@/lib/workspace-context"
 import { FilePreviewProvider } from "@/components/file-preview-provider"
+import { ConvexClientProvider } from "@/components/ConvexClientProvider"
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
-  unsavedChangesWarning: false,
-})
+/**
+ * Provisions (or refreshes) the Convex user record for the authenticated WorkOS
+ * identity. Runs once per authenticated session.
+ */
+function StoreUser() {
+  const { isAuthenticated } = useConvexAuth()
+  const { user } = useAuth()
+  const store = useMutation(api.users.store)
+  const done = React.useRef(false)
+
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      done.current = false
+      return
+    }
+    if (done.current) return
+    done.current = true
+    const name = user
+      ? [user.firstName, user.lastName].filter(Boolean).join(" ") || undefined
+      : undefined
+    store({
+      email: user?.email ?? undefined,
+      name,
+      image: (user as any)?.profilePictureUrl ?? undefined,
+    }).catch(() => {
+      done.current = false
+    })
+  }, [isAuthenticated, user, store])
+
+  return null
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ConvexAuthNextjsProvider client={convex}>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+    <ConvexClientProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <StoreUser />
         <WorkspaceProvider>
-          <FilePreviewProvider>
-            {children}
-          </FilePreviewProvider>
+          <FilePreviewProvider>{children}</FilePreviewProvider>
           <Toaster />
           <SonnerToaster position="top-right" richColors closeButton />
         </WorkspaceProvider>
       </ThemeProvider>
-    </ConvexAuthNextjsProvider>
+    </ConvexClientProvider>
   )
 }

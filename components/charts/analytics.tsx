@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import dynamic from "next/dynamic"
 import { motion } from "framer-motion"
 import CountUp from "react-countup"
 import { useTranslations } from "next-intl"
@@ -9,44 +8,10 @@ import { GlassCard } from "@/components/glass-card"
 import { ArrowUp, ArrowDown, Chart2, TrendUp, Activity } from "@/components/iconsax"
 import { formatCurrency } from "@/lib/utils"
 
-/* ─────────────────────────────────────────────────────────────────────────
-   reaviz must be loaded client-only (it imports d3 internals that break SSR).
-   We use next/dynamic with ssr:false for safety in App Router.
-   ───────────────────────────────────────────────────────────────────────── */
+/* Brand-styled, dependency-free SVG charts (replaces reaviz). */
 
-const StackedNormalizedAreaChart = dynamic(
-  () => import("reaviz").then((m) => m.StackedNormalizedAreaChart),
-  { ssr: false },
-)
-const StackedNormalizedAreaSeries = dynamic(
-  () => import("reaviz").then((m) => m.StackedNormalizedAreaSeries),
-  { ssr: false },
-)
-const Sparkline = dynamic(() => import("reaviz").then((m) => m.Sparkline), {
-  ssr: false,
-})
-const RadialGauge = dynamic(() => import("reaviz").then((m) => m.RadialGauge), {
-  ssr: false,
-})
-const RadialGaugeSeries = dynamic(
-  () => import("reaviz").then((m) => m.RadialGaugeSeries),
-  { ssr: false },
-)
-const BarChart = dynamic(() => import("reaviz").then((m) => m.BarChart), {
-  ssr: false,
-})
-const BarSeries = dynamic(() => import("reaviz").then((m) => m.BarSeries), {
-  ssr: false,
-})
-const Bar = dynamic(() => import("reaviz").then((m) => m.Bar), { ssr: false })
-const LinearGradient = dynamic(
-  () => import("reaviz").then((m) => m.LinearGradient),
-  { ssr: false },
-)
-
-/* ─────────────────────────────────────────────────────────────────────────
-   Types & helpers
-   ───────────────────────────────────────────────────────────────────────── */
+const PURPLE = "var(--chart-1)"
+const GREEN = "var(--chart-2)"
 
 export type Txn = {
   date: number
@@ -72,12 +37,39 @@ function bucketByMonth(txns: Txn[]) {
   return Array.from(buckets.values()).sort((a, b) => +a.date - +b.date)
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   AdvancedNormalizedIncidentReport
-   Stacked normalized area chart showing the income / expense composition
-   over time. Pure CSS palette - no raw red/green.
-   ───────────────────────────────────────────────────────────────────────── */
+/* ── Sparkline (inline SVG) ───────────────────────────────────────────── */
+function SvgSparkline({ data, color = PURPLE }: { data: number[]; color?: string }) {
+  const id = React.useId().replace(/[:]/g, "")
+  const w = 200
+  const h = 52
+  const pad = 4
+  const max = Math.max(...data, 1)
+  const min = Math.min(...data, 0)
+  const span = max - min || 1
+  const step = (w - pad * 2) / Math.max(1, data.length - 1)
+  const pts = data.map((v, i) => {
+    const x = pad + i * step
+    const y = h - pad - ((v - min) / span) * (h - pad * 2)
+    return [x, y] as const
+  })
+  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")
+  const area = `${line} L${pts[pts.length - 1][0].toFixed(1)},${h} L${pts[0][0].toFixed(1)},${h} Z`
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-full w-full">
+      <defs>
+        <linearGradient id={`spark-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#spark-${id})`} />
+      <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="2.6" fill={color} />
+    </svg>
+  )
+}
 
+/* ── Stacked normalized area (income vs expense %) ────────────────────── */
 export function AdvancedNormalizedIncidentReport({
   transactions,
   currency = "EUR",
@@ -86,78 +78,56 @@ export function AdvancedNormalizedIncidentReport({
   currency?: string
 }) {
   const t = useTranslations("pages.reports")
-
-  const series = React.useMemo(() => {
-    const months = bucketByMonth(transactions)
-    if (months.length === 0) return []
-    return [
-      {
-        key: "income",
-        data: months.map((m) => ({ key: m.date, data: m.income, id: `i-${+m.date}` })),
-      },
-      {
-        key: "expense",
-        data: months.map((m) => ({ key: m.date, data: m.expense, id: `e-${+m.date}` })),
-      },
-    ]
-  }, [transactions])
+  const months = React.useMemo(() => bucketByMonth(transactions), [transactions])
 
   const totalIn = transactions.filter((x) => x.type === "income").reduce((a, b) => a + b.amount, 0)
   const totalOut = transactions.filter((x) => x.type === "expense").reduce((a, b) => a + b.amount, 0)
   const net = totalIn - totalOut
 
+  const W = 600
+  const H = 220
+  const n = months.length
+  const ratios = months.map((m) => {
+    const tot = m.income + m.expense
+    return tot > 0 ? m.income / tot : 0.5
+  })
+  const xFor = (i: number) => (n <= 1 ? W / 2 : (i / (n - 1)) * W)
+  const incomeLine = ratios.map((r, i) => `${i === 0 ? "M" : "L"}${xFor(i).toFixed(1)},${(H - r * H).toFixed(1)}`).join(" ")
+  const incomeArea = `${incomeLine} L${xFor(n - 1).toFixed(1)},${H} L${xFor(0).toFixed(1)},${H} Z`
+  const expenseArea = `M${xFor(0).toFixed(1)},0 ${ratios.map((r, i) => `L${xFor(i).toFixed(1)},${(H - r * H).toFixed(1)}`).join(" ")} L${xFor(n - 1).toFixed(1)},0 Z`
+
   return (
     <GlassCard className="overflow-hidden">
-      <div className="flex items-start justify-between gap-4 border-b border-border/60 p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/60 p-5">
         <div>
           <h3 className="flex items-center gap-2 text-sm font-semibold">
-            <Chart2 size={16} variant="Bulk" className="text-accent" />
+            <Chart2 size={16} variant="Bulk" className="text-primary" />
             {t("composition.title")}
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">{t("composition.subtitle")}</p>
         </div>
         <div className="grid grid-cols-3 gap-4 text-right">
-          <Metric
-            label={t("totals.income")}
-            value={totalIn}
-            currency={currency}
-            tone="positive"
-          />
-          <Metric
-            label={t("totals.expenses")}
-            value={totalOut}
-            currency={currency}
-            tone="negative"
-          />
-          <Metric
-            label={t("totals.net")}
-            value={net}
-            currency={currency}
-            tone={net >= 0 ? "positive" : "negative"}
-          />
+          <Metric label={t("totals.income")} value={totalIn} currency={currency} tone="positive" />
+          <Metric label={t("totals.expenses")} value={totalOut} currency={currency} tone="negative" />
+          <Metric label={t("totals.net")} value={net} currency={currency} tone={net >= 0 ? "positive" : "negative"} />
         </div>
       </div>
 
       <div className="relative h-[260px] w-full p-3">
-        {series.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-            {t("noData")}
-          </div>
+        {n === 0 ? (
+          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">{t("noData")}</div>
         ) : (
-          <StackedNormalizedAreaChart
-            data={series as any}
-            series={
-              <StackedNormalizedAreaSeries
-                colorScheme={["hsl(var(--chart-1))", "hsl(var(--chart-2))"]}
-              />
-            }
-          />
+          <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-full w-full">
+            <path d={expenseArea} fill={GREEN} fillOpacity="0.22" />
+            <path d={incomeArea} fill={PURPLE} fillOpacity="0.28" />
+            <path d={incomeLine} fill="none" stroke={PURPLE} strokeWidth="2.5" />
+          </svg>
         )}
       </div>
 
       <div className="flex flex-wrap items-center gap-4 border-t border-border/60 px-5 py-3 text-xs">
-        <LegendDot color="bg-[hsl(var(--chart-1))]" label={t("totals.income")} />
-        <LegendDot color="bg-[hsl(var(--chart-2))]" label={t("totals.expenses")} />
+        <LegendDot color={PURPLE} label={t("totals.income")} />
+        <LegendDot color={GREEN} label={t("totals.expenses")} />
       </div>
     </GlassCard>
   )
@@ -174,18 +144,12 @@ function Metric({
   currency: string
   tone: "positive" | "negative"
 }) {
-  const toneCls = tone === "positive" ? "text-accent" : "text-destructive"
+  const toneCls = tone === "positive" ? "text-success" : "text-destructive"
   return (
     <div>
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className={`font-numeric mt-0.5 text-sm font-semibold ${toneCls}`}>
-        <CountUp
-          end={value}
-          duration={1.1}
-          decimals={0}
-          separator=" "
-          formattingFn={(v) => formatCurrency(v, currency)}
-        />
+        <CountUp end={value} duration={1.1} decimals={0} separator=" " formattingFn={(v) => formatCurrency(v, currency)} />
       </p>
     </div>
   )
@@ -194,16 +158,13 @@ function Metric({
 function LegendDot({ color, label }: { color: string; label: string }) {
   return (
     <span className="flex items-center gap-1.5 text-muted-foreground">
-      <span className={`inline-block h-2 w-2 rounded-full ${color}`} />
+      <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
       {label}
     </span>
   )
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   ActivityStatsCard — Sparkline + animated KPI + delta badge
-   ───────────────────────────────────────────────────────────────────────── */
-
+/* ── KPI card with sparkline ──────────────────────────────────────────── */
 export function ActivityStatsCard({
   label,
   value,
@@ -225,27 +186,19 @@ export function ActivityStatsCard({
   icon?: React.ComponentType<{ size?: number; variant?: any; className?: string }>
   delay?: number
 }) {
-  const delta = previousValue !== undefined && previousValue !== 0
-    ? ((value - previousValue) / Math.abs(previousValue)) * 100
-    : null
+  const delta =
+    previousValue !== undefined && previousValue !== 0
+      ? ((value - previousValue) / Math.abs(previousValue)) * 100
+      : null
   const up = (delta ?? 0) >= 0
-
-  const data = React.useMemo(
-    () =>
-      series.map((v, i) => ({
-        key: new Date(2024, 0, i + 1),
-        data: v,
-        id: `s-${i}`,
-      })),
-    [series],
-  )
 
   const toneCls =
     tone === "positive"
-      ? "bg-accent/10 text-accent"
+      ? "bg-success/10 text-success"
       : tone === "negative"
       ? "bg-destructive/10 text-destructive"
-      : "bg-muted text-foreground"
+      : "bg-primary/10 text-primary"
+  const sparkColor = tone === "negative" ? "var(--destructive)" : tone === "positive" ? "var(--chart-2)" : PURPLE
 
   return (
     <motion.div
@@ -256,9 +209,7 @@ export function ActivityStatsCard({
       <GlassCard className="group relative overflow-hidden p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-              {label}
-            </p>
+            <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">{label}</p>
             <p className="font-numeric mt-2 text-2xl font-semibold tracking-tight">
               <CountUp
                 end={value}
@@ -274,33 +225,23 @@ export function ActivityStatsCard({
             {delta !== null && (
               <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-muted/50 px-2 py-0.5 text-[10px] font-medium">
                 {up ? (
-                  <ArrowUp size={10} variant="Bulk" className="text-accent" />
+                  <ArrowUp size={10} variant="Bulk" className="text-success" />
                 ) : (
                   <ArrowDown size={10} variant="Bulk" className="text-destructive" />
                 )}
-                <span className={up ? "text-accent" : "text-destructive"}>
-                  {Math.abs(delta).toFixed(1)}%
-                </span>
+                <span className={up ? "text-success" : "text-destructive"}>{Math.abs(delta).toFixed(1)}%</span>
               </div>
             )}
           </div>
-          <div
-            className={`flex h-9 w-9 items-center justify-center rounded-xl ${toneCls} transition-transform group-hover:scale-110`}
-          >
+          <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${toneCls} transition-transform group-hover:scale-110`}>
             <Icon size={18} variant="Bulk" />
           </div>
         </div>
         <div className="-mx-2 mt-3 h-14">
-          {data.length > 1 ? (
-            <Sparkline
-              height={56}
-              width={undefined as any}
-              data={data as any}
-            />
+          {series.length > 1 ? (
+            <SvgSparkline data={series} color={sparkColor} />
           ) : (
-            <div className="flex h-full items-center text-[10px] text-muted-foreground">
-              —
-            </div>
+            <div className="flex h-full items-center text-[10px] text-muted-foreground">—</div>
           )}
         </div>
       </GlassCard>
@@ -308,10 +249,7 @@ export function ActivityStatsCard({
   )
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   CategoryBreakdownBar — horizontal BarChart per category
-   ───────────────────────────────────────────────────────────────────────── */
-
+/* ── Horizontal category bars ─────────────────────────────────────────── */
 export function CategoryBreakdownBar({
   data,
   currency = "EUR",
@@ -320,13 +258,14 @@ export function CategoryBreakdownBar({
   currency?: string
 }) {
   const t = useTranslations("pages.reports")
-  const series = data.map((d) => ({ key: d.category, data: d.amount, id: d.category }))
+  const max = Math.max(...data.map((d) => d.amount), 1)
+  const sorted = [...data].sort((a, b) => b.amount - a.amount)
   return (
     <GlassCard className="overflow-hidden">
       <div className="flex items-center justify-between border-b border-border/60 p-5">
         <div>
           <h3 className="flex items-center gap-2 text-sm font-semibold">
-            <TrendUp size={16} variant="Bulk" className="text-accent" />
+            <TrendUp size={16} variant="Bulk" className="text-primary" />
             {t("byCategory")}
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -334,42 +273,34 @@ export function CategoryBreakdownBar({
           </p>
         </div>
       </div>
-      <div className="h-[260px] w-full p-3">
-        {series.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-            {t("noData")}
-          </div>
+      <div className="min-h-[260px] w-full space-y-3 p-5">
+        {sorted.length === 0 ? (
+          <div className="flex h-[220px] items-center justify-center text-xs text-muted-foreground">{t("noData")}</div>
         ) : (
-          <BarChart
-            data={series as any}
-            series={
-              <BarSeries
-                bar={
-                  <Bar
-                    gradient={
-                      <LinearGradient
-                        stops={[
-                          { offset: "0%", stopOpacity: 0.95 } as any,
-                          { offset: "100%", stopOpacity: 0.6 } as any,
-                        ]}
-                      />
-                    }
-                  />
-                }
-                colorScheme={["hsl(var(--chart-1))"]}
-              />
-            }
-          />
+          sorted.map((d) => (
+            <div key={d.category}>
+              <div className="mb-1 flex items-center justify-between text-xs">
+                <span className="font-medium">{d.category || "—"}</span>
+                <span className="font-numeric text-muted-foreground">{formatCurrency(d.amount, currency)}</span>
+              </div>
+              <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${Math.max(2, (d.amount / max) * 100)}%`,
+                    background: `linear-gradient(90deg, ${PURPLE}, ${GREEN})`,
+                  }}
+                />
+              </div>
+            </div>
+          ))
         )}
       </div>
     </GlassCard>
   )
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   BudgetGauge — RadialGauge of usage % per budget
-   ───────────────────────────────────────────────────────────────────────── */
-
+/* ── Radial budget gauge (SVG arc) ────────────────────────────────────── */
 export function BudgetGauge({
   label,
   spent,
@@ -382,18 +313,29 @@ export function BudgetGauge({
   currency?: string
 }) {
   const pct = total > 0 ? Math.min(100, (spent / total) * 100) : 0
+  const over = total > 0 && spent > total
+  const R = 54
+  const C = 2 * Math.PI * R
+  const dash = (pct / 100) * C
+  const color = over ? "var(--destructive)" : pct > 85 ? "var(--warning)" : PURPLE
   return (
     <GlassCard className="p-5">
       <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>
       <div className="relative mx-auto mt-2 h-32 w-32">
-        <RadialGauge
-          width={128}
-          height={128}
-          minValue={0}
-          maxValue={100}
-          data={[{ key: label, data: pct } as any]}
-          series={<RadialGaugeSeries colorScheme={["hsl(var(--chart-1))"]} />}
-        />
+        <svg viewBox="0 0 128 128" className="h-full w-full -rotate-90">
+          <circle cx="64" cy="64" r={R} fill="none" stroke="var(--muted)" strokeWidth="10" />
+          <circle
+            cx="64"
+            cy="64"
+            r={R}
+            fill="none"
+            stroke={color}
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeDasharray={`${dash} ${C}`}
+            style={{ transition: "stroke-dasharray 0.8s ease" }}
+          />
+        </svg>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
           <p className="font-numeric text-base font-semibold">{pct.toFixed(0)}%</p>
           <p className="text-[10px] text-muted-foreground">

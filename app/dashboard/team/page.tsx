@@ -133,7 +133,7 @@ export default function TeamPage() {
                 const isMe = me?._id === m.userId
                 return (
                   <li key={m._id} className="flex items-center gap-3 px-5 py-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent/10 text-sm font-medium text-accent">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent/10 text-sm font-medium text-primary">
                       {m.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={m.image} alt="" className="h-full w-full object-cover" />

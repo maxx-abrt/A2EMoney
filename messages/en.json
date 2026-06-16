@@ -89,7 +89,45 @@
     "income": "Income",
     "expense": "Expense",
     "pending": "Pending",
-    "linkedTo": "Linked to"
+    "linkedTo": "Linked to",
+    "add": "Add",
+    "amount": "Amount",
+    "cancel": "Cancel",
+    "category": "Category",
+    "client": "Client",
+    "close": "Close",
+    "color": "Color",
+    "create": "Create",
+    "currency": "Currency",
+    "date": "Date",
+    "description": "Description",
+    "edit": "Edit",
+    "errorOccurred": "An error occurred",
+    "name": "Name",
+    "notes": "Notes",
+    "project": "Project",
+    "save": "Save",
+    "status": "Status",
+    "delete": "Delete",
+    "loading": "Loading…",
+    "search": "Search",
+    "actions": "Actions",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "optional": "Optional",
+    "required": "Required",
+    "all": "All",
+    "none": "None",
+    "export": "Export",
+    "download": "Download",
+    "view": "View",
+    "open": "Open",
+    "update": "Update",
+    "title": "Title"
   },
   "nav": {
     "features": "Features",
@@ -738,6 +776,14 @@
         "blank": {
           "name": "Blank sheet",
           "description": "Start from scratch with a free-form rich text editor."
+        },
+        "recu_don": {
+          "name": "Tax donation receipt (CERFA 11580*05)",
+          "description": "Receipt for donations to certain general-interest organisations (art. 200, 238 bis & 978 CGI). Legal, signature-ready PDF."
+        },
+        "budget_equilibre": {
+          "name": "Balanced provisional budget",
+          "description": "Annual or per-action budget — balanced expenses and income (French association chart of accounts)."
         }
       },
       "fields": {

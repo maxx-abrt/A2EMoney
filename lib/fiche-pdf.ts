@@ -92,6 +92,18 @@ const SECTIONS = [
 ]
 
 export async function exportFicheToPdf({ template, title, data, locale }: ExportArgs) {
+  // Dedicated legal document generators
+  if (template === "recu_don") {
+    const { generateRecuDonPdf, RECU_DON_DEFAULT } = await import("@/lib/documents/recu-don")
+    generateRecuDonPdf({ ...RECU_DON_DEFAULT, ...(data ?? {}) }, title || "recu-don")
+    return
+  }
+  if (template === "budget_equilibre") {
+    const { generateBudgetPdf, BUDGET_DEFAULT } = await import("@/lib/documents/budget-equilibre")
+    generateBudgetPdf({ ...BUDGET_DEFAULT, ...(data ?? {}) }, title || "budget")
+    return
+  }
+
   const doc = new jsPDF({ unit: "pt", format: "a4" })
   const W = doc.internal.pageSize.getWidth()
   const H = doc.internal.pageSize.getHeight()

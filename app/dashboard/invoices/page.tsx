@@ -36,8 +36,8 @@ import { toast } from "sonner"
 
 const STATUS_VARIANT: Record<string, string> = {
   draft: "bg-muted text-foreground",
-  sent: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300",
-  paid: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300",
+  sent: "bg-primary/10 text-primary",
+  paid: "bg-success/10 text-success",
   overdue: "bg-destructive/10 text-destructive",
   cancelled: "bg-muted text-muted-foreground line-through",
 }

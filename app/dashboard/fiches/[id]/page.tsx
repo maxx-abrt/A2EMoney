@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { GlassCard } from "@/components/glass-card"
 import { exportFicheToPdf } from "@/lib/fiche-pdf"
+import { RecuDonEditor, BudgetEditor } from "@/components/fiches/document-editors"
 import {
   ArrowLeft,
   Download,
@@ -159,7 +160,7 @@ export default function FichePage() {
             {saved === "saving" ? (
               <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {t("saving")}</>
             ) : saved === "saved" ? (
-              <><CheckCircle2 className="h-3.5 w-3.5 text-accent" /> {t("saved")}</>
+              <><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> {t("saved")}</>
             ) : null}
           </div>
           <div className="ml-auto flex gap-2">
@@ -174,6 +175,10 @@ export default function FichePage() {
 
         {fiche.template === "asso_fr" ? (
           <FicheAssoEditor data={localData} patch={patch} patchArray={patchArray} patchActionsItem={patchActionsItem} addAction={addAction} removeAction={removeAction} />
+        ) : fiche.template === "recu_don" ? (
+          <RecuDonEditor data={localData} onChange={(next) => { setLocalData(next); scheduleSave(next) }} />
+        ) : fiche.template === "budget_equilibre" ? (
+          <BudgetEditor data={localData} onChange={(next) => { setLocalData(next); scheduleSave(next) }} />
         ) : (
           <GlassCard className="p-6">
             <Label>{t("fields.subtitle")}</Label>
@@ -195,7 +200,7 @@ function Section({ number, title, children }: { number: number; title: string; c
   return (
     <GlassCard className="p-6">
       <div className="mb-4 flex items-center gap-3 border-b border-border/60 pb-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-accent">
+        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-primary">
           {number}
         </div>
         <h2 className="text-sm font-semibold uppercase tracking-wider">{title}</h2>

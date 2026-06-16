@@ -12,6 +12,31 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Allow Server Actions (used by WorkOS AuthKit's useAccessToken) to work
+  // behind the preview/ingress reverse proxy. The browser Origin is the internal
+  // cluster domain (*.emergentcf.cloud) while x-forwarded-host is the public
+  // domain (*.emergentagent.com); both must be allow-listed.
+  allowedDevOrigins: [
+    "cerfa-forms-app.preview.emergentagent.com",
+    "cerfa-forms-app.cluster-12.preview.emergentcf.cloud",
+    "*.preview.emergentagent.com",
+    "*.preview.emergentcf.cloud",
+    "*.emergentagent.com",
+    "*.emergentcf.cloud",
+  ],
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        "cerfa-forms-app.preview.emergentagent.com",
+        "cerfa-forms-app.cluster-12.preview.emergentcf.cloud",
+        "*.preview.emergentagent.com",
+        "*.preview.emergentcf.cloud",
+        "*.emergentagent.com",
+        "*.emergentcf.cloud",
+        "localhost:3000",
+      ],
+    },
+  },
   images: {
     unoptimized: true,
   },

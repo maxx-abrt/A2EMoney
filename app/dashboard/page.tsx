@@ -132,13 +132,13 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
-        {/* KPI cards */}
+        {/* KPI cards — bento color-blocking (white / lime / ink / purple) */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
             label={t("stats.totalBalance")}
             value={totals.balance}
             currency={currency}
-            tone={totals.balance >= 0 ? "positive" : "negative"}
+            fill="white"
             icon={Wallet}
             delay={0}
           />
@@ -146,7 +146,7 @@ export default function DashboardPage() {
             label={t("stats.monthlyIncome")}
             value={totals.incomeMonth}
             currency={currency}
-            tone="positive"
+            fill="lime"
             icon={TrendingUp}
             delay={0.05}
           />
@@ -154,14 +154,14 @@ export default function DashboardPage() {
             label={t("stats.monthlyExpenses")}
             value={totals.outMonth}
             currency={currency}
-            tone="negative"
+            fill="ink"
             icon={TrendingDown}
             delay={0.1}
           />
           <KpiCard
             label={t("stats.pendingInvoices")}
             count={pendingInvoices.length}
-            tone="neutral"
+            fill="purple"
             icon={FileText}
             delay={0.15}
           />
@@ -204,7 +204,7 @@ export default function DashboardPage() {
                       <div className="flex min-w-0 items-center gap-3">
                         <div
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                            isIn ? "bg-accent/10 text-accent" : "bg-muted text-foreground"
+                            isIn ? "bg-success/10 text-success" : "bg-muted text-foreground"
                           }`}
                         >
                           {isIn ? (
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                       </div>
                       <span
                         className={`shrink-0 font-numeric text-sm font-medium ${
-                          isIn ? "text-accent" : "text-foreground"
+                          isIn ? "text-success" : "text-foreground"
                         }`}
                       >
                         {isIn ? "+" : "-"}
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                             className={
                               inv.status === "overdue"
                                 ? "bg-destructive/10 text-destructive"
-                                : "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"
+                                : "bg-warning/15 text-warning"
                             }
                           >
                             {inv.status}
@@ -342,8 +342,8 @@ export default function DashboardPage() {
 function BackgroundGlow() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 overflow-hidden">
-      <div className="absolute left-1/4 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-accent/15 blur-3xl" />
-      <div className="absolute right-1/4 top-10 h-64 w-64 translate-x-1/2 rounded-full bg-purple-400/15 blur-3xl" />
+      <div className="absolute left-1/4 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/12 blur-3xl" />
+      <div className="absolute right-1/4 top-10 h-64 w-64 translate-x-1/2 rounded-full bg-[var(--brand-green)]/14 blur-3xl" />
     </div>
   )
 }
@@ -353,7 +353,7 @@ function KpiCard({
   value,
   count,
   currency,
-  tone,
+  fill = "white",
   icon: Icon,
   delay = 0,
 }: {
@@ -361,16 +361,25 @@ function KpiCard({
   value?: number
   count?: number
   currency?: string
-  tone: "positive" | "negative" | "neutral"
+  fill?: "white" | "lime" | "ink" | "purple"
   icon: React.ComponentType<{ className?: string }>
   delay?: number
 }) {
-  const toneClass =
-    tone === "positive"
-      ? "bg-accent/10 text-accent"
-      : tone === "negative"
-      ? "bg-destructive/10 text-destructive"
-      : "bg-muted text-foreground"
+  const tileCls =
+    fill === "lime"
+      ? "tile-lime"
+      : fill === "ink"
+      ? "tile-ink"
+      : fill === "purple"
+      ? "tile-purple"
+      : "bento-tile"
+  const iconWrap =
+    fill === "white"
+      ? "bg-secondary text-foreground border-2 border-border"
+      : fill === "lime"
+      ? "bg-foreground/10 text-[var(--brand-green-ink)]"
+      : "bg-white/15 text-current"
+  const labelCls = fill === "white" ? "text-muted-foreground" : "opacity-75"
   const isCurrency = value !== undefined
   const displayed = isCurrency ? (value as number) : (count as number)
   return (
@@ -378,18 +387,19 @@ function KpiCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35 }}
-      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-md"
+      whileHover={{ y: -2 }}
+      className={`group relative overflow-hidden p-5 transition-[transform,box-shadow] duration-200 ${tileCls}`}
+      data-testid={`kpi-card-${fill}`}
     >
-      <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <p className={`text-xs font-medium uppercase tracking-wider ${labelCls}`}>
           {label}
         </p>
-        <div className={`flex h-7 w-7 items-center justify-center rounded-full ${toneClass}`}>
-          <Icon className="h-3.5 w-3.5" />
+        <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${iconWrap}`}>
+          <Icon className="h-4 w-4" />
         </div>
       </div>
-      <p className="mt-3 font-numeric text-2xl font-semibold">
+      <p className="mt-4 font-numeric text-3xl font-semibold tracking-tight">
         {isCurrency ? (
           <CountUp
             end={displayed}

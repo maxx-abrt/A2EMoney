@@ -33,7 +33,9 @@ type IconComponent = React.ComponentType<IconProps>
 function wrap(name: string): IconComponent {
   const Comp = (Iconsax as unknown as Record<string, IconComponent>)[name]
   if (!Comp) {
-    if (process.env.NODE_ENV !== "production") {
+    // Only warn for plausible icon names (PascalCase). Ignore JS/React/module
+    // internals like `$$typeof`, `then`, `__esModule` that get probed by tooling.
+    if (process.env.NODE_ENV !== "production" && /^[A-Z][A-Za-z0-9]*$/.test(name)) {
       // eslint-disable-next-line no-console
       console.warn(`[iconsax] Unknown icon: ${name}`)
     }
@@ -229,7 +231,21 @@ export const Save = get("Save2")
 const proxy = new Proxy(
   {},
   {
-    get(_t, key: string) {
+    get(_t, key) {
+      // Ignore symbols and JS/React/module-interop internals so they don't get
+      // treated as icon names (e.g. React probing `$$typeof`, thenable checks, HMR).
+      if (typeof key !== "string") return undefined
+      if (
+        key === "$$typeof" ||
+        key === "then" ||
+        key === "prototype" ||
+        key === "toJSON" ||
+        key === "displayName" ||
+        key === "__esModule" ||
+        key.startsWith("__")
+      ) {
+        return undefined
+      }
       return get(key)
     },
   },

@@ -280,7 +280,7 @@ export default function BudgetPage() {
                           <div className="flex items-start justify-between">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="h-3 w-3 rounded-full bg-accent" />
+                                <span className="h-3 w-3 rounded-full bg-[var(--brand-green)]" />
                                 <h3 className="text-base font-semibold">{p.name}</h3>
                               </div>
                               <p className="text-xs text-muted-foreground">
@@ -310,7 +310,7 @@ export default function BudgetPage() {
                                 initial={{ width: 0 }}
                                 animate={{ width: `${pct}%` }}
                                 transition={{ duration: 0.6, ease: "easeOut" }}
-                                className={`h-full ${over ? "bg-destructive" : "bg-accent"}`}
+                                className={`h-full ${over ? "bg-destructive" : "bg-[var(--brand-green)]"}`}
                               />
                             </div>
                           </div>

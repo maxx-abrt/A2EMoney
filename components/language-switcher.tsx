@@ -55,7 +55,7 @@ export function LanguageSwitcher({
             className="flex items-center justify-between cursor-pointer font-medium"
           >
             <span>{localeLabels[l]}</span>
-            {locale === l && <TickCircle size={16} variant="Bulk" className="text-accent" />}
+            {locale === l && <TickCircle size={16} variant="Bulk" className="text-primary" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

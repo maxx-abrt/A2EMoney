@@ -52,7 +52,7 @@ export default function StepIncome({ data, onChange }: Props) {
           </div>
           <div className="rounded-lg border border-border bg-accent/10 p-4 text-center">
             <p className="text-xs text-muted-foreground">Part de la subvention</p>
-            <p className="mt-1 text-xl font-semibold tabular-nums text-accent">{grantShare}%</p>
+            <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{grantShare}%</p>
           </div>
         </div>
       </GlassCard>

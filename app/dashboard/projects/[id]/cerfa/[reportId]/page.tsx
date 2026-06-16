@@ -222,7 +222,7 @@ export default function CerfaEditorPage() {
             <Loader2 className="h-3.5 w-3.5 animate-spin" /> Enregistrement...
           </span>
         ) : saved === "saved" ? (
-          <span className="flex items-center gap-1 text-xs text-accent">
+          <span className="flex items-center gap-1 text-xs text-primary">
             <CheckCircle2 className="h-3.5 w-3.5" /> Enregistré
           </span>
         ) : null}

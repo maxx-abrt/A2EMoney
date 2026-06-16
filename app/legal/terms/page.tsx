@@ -14,7 +14,7 @@ export default function TermsPage() {
       </header>
       <main className="mx-auto max-w-3xl px-4 py-12 prose prose-sm dark:prose-invert">
         <h1>Terms of Service</h1>
-        <p><em>Last updated: {new Date().toLocaleDateString()}</em></p>
+        <p><em>Dernière mise à jour : {new Date().toLocaleDateString("fr-FR")}</em></p>
         <h2>1. Service</h2>
         <p>A2EMoney is a money-management service designed for individuals, businesses and non-profit associations. It is part of the A2E Suite and shares its authentication and team layer with other A2E apps.</p>
         <h2>2. Accounts</h2>

@@ -43,17 +43,17 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 }
 
 const TONES: Record<string, string> = {
-  info: "text-blue-500 bg-blue-500/10",
-  success: "text-emerald-600 bg-emerald-500/10",
-  warning: "text-amber-500 bg-amber-500/10",
+  info: "text-primary bg-primary/10",
+  success: "text-success bg-success/10",
+  warning: "text-warning bg-warning/15",
   error: "text-destructive bg-destructive/10",
-  invoice_paid: "text-emerald-600 bg-emerald-500/10",
+  invoice_paid: "text-success bg-success/10",
   invoice_overdue: "text-destructive bg-destructive/10",
-  expense_added: "text-purple-500 bg-purple-500/10",
-  storage_warning: "text-amber-500 bg-amber-500/10",
-  invitation_received: "text-blue-500 bg-blue-500/10",
-  invitation_accepted: "text-emerald-600 bg-emerald-500/10",
-  member_joined: "text-emerald-600 bg-emerald-500/10",
+  expense_added: "text-primary bg-primary/10",
+  storage_warning: "text-warning bg-warning/15",
+  invitation_received: "text-primary bg-primary/10",
+  invitation_accepted: "text-success bg-success/10",
+  member_joined: "text-success bg-success/10",
   member_left: "text-muted-foreground bg-muted",
 }
 
@@ -88,8 +88,8 @@ export function NotificationsDropdown() {
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <span className="absolute right-1.5 top-1.5 flex h-2 w-2 items-center justify-center">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--brand-green)] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--brand-green)]" />
             </span>
           )}
         </Button>
@@ -124,7 +124,7 @@ export function NotificationsDropdown() {
         <div className="max-h-[380px] overflow-y-auto">
           {items === undefined ? (
             <div className="flex items-center justify-center py-10">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
           ) : list.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
@@ -162,7 +162,7 @@ export function NotificationsDropdown() {
                           {n.title}
                         </p>
                         {!n.read && (
-                          <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                          <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--brand-green)]" />
                         )}
                       </div>
                       <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">

@@ -184,7 +184,7 @@ export default function ExpensesPage() {
                   className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/30"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${e.type === "income" ? "bg-accent/10 text-accent" : "bg-muted"}`}>
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${e.type === "income" ? "bg-accent/10 text-primary" : "bg-muted"}`}>
                       {e.type === "income" ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
                     </div>
                     <div className="min-w-0">
@@ -195,7 +195,7 @@ export default function ExpensesPage() {
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className={`font-numeric text-sm font-medium ${e.type === "income" ? "text-accent" : "text-foreground"}`}>
+                    <span className={`font-numeric text-sm font-medium ${e.type === "income" ? "text-primary" : "text-foreground"}`}>
                       {e.type === "income" ? "+" : "-"}{formatCurrency(e.amount, e.currency ?? currency)}
                     </span>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => remove({ expenseId: e._id })}>
@@ -213,7 +213,7 @@ export default function ExpensesPage() {
 }
 
 function SummaryCard({ label, value, tone }: { label: string; value: string; tone: "positive" | "negative" | "neutral" }) {
-  const toneCls = tone === "positive" ? "text-accent" : tone === "negative" ? "text-destructive" : "text-foreground"
+  const toneCls = tone === "positive" ? "text-primary" : tone === "negative" ? "text-destructive" : "text-foreground"
   return (
     <GlassCard className="p-5">
       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>

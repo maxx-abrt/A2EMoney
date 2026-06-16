@@ -61,7 +61,7 @@ export function WizardLayout({
                     isActive
                       ? "border-foreground bg-foreground text-background"
                       : isPast
-                        ? "border-accent bg-accent text-white"
+                        ? "border-border bg-[var(--brand-green)] text-[var(--brand-green-ink)]"
                         : "border-muted-foreground/30 text-muted-foreground",
                   )}
                 >
@@ -82,7 +82,7 @@ export function WizardLayout({
         {/* Progress bar */}
         <div className="absolute left-0 top-4 -z-10 h-0.5 w-full bg-muted">
           <div
-            className="h-full bg-accent transition-all duration-300"
+            className="h-full bg-[var(--brand-green)] transition-all duration-300"
             style={{ width: `${(currentIdx / (CERFA_STEPS.length - 1)) * 100}%` }}
           />
         </div>
@@ -106,7 +106,7 @@ export function WizardLayout({
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> Enregistrement...
             </span>
           ) : saved ? (
-            <span className="flex items-center gap-1 text-xs text-accent">
+            <span className="flex items-center gap-1 text-xs text-primary">
               <CheckCircle2 className="h-3.5 w-3.5" /> Enregistré
             </span>
           ) : null}

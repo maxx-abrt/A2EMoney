@@ -16,15 +16,33 @@ export function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
 }
 
+/**
+ * Resolve a safe BCP-47 locale. Some environments (POSIX/C system locale, certain
+ * browsers) expose tags like "en-US@posix" which are invalid for the Intl API and
+ * throw a RangeError. This app is French-first, so we default to "fr-FR".
+ */
+export function resolveLocale(locale?: string): string {
+  const candidate =
+    locale ||
+    (typeof navigator !== "undefined" ? navigator.language : undefined) ||
+    "fr-FR"
+  // Strip POSIX/modifier suffixes (e.g. "en-US@posix") and normalize separators.
+  const cleaned = candidate.split("@")[0].replace("_", "-").trim()
+  try {
+    // Throws RangeError for invalid tags.
+    Intl.getCanonicalLocales(cleaned)
+    return cleaned || "fr-FR"
+  } catch {
+    return "fr-FR"
+  }
+}
+
 export function formatCurrency(
   amount: number,
   currency = "EUR",
   locale?: string,
 ): string {
-  const targetLocale =
-    locale ||
-    (typeof navigator !== "undefined" ? navigator.language : undefined) ||
-    "en-US"
+  const targetLocale = resolveLocale(locale)
   try {
     return new Intl.NumberFormat(targetLocale, {
       style: "currency",
@@ -38,16 +56,21 @@ export function formatCurrency(
 }
 
 export function formatDate(date: string | number, locale?: string): string {
-  const targetLocale =
-    locale ||
-    (typeof navigator !== "undefined" ? navigator.language : undefined) ||
-    "en-US"
+  const targetLocale = resolveLocale(locale)
   const d = typeof date === "number" ? new Date(date) : new Date(date)
-  return d.toLocaleDateString(targetLocale, {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  })
+  try {
+    return d.toLocaleDateString(targetLocale, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+  } catch {
+    return d.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+  }
 }
 
 export function toEpoch(value: string | number | Date | undefined): number | undefined {

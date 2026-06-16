@@ -14,7 +14,7 @@ export default function PrivacyPage() {
       </header>
       <main className="mx-auto max-w-3xl px-4 py-12 prose prose-sm dark:prose-invert">
         <h1>Privacy Policy</h1>
-        <p><em>Last updated: {new Date().toLocaleDateString()}</em></p>
+        <p><em>Dernière mise à jour : {new Date().toLocaleDateString("fr-FR")}</em></p>
         <h2>1. Data we collect</h2>
         <p>A2EMoney collects only the data you explicitly provide: your name, email, workspace information, and financial records you input (invoices, expenses, documents, etc.). We do not collect tracking cookies or sell your data to third parties.</p>
         <h2>2. Storage</h2>

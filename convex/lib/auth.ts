@@ -8,14 +8,24 @@ export type MCtx = GenericMutationCtx<DataModel>;
 export type Role = "owner" | "admin" | "member" | "viewer";
 const ROLE_RANK: Record<Role, number> = { owner: 4, admin: 3, member: 2, viewer: 1 };
 
+/**
+ * Resolve the Convex `users._id` for the currently authenticated WorkOS user.
+ *
+ * Auth is provided by WorkOS AuthKit. The verified JWT's `sub` claim
+ * (identity.subject) is the WorkOS user id. We map it to a Convex user via the
+ * `authIdentities` table, which is populated by `users.store` on first login.
+ */
 export async function requireUserId(ctx: QCtx | MCtx): Promise<Id<"users">> {
-  // convex-auth surfaces user via ctx.auth.getUserIdentity().
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) throw new Error("Not authenticated");
-  // identity.subject is a string like `userId|sessionId` in convex-auth.
-  const subject = identity.subject as string;
-  const [userId] = subject.split("|");
-  return userId as Id<"users">;
+  const link = await ctx.db
+    .query("authIdentities")
+    .withIndex("by_workos", (q) => q.eq("workosId", identity.subject))
+    .unique();
+  if (!link) {
+    throw new Error("User not provisioned yet. Please retry in a moment.");
+  }
+  return link.userId;
 }
 
 export async function getOptionalUserId(
@@ -23,9 +33,11 @@ export async function getOptionalUserId(
 ): Promise<Id<"users"> | null> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) return null;
-  const subject = identity.subject as string;
-  const [userId] = subject.split("|");
-  return userId as Id<"users">;
+  const link = await ctx.db
+    .query("authIdentities")
+    .withIndex("by_workos", (q) => q.eq("workosId", identity.subject))
+    .unique();
+  return link ? link.userId : null;
 }
 
 export async function assertWorkspaceMember(

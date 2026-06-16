@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useTranslations } from "next-intl"
 import { useMutation, useQuery } from "convex/react"
-import { useAuthActions } from "@convex-dev/auth/react"
+import { useAuth } from "@workos-inc/authkit-nextjs/components"
 import { api } from "@/convex/_generated/api"
 import { useWorkspace } from "@/lib/workspace-context"
 import { Button } from "@/components/ui/button"
@@ -18,7 +18,7 @@ import { exportToJSON } from "@/lib/export"
 export default function SettingsPage() {
   const t = useTranslations("pages.settings")
   const tCommon = useTranslations("common")
-  const { signOut } = useAuthActions()
+  const { signOut } = useAuth()
   const { activeWorkspace, setActiveWorkspaceId } = useWorkspace()
   const wsId = activeWorkspace?._id
   const me = useQuery(api.users.me, {})

@@ -75,7 +75,7 @@ export function StatCard({ label, value, hint, icon, trend, tone = "default", cl
             <span
               className={cn(
                 "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-xs font-medium",
-                trend.direction === "up" && "bg-accent/10 text-accent",
+                trend.direction === "up" && "bg-accent/10 text-primary",
                 trend.direction === "down" && "bg-destructive/10 text-destructive",
                 trend.direction === "flat" && "bg-muted text-muted-foreground",
               )}
