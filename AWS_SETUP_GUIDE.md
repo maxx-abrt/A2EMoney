@@ -12,7 +12,10 @@ This guide walks you through setting up AWS S3 in the Paris region (eu-west-3) f
 3. Follow the verification process (requires credit card, but free tier is generous)
 
 ---
+    
 
+
+    
 ## Step 2: Create S3 Bucket
 
 ### 2.1 Navigate to S3
