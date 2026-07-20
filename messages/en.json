@@ -784,6 +784,22 @@
         "budget_equilibre": {
           "name": "Balanced provisional budget",
           "description": "Annual or per-action budget — balanced expenses and income (French association chart of accounts)."
+        },
+        "demande_subvention": {
+          "name": "Grant application (CERFA 12156)",
+          "description": "Full grant application dossier: identity, provisional budget, project and sworn statement."
+        },
+        "convention_subvention": {
+          "name": "Grant agreement",
+          "description": "Agreement between funder and association (mandatory above €23,000/year from one public funder)."
+        },
+        "rapport_activite": {
+          "name": "Annual activity report",
+          "description": "Yearly narrative report — association life, actions, results and outlook. To attach to the financial report."
+        },
+        "attestation_honneur": {
+          "name": "Sworn statement",
+          "description": "Statement signed by the legal representative, part of the grant application dossier."
         }
       },
       "fields": {

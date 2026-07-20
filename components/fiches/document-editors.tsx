@@ -16,6 +16,41 @@ import {
   MODE_LABELS,
 } from "@/lib/documents/recu-don"
 import { budgetTotals } from "@/lib/documents/budget-equilibre"
+import { useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import { useWorkspace } from "@/lib/workspace-context"
+import { toast } from "sonner"
+import { Buildings } from "@/components/iconsax"
+
+/** Loads the workspace org profile and offers a one-click prefill button. */
+function OrgImportBar({ onImport }: { onImport: (org: any) => void }) {
+  const { activeWorkspace } = useWorkspace()
+  const org = useQuery(
+    api.a2e_org.get,
+    activeWorkspace?._id ? { workspaceId: activeWorkspace._id } : "skip",
+  )
+  if (!org) return null
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/25 bg-[color-mix(in_srgb,var(--primary)_8%,var(--card))] px-4 py-2.5">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Buildings size={16} variant="Bulk" className="text-primary" />
+        Profil de l'organisation disponible ({org.legalName || org.shortName || "sans nom"})
+      </div>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        onClick={() => {
+          onImport(org)
+          toast.success("Profil importé")
+        }}
+        data-testid="org-import-btn"
+      >
+        Pré-remplir depuis le profil
+      </Button>
+    </div>
+  )
+}
 
 function Section({
   number,
@@ -368,6 +403,347 @@ export function BudgetEditor({
           <Textarea rows={4} value={data.notes ?? ""} onChange={(e) => set("notes", e.target.value)} className="resize-none" />
         </Field>
       </GlassCard>
+    </div>
+  )
+}
+
+/* ============================ shared helpers for legal docs ============================ */
+function deepSet(data: any, path: string, value: any) {
+  const next = JSON.parse(JSON.stringify(data ?? {}))
+  const parts = path.split(".")
+  let cur = next
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (cur[parts[i]] == null) cur[parts[i]] = {}
+    cur = cur[parts[i]]
+  }
+  cur[parts[parts.length - 1]] = value
+  return next
+}
+
+function TextField({ label, value, onChange, placeholder, type }: any) {
+  return (
+    <Field label={label}>
+      <Input type={type} value={value ?? ""} onChange={(e) => onChange(type === "number" ? parseFloat(e.target.value) || 0 : e.target.value)} placeholder={placeholder} />
+    </Field>
+  )
+}
+
+function AreaField({ label, value, onChange, rows = 3, placeholder }: any) {
+  return (
+    <Field label={label}>
+      <Textarea rows={rows} value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="resize-none" />
+    </Field>
+  )
+}
+
+/** Compact two-column charges/produits editor reused inside documents. */
+function MiniBudget({ data, set }: { data: any; set: (path: string, v: any) => void }) {
+  const totals = budgetTotals(data)
+  const fmt = (n: number) => { try { return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n || 0) } catch { return (n || 0).toFixed(2) + " €" } }
+  const setLine = (side: "charges" | "produits", i: number, key: string, val: any) => {
+    const arr = JSON.parse(JSON.stringify(data[side] || []))
+    arr[i] = { ...(arr[i] || {}), [key]: key === "amount" ? parseFloat(val) || 0 : val }
+    set(side, arr)
+  }
+  const add = (side: "charges" | "produits") => set(side, [...(data[side] || []), { label: "", amount: 0 }])
+  const del = (side: "charges" | "produits", i: number) => set(side, (data[side] || []).filter((_: any, idx: number) => idx !== i))
+  const Col = ({ side, color, title }: any) => (
+    <div className="rounded-xl border border-border bg-card/60 p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color }}>{title}</span>
+        <span className="text-xs font-bold">{fmt(side === "charges" ? totals.totalCharges : totals.totalProduits)}</span>
+      </div>
+      <div className="space-y-1.5">
+        {(data[side] || []).map((l: any, i: number) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <Input value={l.label ?? ""} onChange={(e) => setLine(side, i, "label", e.target.value)} className="h-8 flex-1 text-xs" placeholder="Compte / libellé" />
+            <Input type="number" step="0.01" value={l.amount ?? 0} onChange={(e) => setLine(side, i, "amount", e.target.value)} className="h-8 w-24 text-right text-xs" />
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => del(side, i)}><Trash className="h-3.5 w-3.5" /></Button>
+          </div>
+        ))}
+        <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => add(side)}><Plus className="h-3 w-3" /> Ligne</Button>
+      </div>
+    </div>
+  )
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <Col side="charges" color="var(--brand-purple)" title="Charges" />
+        <Col side="produits" color="var(--success)" title="Produits" />
+      </div>
+      <div className={cn("rounded-lg px-3 py-1.5 text-xs font-semibold", totals.balanced ? "bg-brand-green-soft text-success" : "bg-destructive/10 text-destructive")}>
+        {totals.balanced ? "✓ Budget équilibré" : `Écart : ${fmt(Math.abs(totals.balance))} ${totals.balance > 0 ? "(excédent)" : "(déficit)"}`}
+      </div>
+    </div>
+  )
+}
+
+/* ============================ DEMANDE DE SUBVENTION (CERFA 12156) ============================ */
+export function DemandeSubventionEditor({ data, onChange }: { data: any; onChange: (n: any) => void }) {
+  const set = (path: string, value: any) => onChange(deepSet(data, path, value))
+  return (
+    <div className="space-y-4">
+      <OrgImportBar onImport={(o) => onChange({
+        ...data,
+        legalName: o.legalName || data.legalName, rna: o.rna || data.rna, siret: o.siret || data.siret,
+        address: o.address || data.address, postalCode: o.postalCode || data.postalCode, city: o.city || data.city,
+        email: o.email || data.email, phone: o.phone || data.phone, website: o.website || data.website,
+        representativeName: o.representativeName || data.representativeName,
+        representativeRole: o.representativeRole || data.representativeRole,
+        rupRecognized: o.rupRecognized ?? data.rupRecognized, fiscalRegime: o.fiscalRegime || data.fiscalRegime,
+        signatoryName: o.representativeName || data.signatoryName, signatoryRole: o.representativeRole || data.signatoryRole,
+        city_sig: undefined, signatureCity: o.city || data.signatureCity,
+      })} />
+
+      <Section number={1} title="Objet de la demande" hint="Type et montant sollicité">
+        <div className="flex flex-wrap gap-2">
+          <Pill active={data.requestType === "fonctionnement"} onClick={() => set("requestType", "fonctionnement")}>Fonctionnement</Pill>
+          <Pill active={data.requestType === "projet"} onClick={() => set("requestType", "projet")}>Projet / action</Pill>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <TextField label="Montant sollicité (€)" type="number" value={data.amountRequested} onChange={(v: any) => set("amountRequested", v)} />
+          <TextField label="Exercice / année" value={data.year} onChange={(v: any) => set("year", v)} />
+          <TextField label="Autorité sollicitée" value={data.fundingBody} onChange={(v: any) => set("fundingBody", v)} placeholder="Mairie, Région, État…" />
+        </div>
+      </Section>
+
+      <Section number={2} title="Identité de l'association">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Dénomination" value={data.legalName} onChange={(v: any) => set("legalName", v)} />
+          <TextField label="N° RNA (W…)" value={data.rna} onChange={(v: any) => set("rna", v)} />
+          <TextField label="N° SIRET" value={data.siret} onChange={(v: any) => set("siret", v)} />
+          <TextField label="Site internet" value={data.website} onChange={(v: any) => set("website", v)} />
+        </div>
+        <TextField label="Adresse du siège" value={data.address} onChange={(v: any) => set("address", v)} />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+          <TextField label="Code postal" value={data.postalCode} onChange={(v: any) => set("postalCode", v)} />
+          <div className="sm:col-span-3"><TextField label="Ville" value={data.city} onChange={(v: any) => set("city", v)} /></div>
+          <TextField label="Courriel" value={data.email} onChange={(v: any) => set("email", v)} />
+          <TextField label="Téléphone" value={data.phone} onChange={(v: any) => set("phone", v)} />
+          <TextField label="Représentant légal" value={data.representativeName} onChange={(v: any) => set("representativeName", v)} />
+          <TextField label="Qualité" value={data.representativeRole} onChange={(v: any) => set("representativeRole", v)} />
+        </div>
+      </Section>
+
+      <Section number={3} title="Relations avec l'administration & moyens humains">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Agréments" value={data.agrements} onChange={(v: any) => set("agrements", v)} />
+          <TextField label="Régime fiscal" value={data.fiscalRegime} onChange={(v: any) => set("fiscalRegime", v)} />
+        </div>
+        <Check label="Reconnue d'utilité publique (RUP)" checked={!!data.rupRecognized} onChange={(v) => set("rupRecognized", v)} />
+        <AreaField label="Aides publiques reçues (3 derniers exercices)" rows={2} value={data.aidesPubliques3ans} onChange={(v: any) => set("aidesPubliques3ans", v)} />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <TextField label="Adhérents" value={data.members} onChange={(v: any) => set("members", v)} />
+          <TextField label="Bénévoles" value={data.volunteers} onChange={(v: any) => set("volunteers", v)} />
+          <TextField label="Salariés" value={data.employees} onChange={(v: any) => set("employees", v)} />
+          <TextField label="ETP" value={data.etp} onChange={(v: any) => set("etp", v)} />
+        </div>
+      </Section>
+
+      <Section number={4} title="Budget prévisionnel global" hint="Doit être équilibré (charges = produits)">
+        <MiniBudget data={data} set={set} />
+      </Section>
+
+      <Section number={5} title="Description du projet / de l'action">
+        <TextField label="Intitulé" value={data.projectTitle} onChange={(v: any) => set("projectTitle", v)} />
+        <AreaField label="Objectifs" value={data.objectives} onChange={(v: any) => set("objectives", v)} />
+        <AreaField label="Description détaillée" rows={4} value={data.description} onChange={(v: any) => set("description", v)} />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <TextField label="Bénéficiaires" value={data.beneficiaries} onChange={(v: any) => set("beneficiaries", v)} />
+          <TextField label="Territoire" value={data.territory} onChange={(v: any) => set("territory", v)} />
+          <TextField label="Calendrier" value={data.calendar} onChange={(v: any) => set("calendar", v)} />
+        </div>
+        <AreaField label="Moyens mis en œuvre" rows={2} value={data.means} onChange={(v: any) => set("means", v)} />
+        <AreaField label="Évaluation (indicateurs de réussite)" rows={2} value={data.evaluation} onChange={(v: any) => set("evaluation", v)} />
+      </Section>
+
+      <Section number={6} title="Attestation sur l'honneur & signature">
+        <Check label="Je certifie l'exactitude des informations déclarées" checked={!!data.attestation} onChange={(v) => set("attestation", v)} />
+        <Check label="L'association a souscrit au Contrat d'engagement républicain" checked={!!data.cerSigned} onChange={(v) => set("cerSigned", v)} />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Fait à" value={data.signatureCity} onChange={(v: any) => set("signatureCity", v)} />
+          <TextField label="Le" type="date" value={data.signatureDate} onChange={(v: any) => set("signatureDate", v)} />
+          <TextField label="Nom du signataire" value={data.signatoryName} onChange={(v: any) => set("signatoryName", v)} />
+          <TextField label="Qualité" value={data.signatoryRole} onChange={(v: any) => set("signatoryRole", v)} />
+        </div>
+      </Section>
+    </div>
+  )
+}
+
+/* ============================ CONVENTION DE SUBVENTION ============================ */
+export function ConventionEditor({ data, onChange }: { data: any; onChange: (n: any) => void }) {
+  const set = (path: string, value: any) => onChange(deepSet(data, path, value))
+  return (
+    <div className="space-y-4">
+      <OrgImportBar onImport={(o) => onChange({
+        ...data,
+        legalName: o.legalName || data.legalName, rna: o.rna || data.rna, siret: o.siret || data.siret,
+        address: o.address || data.address,
+        representativeName: o.representativeName || data.representativeName,
+        representativeRole: o.representativeRole || data.representativeRole,
+        signatureCity: o.city || data.signatureCity,
+      })} />
+      <div className="rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+        Convention obligatoire dès que le total annuel versé par un même financeur public dépasse 23 000 € (décret n°2001-495).
+      </div>
+
+      <Section number={1} title="Le financeur (collectivité / établissement public)">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Nom du financeur" value={data.financeur} onChange={(v: any) => set("financeur", v)} />
+          <TextField label="Référence de la convention" value={data.reference} onChange={(v: any) => set("reference", v)} />
+          <TextField label="Représenté par" value={data.financeurRep} onChange={(v: any) => set("financeurRep", v)} />
+          <TextField label="Qualité" value={data.financeurRole} onChange={(v: any) => set("financeurRole", v)} placeholder="Le Maire, Le Président…" />
+        </div>
+        <TextField label="Adresse du financeur" value={data.financeurAddress} onChange={(v: any) => set("financeurAddress", v)} />
+      </Section>
+
+      <Section number={2} title="Le bénéficiaire (association)">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Dénomination" value={data.legalName} onChange={(v: any) => set("legalName", v)} />
+          <TextField label="Représenté par" value={data.representativeName} onChange={(v: any) => set("representativeName", v)} />
+          <TextField label="Qualité" value={data.representativeRole} onChange={(v: any) => set("representativeRole", v)} />
+          <TextField label="N° RNA" value={data.rna} onChange={(v: any) => set("rna", v)} />
+          <TextField label="N° SIRET" value={data.siret} onChange={(v: any) => set("siret", v)} />
+          <TextField label="Adresse du siège" value={data.address} onChange={(v: any) => set("address", v)} />
+        </div>
+      </Section>
+
+      <Section number={3} title="Objet & montant">
+        <AreaField label="Objet de la subvention" rows={2} value={data.objet} onChange={(v: any) => set("objet", v)} />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Montant (€)" type="number" value={data.amount} onChange={(v: any) => set("amount", v)} />
+          <TextField label="Exercice" value={data.exercice} onChange={(v: any) => set("exercice", v)} />
+        </div>
+        <AreaField label="Affectation / précisions" rows={2} value={data.affectation} onChange={(v: any) => set("affectation", v)} />
+      </Section>
+
+      <Section number={4} title="Modalités">
+        <AreaField label="Modalités de versement (Article 3)" rows={2} value={data.paymentTerms} onChange={(v: any) => set("paymentTerms", v)} />
+        <AreaField label="Durée (Article 6)" rows={2} value={data.duration} onChange={(v: any) => set("duration", v)} />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Fait à" value={data.signatureCity} onChange={(v: any) => set("signatureCity", v)} />
+          <TextField label="Le" type="date" value={data.signatureDate} onChange={(v: any) => set("signatureDate", v)} />
+        </div>
+        <p className="rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+          Les articles 4 (obligations : compte rendu financier CERFA 15059 sous 6 mois), 5 (contrôle) et 7 (résiliation) sont générés automatiquement.
+        </p>
+      </Section>
+    </div>
+  )
+}
+
+/* ============================ RAPPORT D'ACTIVITÉ ============================ */
+export function RapportActiviteEditor({ data, onChange }: { data: any; onChange: (n: any) => void }) {
+  const set = (path: string, value: any) => onChange(deepSet(data, path, value))
+  const setAct = (i: number, key: string, val: string) => {
+    const arr = JSON.parse(JSON.stringify(data.activities || []))
+    arr[i] = { ...(arr[i] || {}), [key]: val }
+    set("activities", arr)
+  }
+  return (
+    <div className="space-y-4">
+      <OrgImportBar onImport={(o) => onChange({
+        ...data,
+        legalName: o.legalName || data.legalName,
+        signatoryName: o.representativeName || data.signatoryName,
+        signatoryRole: o.representativeRole || data.signatoryRole,
+        signatureCity: o.city || data.signatureCity,
+      })} />
+      <Section number={1} title="En-tête">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Association" value={data.legalName} onChange={(v: any) => set("legalName", v)} />
+          <TextField label="Exercice / année" value={data.year} onChange={(v: any) => set("year", v)} />
+        </div>
+        <AreaField label="Le mot du/de la président(e)" rows={3} value={data.presidentWord} onChange={(v: any) => set("presidentWord", v)} />
+      </Section>
+
+      <Section number={2} title="Vie associative">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <TextField label="Adhérents" value={data.members} onChange={(v: any) => set("members", v)} />
+          <TextField label="Bénévoles" value={data.volunteers} onChange={(v: any) => set("volunteers", v)} />
+          <TextField label="Salariés" value={data.employees} onChange={(v: any) => set("employees", v)} />
+        </div>
+        <AreaField label="Gouvernance (bureau / CA)" rows={2} value={data.governance} onChange={(v: any) => set("governance", v)} />
+      </Section>
+
+      <Section number={3} title="Actions menées">
+        <div className="space-y-3">
+          {(data.activities || []).map((a: any, i: number) => (
+            <div key={i} className="rounded-xl border border-border bg-card/60 p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Action {i + 1}</span>
+                <Button type="button" variant="ghost" size="sm" className="h-7 text-destructive" onClick={() => set("activities", (data.activities || []).filter((_: any, idx: number) => idx !== i))}>Retirer</Button>
+              </div>
+              <TextField label="Titre" value={a.title} onChange={(v: any) => setAct(i, "title", v)} />
+              <div className="mt-2"><AreaField label="Description" rows={2} value={a.description} onChange={(v: any) => setAct(i, "description", v)} /></div>
+              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <TextField label="Bénéficiaires" value={a.beneficiaries} onChange={(v: any) => setAct(i, "beneficiaries", v)} />
+                <TextField label="Période" value={a.period} onChange={(v: any) => setAct(i, "period", v)} />
+              </div>
+            </div>
+          ))}
+          <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => set("activities", [...(data.activities || []), { title: "", description: "", beneficiaries: "", period: "" }])}>
+            <Plus className="h-3.5 w-3.5" /> Ajouter une action
+          </Button>
+        </div>
+      </Section>
+
+      <Section number={4} title="Bilan & perspectives">
+        <AreaField label="Bilan qualitatif & résultats" rows={3} value={data.results} onChange={(v: any) => set("results", v)} />
+        <AreaField label="Synthèse financière" rows={2} value={data.financialSummary} onChange={(v: any) => set("financialSummary", v)} />
+        <AreaField label="Perspectives" rows={2} value={data.perspectives} onChange={(v: any) => set("perspectives", v)} />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Fait à" value={data.signatureCity} onChange={(v: any) => set("signatureCity", v)} />
+          <TextField label="Le" type="date" value={data.signatureDate} onChange={(v: any) => set("signatureDate", v)} />
+          <TextField label="Signataire" value={data.signatoryName} onChange={(v: any) => set("signatoryName", v)} />
+          <TextField label="Qualité" value={data.signatoryRole} onChange={(v: any) => set("signatoryRole", v)} />
+        </div>
+      </Section>
+    </div>
+  )
+}
+
+/* ============================ ATTESTATION SUR L'HONNEUR ============================ */
+export function AttestationEditor({ data, onChange }: { data: any; onChange: (n: any) => void }) {
+  const set = (path: string, value: any) => onChange(deepSet(data, path, value))
+  return (
+    <div className="space-y-4">
+      <OrgImportBar onImport={(o) => onChange({
+        ...data,
+        legalName: o.legalName || data.legalName, rna: o.rna || data.rna, siret: o.siret || data.siret,
+        address: o.address || data.address,
+        representativeName: o.representativeName || data.representativeName,
+        representativeRole: o.representativeRole || data.representativeRole,
+        signatureCity: o.city || data.signatureCity,
+      })} />
+      <Section number={1} title="Signataire & organisation">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="Représentant légal" value={data.representativeName} onChange={(v: any) => set("representativeName", v)} />
+          <TextField label="Qualité" value={data.representativeRole} onChange={(v: any) => set("representativeRole", v)} />
+          <TextField label="Association" value={data.legalName} onChange={(v: any) => set("legalName", v)} />
+          <TextField label="N° RNA" value={data.rna} onChange={(v: any) => set("rna", v)} />
+          <TextField label="N° SIRET" value={data.siret} onChange={(v: any) => set("siret", v)} />
+          <TextField label="Adresse du siège" value={data.address} onChange={(v: any) => set("address", v)} />
+        </div>
+      </Section>
+
+      <Section number={2} title="Déclarations">
+        <Check label="L'association est régulièrement déclarée et en règle (déclarations sociales et fiscales)" checked={!!data.decRegular} onChange={(v) => set("decRegular", v)} />
+        <Check label="Exactitude et sincérité des informations transmises" checked={!!data.decExact} onChange={(v) => set("decExact", v)} />
+        <Check label="À jour des obligations administratives, comptables, sociales et fiscales" checked={!!data.decObligations} onChange={(v) => set("decObligations", v)} />
+        <Check label="A souscrit au Contrat d'engagement républicain" checked={!!data.decCer} onChange={(v) => set("decCer", v)} />
+        <Check label="Ne procède à aucune distribution de bénéfices à ses membres" checked={!!data.decNoDistribution} onChange={(v) => set("decNoDistribution", v)} />
+      </Section>
+
+      <Section number={3} title="Contexte & signature">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField label="À l'appui d'une demande auprès de" value={data.fundingBody} onChange={(v: any) => set("fundingBody", v)} />
+          <TextField label="Montant sollicité (€)" type="number" value={data.amountRequested} onChange={(v: any) => set("amountRequested", v)} />
+          <TextField label="Fait à" value={data.signatureCity} onChange={(v: any) => set("signatureCity", v)} />
+          <TextField label="Le" type="date" value={data.signatureDate} onChange={(v: any) => set("signatureDate", v)} />
+        </div>
+      </Section>
     </div>
   )
 }

@@ -784,6 +784,22 @@
         "budget_equilibre": {
           "name": "Budget prévisionnel à l'équilibre",
           "description": "Budget annuel ou par action — charges et produits équilibrés (plan comptable associatif)."
+        },
+        "demande_subvention": {
+          "name": "Demande de subvention (CERFA 12156)",
+          "description": "Dossier complet de demande de subvention : identité, budget prévisionnel, projet et attestation sur l'honneur."
+        },
+        "convention_subvention": {
+          "name": "Convention de subvention",
+          "description": "Convention entre financeur et association (obligatoire au-delà de 23 000 €/an d'un même financeur public)."
+        },
+        "rapport_activite": {
+          "name": "Rapport d'activité annuel",
+          "description": "Rapport narratif annuel — vie associative, actions menées, bilan et perspectives. À joindre au compte rendu financier."
+        },
+        "attestation_honneur": {
+          "name": "Attestation sur l'honneur",
+          "description": "Attestation signée par le représentant légal, pièce du dossier de demande de subvention."
         }
       },
       "fields": {

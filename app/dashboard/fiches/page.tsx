@@ -37,6 +37,36 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 
+/** Templates that produce official/legal documents (shown with a badge). */
+const LEGAL_TEMPLATES = new Set([
+  "recu_don",
+  "budget_equilibre",
+  "demande_subvention",
+  "convention_subvention",
+  "rapport_activite",
+  "attestation_honneur",
+])
+
+/** Merge the workspace org profile into a template's default data (only keys the
+ * template actually declares), so legal documents are pre-filled automatically. */
+function prefillFromOrg(defaultData: any, org: any) {
+  if (!org) return defaultData
+  const data = JSON.parse(JSON.stringify(defaultData ?? {}))
+  const direct: Record<string, any> = {
+    legalName: org.legalName, association: org.legalName, rna: org.rna, siret: org.siret,
+    address: org.address, postalCode: org.postalCode, city: org.city, email: org.email,
+    phone: org.phone, website: org.website, representativeName: org.representativeName,
+    representativeRole: org.representativeRole, rupRecognized: org.rupRecognized,
+    fiscalRegime: org.fiscalRegime, iban: org.iban, bic: org.bic,
+    signatoryName: org.representativeName, signatoryRole: org.representativeRole,
+    signatureCity: org.city,
+  }
+  for (const [k, v] of Object.entries(direct)) {
+    if (k in data && (v !== undefined && v !== null && v !== "")) data[k] = v
+  }
+  return data
+}
+
 export default function FichesPage() {
   const t = useTranslations("pages.fiches")
   const tCommon = useTranslations("common")
@@ -46,6 +76,7 @@ export default function FichesPage() {
   const wsId = activeWorkspace?._id
   const fiches = useQuery(api.a2e_fiches.list, wsId ? { workspaceId: wsId } : "skip")
   const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
+  const org = useQuery(api.a2e_org.get, wsId ? { workspaceId: wsId } : "skip")
   const create = useMutation(api.a2e_fiches.create)
   const duplicate = useMutation(api.a2e_fiches.duplicate)
   const remove = useMutation(api.a2e_fiches.remove)

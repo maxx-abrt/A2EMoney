@@ -17,6 +17,7 @@ import type * as a2e_expenses from "../a2e_expenses.js";
 import type * as a2e_fiches from "../a2e_fiches.js";
 import type * as a2e_grantReports from "../a2e_grantReports.js";
 import type * as a2e_invoices from "../a2e_invoices.js";
+import type * as a2e_org from "../a2e_org.js";
 import type * as activities from "../activities.js";
 import type * as http from "../http.js";
 import type * as invitations from "../invitations.js";
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   a2e_fiches: typeof a2e_fiches;
   a2e_grantReports: typeof a2e_grantReports;
   a2e_invoices: typeof a2e_invoices;
+  a2e_org: typeof a2e_org;
   activities: typeof activities;
   http: typeof http;
   invitations: typeof invitations;

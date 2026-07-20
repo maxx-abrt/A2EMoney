@@ -103,6 +103,26 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
     generateBudgetPdf({ ...BUDGET_DEFAULT, ...(data ?? {}) }, title || "budget")
     return
   }
+  if (template === "demande_subvention") {
+    const { generateDemandeSubventionPdf, DEMANDE_SUBVENTION_DEFAULT } = await import("@/lib/documents/demande-subvention")
+    generateDemandeSubventionPdf({ ...DEMANDE_SUBVENTION_DEFAULT, ...(data ?? {}) }, title || "demande-subvention")
+    return
+  }
+  if (template === "convention_subvention") {
+    const { generateConventionPdf, CONVENTION_DEFAULT } = await import("@/lib/documents/convention-subvention")
+    generateConventionPdf({ ...CONVENTION_DEFAULT, ...(data ?? {}) }, title || "convention-subvention")
+    return
+  }
+  if (template === "rapport_activite") {
+    const { generateRapportActivitePdf, RAPPORT_ACTIVITE_DEFAULT } = await import("@/lib/documents/rapport-activite")
+    generateRapportActivitePdf({ ...RAPPORT_ACTIVITE_DEFAULT, ...(data ?? {}) }, title || "rapport-activite")
+    return
+  }
+  if (template === "attestation_honneur") {
+    const { generateAttestationPdf, ATTESTATION_DEFAULT } = await import("@/lib/documents/attestation-honneur")
+    generateAttestationPdf({ ...ATTESTATION_DEFAULT, ...(data ?? {}) }, title || "attestation-honneur")
+    return
+  }
 
   const doc = new jsPDF({ unit: "pt", format: "a4" })
   const W = doc.internal.pageSize.getWidth()

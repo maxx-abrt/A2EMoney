@@ -370,6 +370,31 @@ export default defineSchema({
     .index("by_workspace", ["workspaceId"])
     .index("by_project", ["projectId"]),
 
+  /** Organisation legal profile — stored once per workspace, auto-prefills docs. */
+  a2e_orgProfile: defineTable({
+    workspaceId: v.id("workspaces"),
+    legalName: v.optional(v.string()),
+    shortName: v.optional(v.string()),
+    objet: v.optional(v.string()),
+    rna: v.optional(v.string()),
+    siret: v.optional(v.string()),
+    address: v.optional(v.string()),
+    postalCode: v.optional(v.string()),
+    city: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    website: v.optional(v.string()),
+    representativeName: v.optional(v.string()),
+    representativeRole: v.optional(v.string()),
+    iban: v.optional(v.string()),
+    bic: v.optional(v.string()),
+    rupRecognized: v.optional(v.boolean()),
+    fiscalRegime: v.optional(v.string()),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_workspace", ["workspaceId"]),
+
   /** Clients / donors / partners directory. */
   a2e_clients: defineTable({
     workspaceId: v.id("workspaces"),

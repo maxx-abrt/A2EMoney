@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { GlassCard } from "@/components/glass-card"
 import { exportFicheToPdf } from "@/lib/fiche-pdf"
-import { RecuDonEditor, BudgetEditor } from "@/components/fiches/document-editors"
+import { RecuDonEditor, BudgetEditor, DemandeSubventionEditor, ConventionEditor, RapportActiviteEditor, AttestationEditor } from "@/components/fiches/document-editors"
 import {
   ArrowLeft,
   Download,
@@ -179,6 +179,14 @@ export default function FichePage() {
           <RecuDonEditor data={localData} onChange={(next) => { setLocalData(next); scheduleSave(next) }} />
         ) : fiche.template === "budget_equilibre" ? (
           <BudgetEditor data={localData} onChange={(next) => { setLocalData(next); scheduleSave(next) }} />
+        ) : fiche.template === "demande_subvention" ? (
+          <DemandeSubventionEditor data={localData} onChange={(next) => { setLocalData(next); scheduleSave(next) }} />
+        ) : fiche.template === "convention_subvention" ? (
+          <ConventionEditor data={localData} onChange={(next) => { setLocalData(next); scheduleSave(next) }} />
+        ) : fiche.template === "rapport_activite" ? (
+          <RapportActiviteEditor data={localData} onChange={(next) => { setLocalData(next); scheduleSave(next) }} />
+        ) : fiche.template === "attestation_honneur" ? (
+          <AttestationEditor data={localData} onChange={(next) => { setLocalData(next); scheduleSave(next) }} />
         ) : (
           <GlassCard className="p-6">
             <Label>{t("fields.subtitle")}</Label>
