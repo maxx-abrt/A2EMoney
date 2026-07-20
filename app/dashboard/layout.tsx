@@ -50,6 +50,7 @@ import {
   Wallet,
 } from "@/components/iconsax"
 import { cn } from "@/lib/utils"
+import { BilanWordmark, BilanMark } from "@/components/bilan-logo"
 
 type IconProps = { className?: string; size?: number }
 
@@ -155,7 +156,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (authLoading || !isAuthenticated || (isAuthenticated && wsLoading) || provisioning) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border border-accent border-t-transparent" />
       </div>
     )
   }
@@ -172,16 +173,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         href={item.href}
         onClick={() => setMobileOpen(false)}
         className={cn(
-          "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+          "group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150",
           active
-            ? "bg-foreground text-background shadow-sm"
-            : "text-muted-foreground hover:translate-x-0.5 hover:bg-muted hover:text-foreground",
+            ? "bg-[color-mix(in_srgb,var(--primary)_14%,var(--card))] text-foreground"
+            : "text-muted-foreground hover:bg-secondary hover:text-foreground",
         )}
         title={collapsed && !forceExpanded ? t(item.key) : undefined}
       >
         {active && (
           <span
-            className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-[var(--brand-green)]"
+            className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-primary"
             aria-hidden
           />
         )}
@@ -189,7 +190,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           className={cn(
             "h-4 w-4 shrink-0 transition-transform duration-200",
             active
-              ? ""
+              ? "text-primary"
               : "text-muted-foreground group-hover:scale-110 group-hover:text-foreground",
           )}
         />
@@ -216,11 +217,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
       >
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-foreground text-background">
-            <WalletIcon className="h-4 w-4" />
-          </div>
-          {(!collapsed || forceExpanded) && (
-            <span className="text-base font-semibold tracking-tight">A2EMoney</span>
+          {(!collapsed || forceExpanded) ? (
+            <BilanWordmark size={30} />
+          ) : (
+            <BilanMark size={30} />
           )}
         </Link>
         {!forceExpanded && !collapsed && (
@@ -350,7 +350,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="ml-1 flex h-9 items-center gap-2 rounded-full border border-border bg-card px-2 pr-3 transition-colors hover:bg-muted">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-xs font-medium text-primary">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--primary)_20%,var(--card))] text-xs font-semibold text-primary">
                       {(me?.name || me?.email || "?")
                         .split(" ")
                         .map((n: string) => n[0])

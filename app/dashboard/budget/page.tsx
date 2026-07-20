@@ -160,7 +160,7 @@ export default function BudgetPage() {
                         key={c}
                         type="button"
                         onClick={() => setColor(c)}
-                        className={`h-7 w-7 rounded-full border-2 ${
+                        className={`h-7 w-7 rounded-full border ${
                           color === c ? "border-foreground" : "border-transparent"
                         }`}
                         style={{ background: c }}

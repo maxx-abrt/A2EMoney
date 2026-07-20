@@ -304,7 +304,7 @@ export async function exportFicheToPdf({ template, title, data, locale }: Export
   doc.setTextColor("#888")
   ensureSpace(14)
   doc.text(
-    `Généré par A2EMoney — ${new Date().toLocaleString(locale === "fr" ? "fr-FR" : "en-US")}`,
+    `Généré par Bilan — ${new Date().toLocaleString(locale === "fr" ? "fr-FR" : "en-US")}`,
     M,
     H - 24,
   )

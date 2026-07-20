@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { BilanWordmark, BilanMark } from "@/components/bilan-logo"
 import {
   ArrowRight,
   ArrowRight3 as ArrowUpRight,
@@ -54,11 +55,9 @@ export default async function LandingPage() {
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/40 bg-background/60 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="group flex items-center gap-2" data-testid="brand-link">
-            <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-foreground text-background ring-1 ring-foreground/10">
-              <Wallet2 size={18} variant="Bulk" className="transition-transform duration-500 group-hover:rotate-6" />
-            </div>
-            <span className="text-lg font-semibold tracking-tight">A2EMoney</span>
+          <Link href="/" className="group flex items-center gap-2.5" data-testid="brand-link">
+            <BilanMark size={34} className="transition-transform duration-500 group-hover:rotate-6" />
+            <span className="text-lg font-extrabold tracking-tight">Bilan</span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {[
@@ -147,7 +146,7 @@ export default async function LandingPage() {
                 {["bg-primary", "bg-[var(--brand-green)]", "bg-foreground"].map((c, i) => (
                   <div
                     key={i}
-                    className={`h-9 w-9 rounded-full border-2 border-background ${c}`}
+                    className={`h-9 w-9 rounded-full border border-background ${c}`}
                     aria-hidden
                   />
                 ))}
@@ -241,7 +240,7 @@ export default async function LandingPage() {
                   : "bento-tile"
               const iconWrap =
                 tone === "white"
-                  ? "bg-[var(--brand-green)] text-[var(--brand-green-ink)] border-2 border-border"
+                  ? "bg-[var(--brand-green)] text-[var(--brand-green-ink)] border border-border"
                   : tone === "lime"
                   ? "bg-foreground text-background"
                   : "bg-white/15 text-current"
@@ -305,7 +304,7 @@ export default async function LandingPage() {
             {/* Business */}
             <div className="group relative overflow-hidden rounded-2xl border border-foreground/30 bg-gradient-to-br from-foreground to-neutral-900 p-8 text-background shadow-xl">
               <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent/30 blur-3xl" />
-              <Badge className="relative z-10 bg-[var(--brand-green)] text-[var(--brand-green-ink)] border-2 border-border">
+              <Badge className="relative z-10 bg-[var(--brand-green)] text-[var(--brand-green-ink)] border border-border">
                 {t("profiles.business.badge")}
               </Badge>
               <div className="relative mt-5 flex h-11 w-11 items-center justify-center rounded-xl bg-background/10">
@@ -429,10 +428,8 @@ export default async function LandingPage() {
       <footer className="border-t border-border/40 py-12">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-background">
-              <Wallet2 size={14} variant="Bulk" />
-            </div>
-            <span className="text-sm font-semibold">A2EMoney</span>
+            <BilanMark size={26} />
+            <span className="text-sm font-bold">Bilan</span>
           </div>
           <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground">
             <Link href="/legal/privacy" className="transition-colors hover:text-foreground">
@@ -464,7 +461,7 @@ function DashboardMock() {
           <div className="h-2.5 w-2.5 rounded-full bg-border" />
           <div className="h-2.5 w-2.5 rounded-full bg-border" />
           <div className="ml-4 flex h-5 flex-1 items-center gap-1.5 rounded-md bg-background/50 px-2 text-[10px] text-muted-foreground">
-            <span className="inline-block h-1 w-1 rounded-full bg-[var(--brand-green)]" /> a2emoney.app/dashboard
+            <span className="inline-block h-1 w-1 rounded-full bg-[var(--brand-green)]" /> app.bilan · a2e
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3 p-5">

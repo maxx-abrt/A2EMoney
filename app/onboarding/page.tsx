@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Wallet, Building2, HeartHandshake, User as UserIcon, Loader2 } from "@/components/iconsax"
+import { BilanWordmark } from "@/components/bilan-logo"
 import { useWorkspace } from "@/lib/workspace-context"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -76,12 +77,7 @@ export default function OnboardingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex h-16 items-center border-b border-border/60 px-4 sm:px-6">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background">
-            <Wallet className="h-4 w-4" />
-          </div>
-          <span className="text-lg font-semibold tracking-tight">A2EMoney</span>
-        </div>
+        <BilanWordmark size={30} />
       </header>
       <main className="flex flex-1 items-center justify-center px-4 py-12">
         <form

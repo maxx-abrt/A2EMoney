@@ -128,7 +128,7 @@ export function SheetIconPicker({
                   key={c}
                   type="button"
                   onClick={() => onColorChange(c)}
-                  className={`h-6 w-6 rounded-full border-2 transition ${
+                  className={`h-6 w-6 rounded-full border transition ${
                     c === activeColor ? "border-foreground scale-110" : "border-transparent"
                   }`}
                   style={{ backgroundColor: c }}

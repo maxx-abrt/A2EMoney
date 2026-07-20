@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "title": "A2EMoney — Gestion d'argent tout-en-un",
-    "description": "Simplifiez vos finances avec A2EMoney. Budgets, facturation, suivi des dépenses, livres et collaboration d'équipe pour particuliers, entreprises et associations."
+    "title": "Bilan — Gestion d'argent tout-en-un",
+    "description": "Simplifiez vos finances avec Bilan. Budgets, facturation, suivi des dépenses, livres et collaboration d'équipe pour particuliers, entreprises et associations."
   },
   "brand": {
-    "name": "A2EMoney",
+    "name": "Bilan",
     "suite": "Suite A2E"
   },
   "auth": {
-    "title": "Bienvenue sur A2EMoney",
+    "title": "Bienvenue sur Bilan",
     "subtitle": "Connectez-vous à votre espace de travail ou créez-en un nouveau.",
     "continueWithGoogle": "Continuer avec Google",
     "or": "ou",
@@ -71,7 +71,7 @@
     },
     "empty": {
       "title": "Aucun espace de travail",
-      "description": "Créez votre premier espace de travail pour commencer à utiliser A2EMoney.",
+      "description": "Créez votre premier espace de travail pour commencer à utiliser Bilan.",
       "cta": "Créer un espace"
     }
   },
@@ -156,7 +156,7 @@
     "hero": {
       "title": "Construisons",
       "highlight": "l'avenir financier",
-      "description": "A2EMoney accompagne particuliers, associations et entreprises de l'idée au pilotage : budgets, factures, dépenses, livre comptable, projets et collaboration, sans complexité inutile.",
+      "description": "Bilan accompagne particuliers, associations et entreprises de l'idée au pilotage : budgets, factures, dépenses, livre comptable, projets et collaboration, sans complexité inutile.",
       "startFree": "Commencer gratuitement",
       "seeHowItWorks": "Voir comment ça marche",
       "benefits": {
@@ -185,7 +185,7 @@
     },
     "profiles": {
       "title": "Adapté à vos besoins",
-      "description": "Que vous gériez vos finances personnelles ou dirigiez une entreprise, A2EMoney s'adapte à vous.",
+      "description": "Que vous gériez vos finances personnelles ou dirigiez une entreprise, Bilan s'adapte à vous.",
       "individual": {
         "title": "Particulier",
         "description": "Suivez vos dépenses personnelles, définissez des budgets et gérez vos objectifs financiers en toute simplicité.",
@@ -322,10 +322,10 @@
     },
     "testimonials": {
       "title": "Adoré par des milliers",
-      "description": "Découvrez ce que nos utilisateurs pensent de A2EMoney.",
+      "description": "Découvrez ce que nos utilisateurs pensent de Bilan.",
       "items": [
         {
-          "quote": "A2EMoney a complètement transformé ma gestion financière freelance. Le système de facturation seul m'a fait gagner des heures chaque mois.",
+          "quote": "Bilan a complètement transformé ma gestion financière freelance. Le système de facturation seul m'a fait gagner des heures chaque mois.",
           "author": "Sarah Chen",
           "role": "Designer Freelance"
         },
@@ -343,14 +343,14 @@
     },
     "cta": {
       "title": "Prêt à prendre le contrôle de vos finances ?",
-      "description": "Rejoignez des milliers de particuliers et d'entreprises qui utilisent déjà A2EMoney pour simplifier leur gestion financière.",
+      "description": "Rejoignez des milliers de particuliers et d'entreprises qui utilisent déjà Bilan pour simplifier leur gestion financière.",
       "button": "Commencer Gratuitement"
     },
     "footer": {
       "privacy": "Confidentialité",
       "terms": "Conditions",
       "contact": "Contact",
-      "copyright": "2024 A2EMoney. Tous droits réservés."
+      "copyright": "2024 Bilan. Tous droits réservés."
     },
     "why": {
       "tag": "POURQUOI A2EMONEY",
@@ -412,15 +412,15 @@
       "description": "Donnez les bons accès aux bonnes personnes, sans aller-retour.",
       "items": [
         {
-          "q": "Pour qui A2EMoney est-il fait ?",
+          "q": "Pour qui Bilan est-il fait ?",
           "a": "Particuliers, freelances, associations et petites équipes qui veulent piloter leurs finances simplement."
         },
         {
           "q": "Faut-il un produit fini ?",
-          "a": "Non. A2EMoney vous accompagne dès le départ, vous construisez votre comptabilité au fil de l'eau."
+          "a": "Non. Bilan vous accompagne dès le départ, vous construisez votre comptabilité au fil de l'eau."
         },
         {
-          "q": "Peut-on grandir avec A2EMoney ?",
+          "q": "Peut-on grandir avec Bilan ?",
           "a": "Oui. Workspaces isolés, rôles, projets, exports légaux : pensé pour grandir."
         },
         {
@@ -435,7 +435,7 @@
     },
     "ctaFinal": {
       "title": "Prêt à donner vie à votre projet ?",
-      "description": "Rejoignez les équipes et associations qui bâtissent leur prochaine étape avec A2EMoney.",
+      "description": "Rejoignez les équipes et associations qui bâtissent leur prochaine étape avec Bilan.",
       "primary": "Accès anticipé",
       "secondary": "Nous contacter"
     }
@@ -957,7 +957,7 @@
     },
     "legal": {
       "title": "Légal & conformité",
-      "description": "RGPD, résidence des données et sécurité pour A2EMoney.",
+      "description": "RGPD, résidence des données et sécurité pour Bilan.",
       "privacyDesc": "Comment nous collectons, stockons et traitons vos données.",
       "termsDesc": "Les règles que vous acceptez en utilisant le service.",
       "residency": {

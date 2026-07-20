@@ -144,7 +144,7 @@ export function buildBudgetDoc(data: BudgetData, fileTitle = "budget") {
   }
 
   doc.setFont("helvetica", "italic"); doc.setFontSize(7); doc.setTextColor(GREY)
-  doc.text("Document établi avec A2EMoney — modèle indicatif basé sur le plan comptable des associations.", M, doc.internal.pageSize.getHeight() - 40)
+  doc.text("Document établi avec Bilan — modèle indicatif basé sur le plan comptable des associations.", M, doc.internal.pageSize.getHeight() - 40)
 
   return {
     doc,

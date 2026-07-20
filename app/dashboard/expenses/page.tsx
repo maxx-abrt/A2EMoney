@@ -114,15 +114,15 @@ export default function ExpensesPage() {
                 <form onSubmit={handleSave} className="space-y-4">
                   <div className="flex gap-2">
                     {(["expense", "income"] as const).map((opt) => (
-                      <button key={opt} type="button" onClick={() => setType(opt)}
-                        className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${type === opt ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted"}`}>
+                      <button key={opt} type="button" onClick={() => setType(opt)} data-testid={`expense-type-${opt}`}
+                        className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${type === opt ? "border-primary bg-[color-mix(in_srgb,var(--primary)_14%,var(--card))] text-foreground" : "border-border hover:bg-muted"}`}>
                         {t(opt)}
                       </button>
                     ))}
                   </div>
-                  <div><Label>{tCommon("description")}</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} required /></div>
+                  <div><Label>{tCommon("description")}</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} data-testid="expense-description" required /></div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} required /></div>
+                    <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} data-testid="expense-amount" required /></div>
                     <div><Label>{tCommon("date")}</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -148,7 +148,7 @@ export default function ExpensesPage() {
                   <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
                   <DialogFooter>
                     <Button type="button" variant="outline" onClick={closeDialog}>{tCommon("cancel")}</Button>
-                    <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("save")}</Button>
+                    <Button type="submit" disabled={saving} data-testid="expense-save">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("save")}</Button>
                   </DialogFooter>
                 </form>
               ) : (

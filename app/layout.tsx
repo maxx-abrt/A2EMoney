@@ -1,21 +1,14 @@
 import type { Metadata, Viewport } from "next"
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google"
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
 import "./globals.css"
 import { Providers } from "@/components/providers"
 
-const inter = Inter({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-inter",
-  display: "swap",
-})
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-space-grotesk",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
   display: "swap",
 })
 
@@ -27,9 +20,9 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "A2EMoney — La gestion financière et les CERFA, enfin simples",
+  title: "Bilan — La gestion financière et les CERFA, enfin simples",
   description:
-    "Le tout-en-un des associations, petites entreprises et particuliers : finances, budget à l'équilibre, factures, projets et documents légaux (CERFA) — clairs, conformes et exportables en PDF.",
+    "Bilan, l'app finances de la suite A2E : trésorerie, budget à l'équilibre, feuilles intelligentes, factures, projets et documents légaux (CERFA) — clairs, conformes et exportables en PDF.",
   generator: "A2E Suite",
   keywords: [
     "association",
@@ -40,6 +33,7 @@ export const metadata: Metadata = {
     "trésorerie",
     "factures",
     "comptabilité association",
+    "bilan",
     "a2e suite",
   ],
   authors: [{ name: "A2E Suite" }],
@@ -55,8 +49,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f2f2f0" },
-    { media: "(prefers-color-scheme: dark)", color: "#0e0e10" },
+    { media: "(prefers-color-scheme: light)", color: "#faf7f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#1b1b21" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -74,7 +68,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      className={`${jakarta.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <body className="font-sans antialiased min-h-screen bg-background text-foreground">

@@ -375,7 +375,7 @@ function KpiCard({
       : "bento-tile"
   const iconWrap =
     fill === "white"
-      ? "bg-secondary text-foreground border-2 border-border"
+      ? "bg-secondary text-foreground border border-border"
       : fill === "lime"
       ? "bg-foreground/10 text-[var(--brand-green-ink)]"
       : "bg-white/15 text-current"

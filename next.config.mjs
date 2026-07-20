@@ -16,23 +16,19 @@ const nextConfig = {
   // behind the preview/ingress reverse proxy. The browser Origin is the internal
   // cluster domain (*.emergentcf.cloud) while x-forwarded-host is the public
   // domain (*.emergentagent.com); both must be allow-listed.
+  // `**` is Next.js' recursive wildcard (matches any subdomain depth) — required
+  // because the browser Origin behind the ingress is a multi-label cluster host
+  // (e.g. finance-bilan.cluster-5.preview.emergentcf.cloud) while x-forwarded-host
+  // is the public domain (*.preview.emergentagent.com).
   allowedDevOrigins: [
-    "cerfa-forms-app.preview.emergentagent.com",
-    "cerfa-forms-app.cluster-12.preview.emergentcf.cloud",
-    "*.preview.emergentagent.com",
-    "*.preview.emergentcf.cloud",
-    "*.emergentagent.com",
-    "*.emergentcf.cloud",
+    "**.emergentagent.com",
+    "**.emergentcf.cloud",
   ],
   experimental: {
     serverActions: {
       allowedOrigins: [
-        "cerfa-forms-app.preview.emergentagent.com",
-        "cerfa-forms-app.cluster-12.preview.emergentcf.cloud",
-        "*.preview.emergentagent.com",
-        "*.preview.emergentcf.cloud",
-        "*.emergentagent.com",
-        "*.emergentcf.cloud",
+        "**.emergentagent.com",
+        "**.emergentcf.cloud",
         "localhost:3000",
       ],
     },

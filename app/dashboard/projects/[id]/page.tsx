@@ -412,7 +412,7 @@ export default function ProjectHubPage() {
                           key={c}
                           type="button"
                           onClick={() => setEditColor(c)}
-                          className={`h-7 w-7 rounded-full border-2 transition ${editColor === c ? "border-foreground scale-110" : "border-transparent hover:scale-105"}`}
+                          className={`h-7 w-7 rounded-full border transition ${editColor === c ? "border-foreground scale-110" : "border-transparent hover:scale-105"}`}
                           style={{ background: c }}
                         />
                       ))}

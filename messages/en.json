@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "title": "A2EMoney — All-in-One Money Management",
-    "description": "Streamline your finances with A2EMoney. Budgets, invoicing, expense tracking, books and team collaboration for individuals, businesses and associations."
+    "title": "Bilan — All-in-One Money Management",
+    "description": "Streamline your finances with Bilan. Budgets, invoicing, expense tracking, books and team collaboration for individuals, businesses and associations."
   },
   "brand": {
-    "name": "A2EMoney",
+    "name": "Bilan",
     "suite": "A2E Suite"
   },
   "auth": {
-    "title": "Welcome to A2EMoney",
+    "title": "Welcome to Bilan",
     "subtitle": "Sign in to your workspace or create a new one.",
     "continueWithGoogle": "Continue with Google",
     "or": "or",
@@ -71,7 +71,7 @@
     },
     "empty": {
       "title": "No workspace yet",
-      "description": "Create your first workspace to start using A2EMoney.",
+      "description": "Create your first workspace to start using Bilan.",
       "cta": "Create workspace"
     }
   },
@@ -156,7 +156,7 @@
     "hero": {
       "title": "Building",
       "highlight": "the financial future",
-      "description": "A2EMoney helps individuals, associations and businesses move from idea to launch: budgets, invoicing, expenses, ledger, projects and collaboration, without unnecessary complexity.",
+      "description": "Bilan helps individuals, associations and businesses move from idea to launch: budgets, invoicing, expenses, ledger, projects and collaboration, without unnecessary complexity.",
       "startFree": "Start for free",
       "seeHowItWorks": "See how it works",
       "benefits": {
@@ -350,7 +350,7 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "contact": "Contact",
-      "copyright": "2026 A2EMoney. Part of the A2E Suite."
+      "copyright": "2026 Bilan. Part of the A2E Suite."
     },
     "why": {
       "tag": "WHY A2EMONEY",
@@ -412,7 +412,7 @@
       "description": "Give the right people the right visibility, without the back-and-forth.",
       "items": [
         {
-          "q": "Who is A2EMoney for?",
+          "q": "Who is Bilan for?",
           "a": "Individuals, freelancers, associations and small teams who want to manage their finances simply."
         },
         {
@@ -435,7 +435,7 @@
     },
     "ctaFinal": {
       "title": "Ready to bring your project to life?",
-      "description": "Join the teams and associations building their next step with A2EMoney.",
+      "description": "Join the teams and associations building their next step with Bilan.",
       "primary": "Get Early Access",
       "secondary": "Contact Us"
     }
@@ -957,7 +957,7 @@
     },
     "legal": {
       "title": "Legal & compliance",
-      "description": "GDPR, data residency and security details for A2EMoney.",
+      "description": "GDPR, data residency and security details for Bilan.",
       "privacyDesc": "How we collect, store and process your data.",
       "termsDesc": "The rules you agree to when using the service.",
       "residency": {

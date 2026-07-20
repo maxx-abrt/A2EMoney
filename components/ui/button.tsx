@@ -9,25 +9,26 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90 active:translate-y-px',
+        default: 'bg-primary text-primary-foreground shadow-[var(--elev-1)] hover:brightness-105 active:translate-y-px',
         destructive:
-          'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+          'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
         outline:
-          'border-2 border-border bg-card shadow-xs hover:bg-secondary hover:text-foreground active:translate-y-px dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
+          'border border-border bg-card shadow-[var(--elev-1)] hover:bg-secondary hover:border-[color-mix(in_srgb,var(--primary)_35%,var(--border))] active:translate-y-px',
         secondary:
-          'bg-secondary text-secondary-foreground border-2 border-border hover:bg-muted active:translate-y-px',
+          'bg-secondary text-secondary-foreground hover:bg-muted active:translate-y-px',
         ghost:
-          'hover:bg-secondary hover:text-foreground dark:hover:bg-accent/20',
+          'hover:bg-secondary hover:text-foreground dark:hover:bg-accent/30',
         accent:
-          'bg-[var(--brand-green)] text-[var(--brand-green-ink)] border-2 border-border hover:brightness-95 active:translate-y-px',
+          'bg-accent text-accent-foreground hover:brightness-[0.98] active:translate-y-px',
         ink:
-          'bg-foreground text-background border-2 border-foreground hover:bg-foreground/90 active:translate-y-px',
+          'bg-foreground text-background hover:bg-foreground/90 active:translate-y-px',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',
         sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
-        lg: 'h-11 rounded-md px-6 has-[>svg]:px-4',
+        lg: 'h-11 rounded-lg px-6 has-[>svg]:px-4',
+        pill: 'h-9 rounded-full px-5 has-[>svg]:px-4',
         icon: 'size-9',
         'icon-sm': 'size-8',
         'icon-lg': 'size-10',

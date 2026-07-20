@@ -57,7 +57,7 @@ export function WizardLayout({
               >
                 <div
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold transition",
+                    "flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold transition",
                     isActive
                       ? "border-foreground bg-foreground text-background"
                       : isPast

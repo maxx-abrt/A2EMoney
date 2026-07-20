@@ -17,8 +17,8 @@ export function GlassCard({
     <div
       {...rest}
       className={cn(
-        "relative overflow-hidden rounded-[var(--radius)] border-2 border-border bg-card text-card-foreground shadow-[0_2px_0_0_var(--border)]",
-        hoverable && "transition-[transform,box-shadow] duration-200",
+        "relative overflow-hidden rounded-[var(--radius)] border border-border bg-card text-card-foreground shadow-[var(--elev-1)]",
+        hoverable && "tx-card-hover",
         className,
       )}
     >
