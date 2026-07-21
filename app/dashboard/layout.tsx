@@ -131,14 +131,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [collapsed])
 
   // Redirect unauthenticated users to the WorkOS hosted login.
+  // Use window.location for external OAuth hand-off; router.replace would
+  // trigger an RSC fetch that follows the 307 to api.workos.com and fails CORS.
   useEffect(() => {
     if (authLoading) return
-    if (!isAuthenticated) {
-      const search = typeof window !== "undefined" ? window.location.search : ""
+    if (!isAuthenticated && typeof window !== "undefined") {
+      const search = window.location.search
       const next = pathname + search
-      router.replace(`/sign-in?returnPathname=${encodeURIComponent(next)}`)
+      window.location.href = `/sign-in?returnPathname=${encodeURIComponent(next)}`
     }
-  }, [authLoading, isAuthenticated, pathname, router])
+  }, [authLoading, isAuthenticated, pathname])
 
   // Redirect to onboarding if authenticated and no workspaces
   useEffect(() => {
