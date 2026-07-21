@@ -137,7 +137,7 @@
     "getStarted": "Commencer",
     "dashboard": "Tableau de bord",
     "budget": "Budget",
-    "expenses": "Dépenses",
+    "expenses": "Transactions",
     "invoices": "Factures",
     "projects": "Projets",
     "book": "Livre",
@@ -223,7 +223,7 @@
           "description": "Créez des factures professionnelles, suivez les paiements, exportez en PDF et envoyez des rappels automatiques."
         },
         "expense": {
-          "title": "Suivi des Dépenses",
+          "title": "Suivi des Transactions",
           "description": "Enregistrez les dépenses instantanément, catégorisez les transactions et joignez des reçus pour justifier."
         },
         "book": {
@@ -449,7 +449,7 @@
     "stats": {
       "totalBalance": "Solde Total",
       "monthlyIncome": "Revenus Mensuels",
-      "monthlyExpenses": "Dépenses Mensuelles",
+      "monthlyExpenses": "Transactions Mensuelles",
       "pendingInvoices": "Factures en Attente",
       "savingsGoal": "Objectif d'Épargne",
       "fromLastMonth": "du mois dernier"
@@ -598,7 +598,7 @@
       "stats": {
         "totalBalance": "Solde total",
         "monthlyIncome": "Revenus du mois",
-        "monthlyExpenses": "Dépenses du mois",
+        "monthlyExpenses": "Transactions du mois",
         "pendingInvoices": "Factures en attente"
       },
       "recentTransactions": {
@@ -646,7 +646,7 @@
       "project": "Projet"
     },
     "expenses": {
-      "title": "Dépenses & recettes",
+      "title": "Transactions & recettes",
       "description": "Suivez vos flux, attachez des justificatifs, liez aux projets.",
       "add": "Ajouter une transaction",
       "addExpense": "Ajouter une dépense",
@@ -659,7 +659,7 @@
       "noProject": "— Aucun projet —",
       "totals": {
         "income": "Recettes",
-        "expenses": "Dépenses",
+        "expenses": "Transactions",
         "net": "Net"
       },
       "empty": {
@@ -939,7 +939,7 @@
         "net": "Net"
       },
       "monthly": "Recettes vs dépenses mensuelles",
-      "byCategory": "Dépenses par catégorie",
+      "byCategory": "Transactions par catégorie",
       "noData": "Pas encore de données.",
       "composition": {
         "title": "Composition revenus / dépenses",
