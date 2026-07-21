@@ -1,10 +1,18 @@
-import { authkitMiddleware } from "@workos-inc/authkit-nextjs"
+import { authkitProxy } from "@workos-inc/authkit-nextjs"
 
 // WorkOS AuthKit middleware: refreshes the session cookie and makes auth state
 // available throughout the app. Route protection is enforced in-app (dashboard
 // layout + Convex <Authenticated> helpers) so all public marketing/legal/invite
 // routes stay reachable.
-export default authkitMiddleware()
+export default authkitProxy({
+  debug: true,
+  redirectUri: process.env.WORKOS_REDIRECT_URI,
+  eagerAuth: true,
+  middlewareAuth: {
+    enabled: false,
+    unauthenticatedPaths: [],
+  },
+})
 
 export const config = {
   matcher: [

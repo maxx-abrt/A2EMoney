@@ -1,11 +1,9 @@
-import { redirect } from "next/navigation"
+import { NextResponse } from "next/server"
 import { getSignInUrl } from "@workos-inc/authkit-nextjs"
 
 export async function GET(request: Request) {
-  const returnPathname =
+  const returnTo =
     new URL(request.url).searchParams.get("returnPathname") ?? undefined
-  const url = await getSignInUrl(
-    returnPathname ? ({ returnPathname } as any) : undefined,
-  )
-  return redirect(url)
+  const url = await getSignInUrl(returnTo ? { returnTo } : undefined)
+  return NextResponse.redirect(url)
 }

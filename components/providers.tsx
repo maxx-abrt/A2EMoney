@@ -11,6 +11,7 @@ import { Toaster as SonnerToaster } from "sonner"
 import { WorkspaceProvider } from "@/lib/workspace-context"
 import { FilePreviewProvider } from "@/components/file-preview-provider"
 import { ConvexClientProvider } from "@/components/ConvexClientProvider"
+import type { UserInfo, NoUserInfo } from "@workos-inc/authkit-nextjs"
 
 /**
  * Provisions (or refreshes) the Convex user record for the authenticated WorkOS
@@ -44,9 +45,17 @@ function StoreUser() {
   return null
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export type InitialAuth = Omit<UserInfo | NoUserInfo, "accessToken">
+
+export function Providers({
+  children,
+  initialAuth,
+}: {
+  children: React.ReactNode
+  initialAuth?: InitialAuth
+}) {
   return (
-    <ConvexClientProvider>
+    <ConvexClientProvider initialAuth={initialAuth}>
       <ThemeProvider
         attribute="class"
         defaultTheme="light"

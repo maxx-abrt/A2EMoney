@@ -8,8 +8,15 @@ import {
   useAuth,
   useAccessToken,
 } from "@workos-inc/authkit-nextjs/components";
+import type { UserInfo, NoUserInfo } from "@workos-inc/authkit-nextjs";
 
-export function ConvexClientProvider({ children }: { children: ReactNode }) {
+export function ConvexClientProvider({
+  children,
+  initialAuth,
+}: {
+  children: ReactNode;
+  initialAuth?: Omit<UserInfo | NoUserInfo, "accessToken">;
+}) {
   const [convex] = useState(
     () =>
       new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
@@ -18,7 +25,7 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <AuthKitProvider>
+    <AuthKitProvider initialAuth={initialAuth}>
       <ConvexProviderWithAuth client={convex} useAuth={useAuthFromAuthKit}>
         {children}
       </ConvexProviderWithAuth>

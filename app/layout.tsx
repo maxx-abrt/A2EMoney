@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from "next"
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
+import { withAuth } from "@workos-inc/authkit-nextjs"
 import "./globals.css"
-import { Providers } from "@/components/providers"
+import { Providers, type InitialAuth } from "@/components/providers"
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -65,6 +66,17 @@ export default async function RootLayout({
   const locale = await getLocale()
   const messages = await getMessages()
 
+  // Resolve auth on the server and hand it to AuthKitProvider so the client
+  // doesn't need to fire a server action on first paint.
+  let initialAuth: InitialAuth | undefined
+  try {
+    const { accessToken, ...auth } = await withAuth()
+    initialAuth = auth as InitialAuth
+  } catch {
+    // If middleware hasn't run or the session is unreadable, let the client
+    // resolve auth itself. The error is surfaced in Vercel logs via middleware debug.
+  }
+
   return (
     <html
       lang={locale}
@@ -73,7 +85,7 @@ export default async function RootLayout({
     >
       <body className="font-sans antialiased min-h-screen bg-background text-foreground">
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
+          <Providers initialAuth={initialAuth}>{children}</Providers>
         </NextIntlClientProvider>
       </body>
     </html>
