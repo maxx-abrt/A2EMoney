@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -207,7 +208,7 @@ export default function BookSheetPage() {
                 <DialogHeader>
                   <DialogTitle>Sheet settings</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
+                <DialogBody className="space-y-4 px-1">
                   <div className="flex items-end gap-3">
                     <div>
                       <Label className="text-xs uppercase tracking-wider">Icon</Label>
@@ -229,8 +230,8 @@ export default function BookSheetPage() {
                       />
                     </div>
                   </div>
-                </div>
-                <DialogFooter>
+                </DialogBody>
+                <DialogFooter className="pt-4">
                   <Button type="button" variant="outline" onClick={() => setSettingsOpen(false)}>
                     Cancel
                   </Button>
@@ -255,7 +256,7 @@ export default function BookSheetPage() {
             <DialogHeader>
               <DialogTitle>Manage columns</DialogTitle>
             </DialogHeader>
-            <div className="max-h-[55vh] space-y-3 overflow-y-auto pr-1 scrollbar-thin">
+            <DialogBody className="space-y-3 px-1 pr-2 scrollbar-thin">
               {colDraft.map((c, i) => (
                 <div
                   key={i}
@@ -350,8 +351,8 @@ export default function BookSheetPage() {
               >
                 <Plus size={14} variant="Bulk" /> Add column
               </Button>
-            </div>
-            <DialogFooter>
+            </DialogBody>
+            <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={() => setColumnsOpen(false)}>
                 Cancel
               </Button>

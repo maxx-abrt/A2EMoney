@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -152,51 +153,53 @@ export default function FichesPage() {
                 <DialogHeader>
                   <DialogTitle>{t("new")}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleCreate} className="space-y-4">
-                  <div>
-                    <Label>{t("templateLabel")}</Label>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      {(Object.keys(FICHE_TEMPLATES) as Array<keyof typeof FICHE_TEMPLATES>).map((id) => (
-                        <button
-                          key={id}
-                          type="button"
-                          onClick={() => setTemplateId(id)}
-                          className={cn(
-                            "flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition",
-                            templateId === id
-                              ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                              : "border-border hover:bg-muted",
-                          )}
-                        >
-                          <FileText className="h-4 w-4 text-primary" />
-                          <span className="text-sm font-medium">{t(`templates.${id}.name`)}</span>
-                          <span className="text-xs text-muted-foreground">{t(`templates.${id}.description`)}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <Label>{t("fields.ficheTitle")}</Label>
-                    <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t(`templates.${templateId}.name`)} />
-                  </div>
-                  {(projects ?? []).length > 0 && (
+                <form onSubmit={handleCreate} className="flex min-h-0 flex-1 flex-col">
+                  <DialogBody className="space-y-4 px-1">
                     <div>
-                      <Label>{t("linkedProject")}</Label>
-                      <select
-                        value={projectId}
-                        onChange={(e) => setProjectId(e.target.value)}
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                      >
-                        <option value="">{t("noProjectLinked")}</option>
-                        {(projects ?? []).map((p) => (
-                          <option key={p._id} value={p._id}>
-                            {p.name}
-                          </option>
+                      <Label>{t("templateLabel")}</Label>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        {(Object.keys(FICHE_TEMPLATES) as Array<keyof typeof FICHE_TEMPLATES>).map((id) => (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={() => setTemplateId(id)}
+                            className={cn(
+                              "flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition",
+                              templateId === id
+                                ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                                : "border-border hover:bg-muted",
+                            )}
+                          >
+                            <FileText className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-medium">{t(`templates.${id}.name`)}</span>
+                            <span className="text-xs text-muted-foreground">{t(`templates.${id}.description`)}</span>
+                          </button>
                         ))}
-                      </select>
+                      </div>
                     </div>
-                  )}
-                  <DialogFooter>
+                    <div>
+                      <Label>{t("fields.ficheTitle")}</Label>
+                      <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t(`templates.${templateId}.name`)} />
+                    </div>
+                    {(projects ?? []).length > 0 && (
+                      <div>
+                        <Label>{t("linkedProject")}</Label>
+                        <select
+                          value={projectId}
+                          onChange={(e) => setProjectId(e.target.value)}
+                          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                        >
+                          <option value="">{t("noProjectLinked")}</option>
+                          {(projects ?? []).map((p) => (
+                            <option key={p._id} value={p._id}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </DialogBody>
+                  <DialogFooter className="pt-4">
                     <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                       {tCommon("cancel")}
                     </Button>

@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -96,19 +97,21 @@ export default function TeamPage() {
                 <DialogHeader>
                   <DialogTitle>{t("inviteMember")}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleInvite} className="space-y-4">
-                  <div>
-                    <Label>{t("email")}</Label>
-                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  </div>
-                  <div>
-                    <Label>{t("role")}</Label>
-                    <select value={role} onChange={(e) => setRole(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                      {ROLES.map((r) => (<option key={r} value={r}>{t(`roles.${r}`)}</option>))}
-                    </select>
-                    <p className="mt-1 text-xs text-muted-foreground">{t(`roleHint.${role}`)}</p>
-                  </div>
-                  <DialogFooter>
+                <form onSubmit={handleInvite} className="flex min-h-0 flex-1 flex-col">
+                  <DialogBody className="space-y-4 px-1">
+                    <div>
+                      <Label>{t("email")}</Label>
+                      <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    </div>
+                    <div>
+                      <Label>{t("role")}</Label>
+                      <select value={role} onChange={(e) => setRole(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                        {ROLES.map((r) => (<option key={r} value={r}>{t(`roles.${r}`)}</option>))}
+                      </select>
+                      <p className="mt-1 text-xs text-muted-foreground">{t(`roleHint.${role}`)}</p>
+                    </div>
+                  </DialogBody>
+                  <DialogFooter className="pt-4">
                     <Button type="button" variant="outline" onClick={() => setInviteOpen(false)}>{tCommon("cancel")}</Button>
                     <Button type="submit" disabled={inviting || !email.trim()}>{inviting ? <Loader2 className="h-4 w-4 animate-spin" /> : t("sendInvitation")}</Button>
                   </DialogFooter>

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -139,58 +140,60 @@ export default function BookPage() {
               <DialogHeader>
                 <DialogTitle>{t("new")}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreate} className="space-y-5">
-                <div>
-                  <Label className="text-xs uppercase tracking-wider">{t("startFromTemplate")}</Label>
-                  <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {TEMPLATES.map((tt, i) => (
-                      <button
-                        key={tt.id}
-                        type="button"
-                        onClick={() => selectTemplate(i)}
-                        className={`rounded-xl border p-3 text-center transition ${
-                          tplIdx === i
-                            ? "border-foreground bg-foreground/5"
-                            : "border-border hover:bg-muted"
-                        }`}
-                        data-testid={`template-${tt.id}`}
-                      >
-                        <div
-                          className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg"
-                          style={{ backgroundColor: tt.color + "20", color: tt.color }}
-                        >
-                          <SheetIcon iconKey={tt.iconKey} size={18} />
-                        </div>
-                        <div className="mt-1 text-xs font-medium">{t(`templates.${tt.id}`)}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-end gap-3">
+              <form onSubmit={handleCreate} className="flex min-h-0 flex-1 flex-col">
+                <DialogBody className="space-y-5 px-1">
                   <div>
-                    <Label className="text-xs uppercase tracking-wider">Icon</Label>
-                    <div className="mt-1">
-                      <SheetIconPicker
-                        value={iconKey}
-                        color={color}
-                        onChange={setIconKey}
-                        onColorChange={setColor}
+                    <Label className="text-xs uppercase tracking-wider">{t("startFromTemplate")}</Label>
+                    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      {TEMPLATES.map((tt, i) => (
+                        <button
+                          key={tt.id}
+                          type="button"
+                          onClick={() => selectTemplate(i)}
+                          className={`rounded-xl border p-3 text-center transition ${
+                            tplIdx === i
+                              ? "border-foreground bg-foreground/5"
+                              : "border-border hover:bg-muted"
+                          }`}
+                          data-testid={`template-${tt.id}`}
+                        >
+                          <div
+                            className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg"
+                            style={{ backgroundColor: tt.color + "20", color: tt.color }}
+                          >
+                            <SheetIcon iconKey={tt.iconKey} size={18} />
+                          </div>
+                          <div className="mt-1 text-xs font-medium">{t(`templates.${tt.id}`)}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-end gap-3">
+                    <div>
+                      <Label className="text-xs uppercase tracking-wider">Icon</Label>
+                      <div className="mt-1">
+                        <SheetIconPicker
+                          value={iconKey}
+                          color={color}
+                          onChange={setIconKey}
+                          onColorChange={setColor}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <Label className="text-xs uppercase tracking-wider">{t("sheetName")}</Label>
+                      <Input
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder={t(`templates.${TEMPLATES[tplIdx].id}`)}
+                        data-testid="sheet-name-input"
                       />
                     </div>
                   </div>
-                  <div className="flex-1">
-                    <Label className="text-xs uppercase tracking-wider">{t("sheetName")}</Label>
-                    <Input
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder={t(`templates.${TEMPLATES[tplIdx].id}`)}
-                      data-testid="sheet-name-input"
-                    />
-                  </div>
-                </div>
+                </DialogBody>
 
-                <DialogFooter>
+                <DialogFooter className="pt-4">
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                     {tCommon("cancel")}
                   </Button>

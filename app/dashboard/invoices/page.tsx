@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -128,57 +129,61 @@ export default function InvoicesPage() {
             <DialogContent className="max-w-2xl">
               <DialogHeader><DialogTitle>{savedId ? t("attach.title") : t("new")}</DialogTitle></DialogHeader>
               {!savedId ? (
-                <form onSubmit={handleSave} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><Label>{tCommon("client")}</Label><Input value={client} onChange={(e) => setClient(e.target.value)} required /></div>
-                    <div><Label>{t("clientEmail")}</Label><Input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} required /></div>
-                  </div>
-                  <div><Label>{t("clientAddress")}</Label><Textarea value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} rows={2} /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><Label>{t("issueDate")}</Label><Input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} required /></div>
-                    <div><Label>{t("dueDate")}</Label><Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required /></div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t("lineItems")}</Label>
-                    {items.map((it, idx) => (
-                      <div key={it.id} className="grid grid-cols-[1fr_80px_100px_auto] items-end gap-2">
-                        <Input placeholder={tCommon("description")} value={it.description} onChange={(e) => { const copy = [...items]; copy[idx] = { ...it, description: e.target.value }; setItems(copy) }} />
-                        <Input type="number" min="0" step="1" value={it.quantity} onChange={(e) => { const copy = [...items]; copy[idx] = { ...it, quantity: parseFloat(e.target.value || "0") }; setItems(copy) }} />
-                        <Input type="number" min="0" step="0.01" value={it.unitPrice} onChange={(e) => { const copy = [...items]; copy[idx] = { ...it, unitPrice: parseFloat(e.target.value || "0") }; setItems(copy) }} />
-                        <Button type="button" variant="ghost" size="icon" onClick={() => setItems(items.filter((_, i) => i !== idx))} disabled={items.length === 1}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    ))}
-                    <Button type="button" variant="outline" size="sm" onClick={() => setItems([...items, newItem()])}><Plus className="mr-1 h-3.5 w-3.5" /> {t("addLine")}</Button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><Label>{t("taxRate")}</Label><Input type="number" step="0.01" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} /></div>
-                    {(projects ?? []).length > 0 && (
-                      <div><Label>{tCommon("project")}</Label>
-                        <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                          <option value="">—</option>
-                          {(projects ?? []).map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                  <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
-                  <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
-                    <div className="flex justify-between"><span className="text-muted-foreground">{t("subtotal")}</span><span>{formatCurrency(subtotal, currency)}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">{t("tax")}</span><span>{formatCurrency(tax, currency)}</span></div>
-                    <div className="mt-1 flex justify-between border-t border-border pt-1 font-semibold"><span>{t("total")}</span><span>{formatCurrency(total, currency)}</span></div>
-                  </div>
-                  <DialogFooter>
+                <form onSubmit={handleSave} className="flex min-h-0 flex-1 flex-col">
+                  <DialogBody className="space-y-4 px-1">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><Label>{tCommon("client")}</Label><Input value={client} onChange={(e) => setClient(e.target.value)} required /></div>
+                      <div><Label>{t("clientEmail")}</Label><Input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} required /></div>
+                    </div>
+                    <div><Label>{t("clientAddress")}</Label><Textarea value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} rows={2} /></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><Label>{t("issueDate")}</Label><Input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} required /></div>
+                      <div><Label>{t("dueDate")}</Label><Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required /></div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t("lineItems")}</Label>
+                      {items.map((it, idx) => (
+                        <div key={it.id} className="grid grid-cols-[1fr_80px_100px_auto] items-end gap-2">
+                          <Input placeholder={tCommon("description")} value={it.description} onChange={(e) => { const copy = [...items]; copy[idx] = { ...it, description: e.target.value }; setItems(copy) }} />
+                          <Input type="number" min="0" step="1" value={it.quantity} onChange={(e) => { const copy = [...items]; copy[idx] = { ...it, quantity: parseFloat(e.target.value || "0") }; setItems(copy) }} />
+                          <Input type="number" min="0" step="0.01" value={it.unitPrice} onChange={(e) => { const copy = [...items]; copy[idx] = { ...it, unitPrice: parseFloat(e.target.value || "0") }; setItems(copy) }} />
+                          <Button type="button" variant="ghost" size="icon" onClick={() => setItems(items.filter((_, i) => i !== idx))} disabled={items.length === 1}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button type="button" variant="outline" size="sm" onClick={() => setItems([...items, newItem()])}><Plus className="mr-1 h-3.5 w-3.5" /> {t("addLine")}</Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><Label>{t("taxRate")}</Label><Input type="number" step="0.01" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} /></div>
+                      {(projects ?? []).length > 0 && (
+                        <div><Label>{tCommon("project")}</Label>
+                          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                            <option value="">—</option>
+                            {(projects ?? []).map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                    <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
+                    <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
+                      <div className="flex justify-between"><span className="text-muted-foreground">{t("subtotal")}</span><span>{formatCurrency(subtotal, currency)}</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">{t("tax")}</span><span>{formatCurrency(tax, currency)}</span></div>
+                      <div className="mt-1 flex justify-between border-t border-border pt-1 font-semibold"><span>{t("total")}</span><span>{formatCurrency(total, currency)}</span></div>
+                    </div>
+                  </DialogBody>
+                  <DialogFooter className="pt-4">
                     <Button type="button" variant="outline" onClick={closeDialog}>{tCommon("cancel")}</Button>
                     <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("save")}</Button>
                   </DialogFooter>
                 </form>
               ) : (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">{t("attach.description")}</p>
-                  <AttachmentsField linkedTo={{ type: "invoice", id: savedId }} documentType="invoice" />
-                  <DialogFooter><Button onClick={closeDialog}>{tCommon("close")}</Button></DialogFooter>
+                <div className="flex min-h-0 flex-1 flex-col">
+                  <DialogBody className="space-y-4 px-1">
+                    <p className="text-sm text-muted-foreground">{t("attach.description")}</p>
+                    <AttachmentsField linkedTo={{ type: "invoice", id: savedId }} documentType="invoice" />
+                  </DialogBody>
+                  <DialogFooter className="pt-4"><Button onClick={closeDialog}>{tCommon("close")}</Button></DialogFooter>
                 </div>
               )}
             </DialogContent>

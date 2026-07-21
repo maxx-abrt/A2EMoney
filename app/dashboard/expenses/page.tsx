@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -111,51 +112,55 @@ export default function ExpensesPage() {
             <DialogContent className="max-w-xl">
               <DialogHeader><DialogTitle>{savedId ? t("attach.title") : t("add")}</DialogTitle></DialogHeader>
               {!savedId ? (
-                <form onSubmit={handleSave} className="space-y-4">
-                  <div className="flex gap-2">
-                    {(["expense", "income"] as const).map((opt) => (
-                      <button key={opt} type="button" onClick={() => setType(opt)} data-testid={`expense-type-${opt}`}
-                        className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${type === opt ? "border-primary bg-[color-mix(in_srgb,var(--primary)_14%,var(--card))] text-foreground" : "border-border hover:bg-muted"}`}>
-                        {t(opt)}
-                      </button>
-                    ))}
-                  </div>
-                  <div><Label>{tCommon("description")}</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} data-testid="expense-description" required /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} data-testid="expense-amount" required /></div>
-                    <div><Label>{tCommon("date")}</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><Label>{tCommon("category")}</Label>
-                      <select value={category} onChange={(e) => setCategory(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                        {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                      </select>
+                <form onSubmit={handleSave} className="flex min-h-0 flex-1 flex-col">
+                  <DialogBody className="space-y-4 px-1">
+                    <div className="flex gap-2">
+                      {(["expense", "income"] as const).map((opt) => (
+                        <button key={opt} type="button" onClick={() => setType(opt)} data-testid={`expense-type-${opt}`}
+                          className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${type === opt ? "border-primary bg-[color-mix(in_srgb,var(--primary)_14%,var(--card))] text-foreground" : "border-border hover:bg-muted"}`}>
+                          {t(opt)}
+                        </button>
+                      ))}
                     </div>
-                    <div><Label>{t("paymentMethod")}</Label>
-                      <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                        {PAYMENT_METHODS.map((c) => <option key={c}>{c}</option>)}
-                      </select>
+                    <div><Label>{tCommon("description")}</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} data-testid="expense-description" required /></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><Label>{tCommon("amount")} ({currency})</Label><Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} data-testid="expense-amount" required /></div>
+                      <div><Label>{tCommon("date")}</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></div>
                     </div>
-                  </div>
-                  {(projects ?? []).length > 0 && (
-                    <div><Label>{t("project")}</Label>
-                      <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                        <option value="">{t("noProject")}</option>
-                        {(projects ?? []).map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
-                      </select>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><Label>{tCommon("category")}</Label>
+                        <select value={category} onChange={(e) => setCategory(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                          {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div><Label>{t("paymentMethod")}</Label>
+                        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                          {PAYMENT_METHODS.map((c) => <option key={c}>{c}</option>)}
+                        </select>
+                      </div>
                     </div>
-                  )}
-                  <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
-                  <DialogFooter>
+                    {(projects ?? []).length > 0 && (
+                      <div><Label>{t("project")}</Label>
+                        <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                          <option value="">{t("noProject")}</option>
+                          {(projects ?? []).map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
+                        </select>
+                      </div>
+                    )}
+                    <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
+                  </DialogBody>
+                  <DialogFooter className="pt-4">
                     <Button type="button" variant="outline" onClick={closeDialog}>{tCommon("cancel")}</Button>
                     <Button type="submit" disabled={saving} data-testid="expense-save">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("save")}</Button>
                   </DialogFooter>
                 </form>
               ) : (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">{t("attach.description")}</p>
-                  <AttachmentsField linkedTo={{ type: "expense", id: savedId }} documentType="receipt" />
-                  <DialogFooter>
+                <div className="flex min-h-0 flex-1 flex-col">
+                  <DialogBody className="space-y-4 px-1">
+                    <p className="text-sm text-muted-foreground">{t("attach.description")}</p>
+                    <AttachmentsField linkedTo={{ type: "expense", id: savedId }} documentType="receipt" />
+                  </DialogBody>
+                  <DialogFooter className="pt-4">
                     <Button onClick={closeDialog}>{t("done")}</Button>
                   </DialogFooter>
                 </div>

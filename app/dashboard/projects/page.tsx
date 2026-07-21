@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -89,26 +90,28 @@ export default function ProjectsPage() {
             <DialogTrigger asChild><Button className="gap-2 rounded-full shadow-sm"><Plus className="h-4 w-4" /> {t("new")}</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{t("new")}</DialogTitle></DialogHeader>
-              <form onSubmit={handleSave} className="space-y-4">
-                <div><Label>{tCommon("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><Label>{tCommon("client")}</Label><Input value={client} onChange={(e) => setClient(e.target.value)} /></div>
-                  <div><Label>{t("budget")} ({currency})</Label><Input type="number" step="0.01" value={budget} onChange={(e) => setBudget(e.target.value)} /></div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><Label>{t("startDate")}</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></div>
-                  <div><Label>{t("endDate")}</Label><Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} /></div>
-                </div>
-                <div><Label>{tCommon("status")}</Label>
-                  <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                    <option value="planning">{t("status.planning")}</option>
-                    <option value="active">{t("status.active")}</option>
-                    <option value="on_hold">{t("status.on_hold")}</option>
-                    <option value="completed">{t("status.completed")}</option>
-                  </select>
-                </div>
-                <div><Label>{tCommon("description")}</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} /></div>
-                <DialogFooter>
+              <form onSubmit={handleSave} className="flex min-h-0 flex-1 flex-col">
+                <DialogBody className="space-y-4 px-1">
+                  <div><Label>{tCommon("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label>{tCommon("client")}</Label><Input value={client} onChange={(e) => setClient(e.target.value)} /></div>
+                    <div><Label>{t("budget")} ({currency})</Label><Input type="number" step="0.01" value={budget} onChange={(e) => setBudget(e.target.value)} /></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label>{t("startDate")}</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></div>
+                    <div><Label>{t("endDate")}</Label><Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} /></div>
+                  </div>
+                  <div><Label>{tCommon("status")}</Label>
+                    <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                      <option value="planning">{t("status.planning")}</option>
+                      <option value="active">{t("status.active")}</option>
+                      <option value="on_hold">{t("status.on_hold")}</option>
+                      <option value="completed">{t("status.completed")}</option>
+                    </select>
+                  </div>
+                  <div><Label>{tCommon("description")}</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} /></div>
+                </DialogBody>
+                <DialogFooter className="pt-4">
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>{tCommon("cancel")}</Button>
                   <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("create")}</Button>
                 </DialogFooter>

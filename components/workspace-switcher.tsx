@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -142,38 +143,40 @@ export function WorkspaceSwitcher({ collapsed }: { collapsed?: boolean }) {
             <DialogTitle>{tOnb("title")}</DialogTitle>
             <DialogDescription>{tOnb("subtitle")}</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleCreate} className="space-y-4">
-            <div>
-              <Label htmlFor="ws-name">{tOnb("nameLabel")}</Label>
-              <Input
-                id="ws-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={tOnb("namePlaceholder")}
-                required
-              />
-            </div>
-            <div>
-              <Label>{tOnb("typeLabel")}</Label>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {(["individual", "business", "association"] as const).map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => setType(opt)}
-                    className={cn(
-                      "rounded-lg border px-2 py-2 text-xs font-medium transition",
-                      type === opt
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border hover:bg-muted",
-                    )}
-                  >
-                    {tOnb(`types.${opt}.title`)}
-                  </button>
-                ))}
+          <form onSubmit={handleCreate} className="flex min-h-0 flex-1 flex-col">
+            <DialogBody className="space-y-4 px-1">
+              <div>
+                <Label htmlFor="ws-name">{tOnb("nameLabel")}</Label>
+                <Input
+                  id="ws-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={tOnb("namePlaceholder")}
+                  required
+                />
               </div>
-            </div>
-            <DialogFooter>
+              <div>
+                <Label>{tOnb("typeLabel")}</Label>
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  {(["individual", "business", "association"] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setType(opt)}
+                      className={cn(
+                        "rounded-lg border px-2 py-2 text-xs font-medium transition",
+                        type === opt
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-border hover:bg-muted",
+                      )}
+                    >
+                      {tOnb(`types.${opt}.title`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </DialogBody>
+            <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 {tOnb("submit") /* fallback if no cancel key */}
               </Button>

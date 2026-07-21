@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -102,73 +103,75 @@ export default function BudgetPage() {
               <DialogHeader>
                 <DialogTitle>{t("new")}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSave} className="space-y-4">
-                <div>
-                  <Label>{tCommon("name")}</Label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleSave} className="flex min-h-0 flex-1 flex-col">
+                <DialogBody className="space-y-4 px-1">
                   <div>
-                    <Label>{tCommon("amount")} ({currency})</Label>
-                    <Input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+                    <Label>{tCommon("name")}</Label>
+                    <Input value={name} onChange={(e) => setName(e.target.value)} required />
                   </div>
-                  <div>
-                    <Label>{tCommon("category")}</Label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                    >
-                      {CATEGORIES.map((c) => (
-                        <option key={c}>{c}</option>
-                      ))}
-                    </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>{tCommon("amount")} ({currency})</Label>
+                      <Input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+                    </div>
+                    <div>
+                      <Label>{tCommon("category")}</Label>
+                      <select
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                      >
+                        {CATEGORIES.map((c) => (
+                          <option key={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label>{t("period")}</Label>
-                    <select
-                      value={period}
-                      onChange={(e) => setPeriod(e.target.value as any)}
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                    >
-                      <option value="monthly">{t("periods.monthly")}</option>
-                      <option value="yearly">{t("periods.yearly")}</option>
-                      <option value="custom">{t("periods.custom")}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label>{t("start")}</Label>
-                    <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
-                  </div>
-                  <div>
-                    <Label>{t("end")}</Label>
-                    <Input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      disabled={period !== "custom"}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label>{t("color")}</Label>
-                  <div className="mt-1 flex gap-2">
-                    {COLORS.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setColor(c)}
-                        className={`h-7 w-7 rounded-full border ${
-                          color === c ? "border-foreground" : "border-transparent"
-                        }`}
-                        style={{ background: c }}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>{t("period")}</Label>
+                      <select
+                        value={period}
+                        onChange={(e) => setPeriod(e.target.value as any)}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                      >
+                        <option value="monthly">{t("periods.monthly")}</option>
+                        <option value="yearly">{t("periods.yearly")}</option>
+                        <option value="custom">{t("periods.custom")}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label>{t("start")}</Label>
+                      <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+                    </div>
+                    <div>
+                      <Label>{t("end")}</Label>
+                      <Input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        disabled={period !== "custom"}
                       />
-                    ))}
+                    </div>
                   </div>
-                </div>
-                <DialogFooter>
+                  <div>
+                    <Label>{t("color")}</Label>
+                    <div className="mt-1 flex gap-2">
+                      {COLORS.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setColor(c)}
+                          className={`h-7 w-7 rounded-full border ${
+                            color === c ? "border-foreground" : "border-transparent"
+                          }`}
+                          style={{ background: c }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </DialogBody>
+                <DialogFooter className="pt-4">
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                     {tCommon("cancel")}
                   </Button>

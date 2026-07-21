@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -118,16 +119,18 @@ export default function ProjectCerfaPage() {
               <DialogHeader>
                 <DialogTitle>Nouveau compte-rendu CERFA 15059</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreate} className="space-y-5">
-                <div>
-                  <Label>Titre du compte-rendu</Label>
-                  <Input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder={`Compte-rendu ${project.name} — ${new Date().getFullYear()}`}
-                  />
-                </div>
-                <DialogFooter>
+              <form onSubmit={handleCreate} className="flex min-h-0 flex-1 flex-col">
+                <DialogBody className="space-y-5 px-1">
+                  <div>
+                    <Label>Titre du compte-rendu</Label>
+                    <Input
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder={`Compte-rendu ${project.name} — ${new Date().getFullYear()}`}
+                    />
+                  </div>
+                </DialogBody>
+                <DialogFooter className="pt-4">
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                     {tCommon("cancel")}
                   </Button>

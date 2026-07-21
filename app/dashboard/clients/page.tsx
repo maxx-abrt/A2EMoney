@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -106,16 +107,18 @@ export default function ClientsPage() {
             <DialogTrigger asChild><Button className="gap-2 rounded-full shadow-sm"><Plus className="h-4 w-4" /> {t("new")}</Button></DialogTrigger>
             <DialogContent className="max-w-xl">
               <DialogHeader><DialogTitle>{t("new")}</DialogTitle></DialogHeader>
-              <form onSubmit={handleSave} className="space-y-5">
-                <div><Label>{tCommon("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-                  <div><Label>{t("phone")}</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
-                </div>
-                <div><Label>{t("address")}</Label><Textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} /></div>
-                <div><Label>SIRET</Label><Input value={siret} onChange={(e) => setSiret(e.target.value)} /></div>
-                <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
-                <DialogFooter>
+              <form onSubmit={handleSave} className="flex min-h-0 flex-1 flex-col">
+                <DialogBody className="space-y-5 px-1">
+                  <div><Label>{tCommon("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} required /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                    <div><Label>{t("phone")}</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+                  </div>
+                  <div><Label>{t("address")}</Label><Textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} /></div>
+                  <div><Label>SIRET</Label><Input value={siret} onChange={(e) => setSiret(e.target.value)} /></div>
+                  <div><Label>{tCommon("notes")}</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
+                </DialogBody>
+                <DialogFooter className="pt-4">
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>{tCommon("cancel")}</Button>
                   <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : tCommon("create")}</Button>
                 </DialogFooter>
