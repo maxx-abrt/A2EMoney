@@ -106,8 +106,9 @@ const navItems: NavItem[] = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
-  const { signOut } = useAuth()
+  const { signOut, user: workosUser, loading: workosLoading } = useAuth()
   const { isAuthenticated, isLoading: authLoading } = useConvexAuth()
+  const [convexAuthStuck, setConvexAuthStuck] = useState(false)
   const me = useQuery(api.users.me, isAuthenticated ? {} : "skip")
   const { workspaces, activeWorkspace, isLoading: wsLoading } = useWorkspace()
   const storage = useQuery(
@@ -130,17 +131,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       localStorage.setItem("a2e_sidebar_collapsed", collapsed ? "1" : "0")
   }, [collapsed])
 
-  // Redirect unauthenticated users to the WorkOS hosted login.
+  // Redirect to WorkOS hosted login ONLY when WorkOS itself has no session.
+  // We must NOT redirect based on Convex auth alone: if WorkOS is authenticated
+  // but Convex rejects the token (e.g. an auth.config issuer mismatch), bouncing
+  // to /sign-in creates an infinite /dashboard→/sign-in→/callback loop.
   // Use window.location for external OAuth hand-off; router.replace would
   // trigger an RSC fetch that follows the 307 to api.workos.com and fails CORS.
   useEffect(() => {
-    if (authLoading) return
-    if (!isAuthenticated && typeof window !== "undefined") {
+    if (workosLoading) return
+    if (!workosUser && typeof window !== "undefined") {
       const search = window.location.search
       const next = pathname + search
       window.location.href = `/sign-in?returnPathname=${encodeURIComponent(next)}`
     }
-  }, [authLoading, isAuthenticated, pathname])
+  }, [workosLoading, workosUser, pathname])
+
+  // Detect the "WorkOS authenticated but Convex never authenticates" case and
+  // surface an actionable error instead of spinning forever.
+  useEffect(() => {
+    if (workosLoading || authLoading) return
+    if (workosUser && !isAuthenticated) {
+      const timer = setTimeout(() => setConvexAuthStuck(true), 8000)
+      return () => clearTimeout(timer)
+    }
+    setConvexAuthStuck(false)
+  }, [workosLoading, authLoading, workosUser, isAuthenticated])
 
   // Redirect to onboarding if authenticated and no workspaces
   useEffect(() => {
@@ -152,6 +167,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [authLoading, wsLoading, isAuthenticated, workspaces, pathname, router])
 
   const storagePercent = storage ? Math.min(100, storage.percentage) : 0
+
+  // WorkOS is authenticated but Convex never accepted the token — show an
+  // actionable error instead of an infinite spinner/redirect loop.
+  if (convexAuthStuck && workosUser && !isAuthenticated) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
+        <h1 className="text-lg font-semibold">Session verification failed</h1>
+        <p className="max-w-md text-sm text-muted-foreground">
+          You&apos;re signed in with WorkOS, but the backend couldn&apos;t validate
+          your session. This usually clears up after a moment — try again, or sign
+          out and back in.
+        </p>
+        <div className="flex gap-2">
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+          <Button variant="outline" onClick={() => signOut()}>
+            Sign out
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   // Wait while auth resolves, the user is provisioned in Convex, or workspaces load.
   const provisioning = isAuthenticated && (me === undefined || me === null)

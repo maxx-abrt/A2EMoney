@@ -21,6 +21,10 @@ export function ConvexClientProvider({
     () =>
       new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
         unsavedChangesWarning: false,
+        // Treat the WorkOS token as expired 30s early so the refresh completes
+        // before the backend rejects it, avoiding a stuck-unauthenticated state
+        // after a token refresh (get-convex/convex-backend#259).
+        authRefreshTokenLeewaySeconds: 30,
       }),
   );
 
