@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { disableCoreModules } from "@/lib/core-flags"
+import { disableCoreModules, enableCoreModules } from "@/lib/core-flags"
 import { Button } from "@/components/ui/button"
 import { Danger, Refresh } from "@/components/iconsax"
 
@@ -48,7 +48,19 @@ export class CoreErrorBoundary extends React.Component<{ children: React.ReactNo
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => this.setState({ error: null })} variant="outline" className="gap-2">
+          <Button
+            onClick={() => {
+              // Reset the runtime degradation before clearing the boundary, so a
+              // successful retry starts from a clean state. If the query fails
+              // again, componentDidCatch re-disables. Keeps this boundary and the
+              // core bridge's success path (which also calls enableCoreModules)
+              // consistent on recovery.
+              enableCoreModules()
+              this.setState({ error: null })
+            }}
+            variant="outline"
+            className="gap-2"
+          >
             <Refresh className="h-4 w-4" /> Réessayer
           </Button>
           <Button onClick={() => window.location.reload()}>Recharger</Button>

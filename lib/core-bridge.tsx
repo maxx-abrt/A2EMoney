@@ -6,6 +6,7 @@ import { useConvexAuth } from "convex/react"
 import { useAuth } from "@workos-inc/authkit-nextjs/components"
 import { useCoreAuthState, useMe, useWorkspace, useWorkspaceMutations } from "@a2e/core"
 import { api } from "@/convex/_generated/api"
+import { enableCoreModules } from "@/lib/core-flags"
 
 /**
  * THE BRIDGE between Bilan's own deployment and A2E Core (guide §12.2, Pattern A).
@@ -27,6 +28,7 @@ import { api } from "@/convex/_generated/api"
 interface BridgeState {
   ready: boolean
   syncing: boolean
+  failed: boolean
   error: string | null
   lastSyncedAt: number | null
   resync: () => Promise<void>
@@ -35,6 +37,7 @@ interface BridgeState {
 const BridgeContext = React.createContext<BridgeState>({
   ready: false,
   syncing: false,
+  failed: false,
   error: null,
   lastSyncedAt: null,
   resync: async () => {},
@@ -55,9 +58,13 @@ export function CoreBridge({ children }: { children: React.ReactNode }) {
   const syncDirectory = useAction(api.directory.syncMe)
   const linkCoreUser = useMutation(api.directory.linkCoreUser)
 
-  const [state, setState] = React.useState<{ ready: boolean; syncing: boolean; error: string | null; at: number | null }>(
-    { ready: false, syncing: false, error: null, at: null },
-  )
+  const [state, setState] = React.useState<{
+    ready: boolean
+    syncing: boolean
+    failed: boolean
+    error: string | null
+    at: number | null
+  }>({ ready: false, syncing: false, failed: false, error: null, at: null })
 
   const signature = React.useMemo(
     () => (workspaces ? workspaces.map((w) => `${w._id}:${w.role}`).sort().join("|") : null),
@@ -65,20 +72,43 @@ export function CoreBridge({ children }: { children: React.ReactNode }) {
   )
   const lastSignature = React.useRef<string | null>(null)
   const directoryDone = React.useRef(false)
+  // Auto-retry timer for a single transient core hiccup; cleared on unmount/new run.
+  const retryTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const run = React.useCallback(
-    async (sig: string | null) => {
-      setState((s) => ({ ...s, syncing: true, error: null }))
+    async (sig: string | null, isRetry = false) => {
+      if (retryTimer.current) {
+        clearTimeout(retryTimer.current)
+        retryTimer.current = null
+      }
+      setState((s) => ({ ...s, syncing: true, failed: false, error: null }))
       try {
         await syncFromCore({})
         lastSignature.current = sig
-        setState({ ready: true, syncing: false, error: null, at: Date.now() })
+        setState({ ready: true, syncing: false, failed: false, error: null, at: Date.now() })
+        // Core is healthy again — clear any sticky runtime degradation that an
+        // earlier CoreErrorBoundary trip may have set (see lib/core-flags.ts).
+        enableCoreModules()
       } catch (error: any) {
-        setState({ ready: true, syncing: false, error: error?.message ?? "sync failed", at: null })
+        const msg = error?.message ?? "sync failed"
+        // One automatic retry for transient core hiccups, then surface failure.
+        if (!isRetry) {
+          retryTimer.current = setTimeout(() => void run(sig, true), 1500)
+          // Stay in `syncing` while the retry is pending so the UI keeps the
+          // spinner instead of flashing a failure that may self-resolve.
+          return
+        }
+        setState({ ready: false, syncing: false, failed: true, error: msg, at: null })
       }
     },
     [syncFromCore],
   )
+
+  React.useEffect(() => {
+    return () => {
+      if (retryTimer.current) clearTimeout(retryTimer.current)
+    }
+  }, [])
 
   // 1 + 2. Mirror memberships whenever the core workspace list/roles change.
   React.useEffect(() => {
@@ -118,6 +148,7 @@ export function CoreBridge({ children }: { children: React.ReactNode }) {
     () => ({
       ready: state.ready,
       syncing: state.syncing,
+      failed: state.failed,
       error: state.error,
       lastSyncedAt: state.at,
       resync: () => run(signature),

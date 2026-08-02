@@ -52,6 +52,8 @@ import {
   ArrowLeft2,
   Wallet,
   HeartTick,
+  Danger,
+  Refresh,
 } from "@/components/iconsax"
 import { cn } from "@/lib/utils"
 import { BilanWordmark, BilanMark } from "@/components/bilan-logo"
@@ -197,13 +199,50 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   // Wait while auth resolves, the shared workspace list loads, or the core
-  // membership mirror settles (a fresh signup must not race the first sync).
-  const provisioning = isAuthenticated && !bridge.ready && workspaces === undefined
-  if (authLoading || !isAuthenticated || (isAuthenticated && wsLoading) || provisioning) {
+  // membership mirror is still syncing its first result. The sync only fires
+  // AFTER the workspace list loads (the bridge depends on the workspace
+  // signature), so we must hold the spinner here until `bridge.ready` flips —
+  // otherwise workspace-scoped queries throw WORKSPACE_NOT_SYNCED and trip the
+  // CoreErrorBoundary. `bridge.failed` short-circuits the wait so we surface a
+  // clear failure screen instead of spinning forever on a broken bridge.
+  const syncPending = isAuthenticated && !bridge.ready && !bridge.failed
+  if (authLoading || !isAuthenticated || (isAuthenticated && wsLoading) || syncPending) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border border-accent border-t-transparent" />
-        <pre data-testid="auth-debug" className="text-[10px] text-muted-foreground">{JSON.stringify({ authLoading, isAuthenticated, wsLoading, provisioning, workosUser: Boolean(workosUser), bridgeReady: bridge.ready, bridgeErr: bridge.error, wsCount: workspaces?.length ?? null })}</pre>
+        <pre data-testid="auth-debug" className="text-[10px] text-muted-foreground">{JSON.stringify({ authLoading, isAuthenticated, wsLoading, syncPending, workosUser: Boolean(workosUser), bridgeReady: bridge.ready, bridgeFailed: bridge.failed, bridgeErr: bridge.error, wsCount: workspaces?.length ?? null })}</pre>
+      </div>
+    )
+  }
+
+  // Core bridge failed to mirror memberships (e.g. CONVEX_CORE_URL /
+  // A2E_SERVICE_SECRET missing on the Bilan Convex deployment). Show an
+  // actionable failure screen with the real error + retry, instead of letting
+  // every workspace-scoped query crash into the cryptic CoreErrorBoundary.
+  if (bridge.failed && !bridge.syncing) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-warning/15 text-warning">
+          <Danger className="h-5 w-5" />
+        </div>
+        <div className="max-w-md space-y-1">
+          <h2 className="text-base font-semibold">Espace partagé A2E indisponible</h2>
+          <p className="text-sm text-muted-foreground">
+            La synchronisation avec la base partagée a échoué. Vos données
+            financières restent intactes — réessayez dans un instant.
+          </p>
+          {bridge.error && (
+            <p className="pt-2 font-mono text-[11px] text-muted-foreground/80">
+              {bridge.error.slice(0, 220)}
+            </p>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={() => bridge.resync()} variant="outline" className="gap-2">
+            <Refresh className="h-4 w-4" /> Réessayer
+          </Button>
+          <Button onClick={() => window.location.reload()}>Recharger</Button>
+        </div>
       </div>
     )
   }
