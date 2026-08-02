@@ -41,10 +41,10 @@ export async function FeatureBento() {
           <p className="mt-4 text-pretty text-muted-foreground">{t("description")}</p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-3 sm:mt-14 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:auto-rows-[188px]">
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[minmax(180px,auto)]">
           {/* ── HERO 1 · auto journal (2 × 2) ───────────────────────────── */}
           <article
-            className="tile-ink group relative flex flex-col overflow-hidden p-6 sm:col-span-2 lg:row-span-2"
+            className="tile-ink group relative flex flex-col overflow-hidden p-5 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 sm:col-span-2 sm:p-6 lg:row-span-2"
             data-testid="bento-journal"
           >
             <div className="flex items-center gap-2.5">
@@ -62,9 +62,9 @@ export async function FeatureBento() {
               {t("items.journal.body")}
             </p>
 
-            {/* mini ledger mock */}
-            <div className="mt-auto hidden overflow-hidden rounded-xl border border-white/15 bg-white/5 lg:block">
-              <div className="grid grid-cols-[76px_1fr_84px_72px] gap-2 border-b border-white/10 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider opacity-60">
+            {/* mini ledger mock — visible from mobile up; pushes to bottom on larger tiles */}
+            <div className="mt-5 overflow-hidden rounded-xl border border-white/15 bg-white/5 sm:mt-auto">
+              <div className="grid grid-cols-[60px_1fr_80px_64px] gap-2 border-b border-white/10 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider opacity-60 sm:grid-cols-[76px_1fr_84px_72px]">
                 <span>Date</span>
                 <span>Libellé</span>
                 <span className="text-right">Montant</span>
@@ -77,7 +77,7 @@ export async function FeatureBento() {
               ].map(([date, label, amount, proof]) => (
                 <div
                   key={label}
-                  className="grid grid-cols-[76px_1fr_84px_72px] items-center gap-2 border-b border-white/5 px-3 py-2 text-[11px] last:border-0"
+                  className="grid grid-cols-[60px_1fr_80px_64px] items-center gap-2 border-b border-white/5 px-3 py-2 text-[11px] last:border-0 sm:grid-cols-[76px_1fr_84px_72px]"
                 >
                   <span className="font-mono opacity-70">{date}</span>
                   <span className="truncate">{label}</span>
@@ -99,7 +99,7 @@ export async function FeatureBento() {
 
           {/* ── HERO 2 · subventions + IA (2 × 1) ───────────────────────── */}
           <article
-            className="tile-lime group relative flex flex-col overflow-hidden p-6 sm:col-span-2"
+            className="tile-lime group relative flex flex-col overflow-hidden p-5 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 sm:col-span-2 sm:p-6"
             data-testid="bento-subventions"
           >
             <div className="flex items-start justify-between gap-3">
@@ -113,7 +113,7 @@ export async function FeatureBento() {
             <h3 className="mt-4 text-balance text-lg font-semibold tracking-tight sm:text-xl">
               {t("items.subventions.title")}
             </h3>
-            <p className="mt-2 line-clamp-4 text-sm leading-relaxed opacity-80">
+            <p className="mt-2 text-sm leading-relaxed opacity-80">
               {t("items.subventions.body")}
             </p>
           </article>
@@ -126,7 +126,7 @@ export async function FeatureBento() {
 
           {/* ── drive (2 × 1) ──────────────────────────────────────────── */}
           <article
-            className="tile-purple relative flex flex-col overflow-hidden p-6 sm:col-span-2"
+            className="tile-purple group relative flex flex-col overflow-hidden p-5 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 sm:col-span-2 sm:p-6"
             data-testid="bento-drive"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
@@ -135,7 +135,7 @@ export async function FeatureBento() {
             <h3 className="mt-4 text-balance text-lg font-semibold tracking-tight sm:text-xl">
               {t("items.drive.title")}
             </h3>
-            <p className="mt-2 line-clamp-4 text-sm leading-relaxed opacity-85">
+            <p className="mt-2 text-sm leading-relaxed opacity-85">
               {t("items.drive.body")}
             </p>
           </article>
@@ -154,7 +154,7 @@ export async function FeatureBento() {
 
           {/* ── security (2 × 1) ───────────────────────────────────────── */}
           <article
-            className="bento-tile relative flex flex-col justify-between overflow-hidden p-6 sm:col-span-2"
+            className="bento-tile group relative flex flex-col justify-between overflow-hidden p-5 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 sm:col-span-2 sm:p-6"
             data-testid="bento-security"
           >
             <div>
@@ -216,7 +216,7 @@ function BentoTile({
       <h3 className="mt-4 text-balance text-[15px] font-semibold leading-tight tracking-tight">
         {title}
       </h3>
-      <p className="mt-1.5 line-clamp-4 text-[13px] leading-relaxed text-muted-foreground">{body}</p>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{body}</p>
       <TickCircle
         size={14}
         variant="Bulk"
