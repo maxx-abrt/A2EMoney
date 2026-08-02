@@ -200,7 +200,7 @@ function BentoTile({
   body,
   testId,
 }: {
-  icon: React.ComponentType<{ size?: number; variant?: any; className?: string }>
+  icon: React.ComponentType<{ size?: number | string; variant?: any; className?: string }>
   title: string
   body: string
   testId: string

@@ -10,15 +10,11 @@ import {
 } from "@/components/ui/accordion"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { BilanWordmark, BilanMark } from "@/components/bilan-logo"
+import { FeatureBento } from "@/components/feature-bento"
 import {
   ArrowRight,
   ArrowRight3 as ArrowUpRight,
   Flash,
-  RouteSquare,
-  ChartSquare,
-  Designtools,
-  Eye,
-  HeartTick,
   TickCircle,
   Wallet2,
   Building4,
@@ -33,16 +29,6 @@ import {
 export default async function LandingPage() {
   const t = await getTranslations("landing")
   const nav = await getTranslations("nav")
-
-  const whyItems = ["speed", "clarity", "scale", "design", "vision", "founder"] as const
-  const whyIcons = {
-    speed: Flash,
-    clarity: RouteSquare,
-    scale: ChartSquare,
-    design: Designtools,
-    vision: Eye,
-    founder: HeartTick,
-  } as const
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
@@ -65,7 +51,7 @@ export default async function LandingPage() {
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {[
-              { href: "#why", label: nav("features") },
+              { href: "#features", label: nav("features") },
               { href: "#pricing", label: nav("pricing") },
               { href: "#testimonials", label: nav("testimonials") },
               { href: "#security", label: nav("security") },
@@ -140,7 +126,7 @@ export default async function LandingPage() {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="rounded-full" data-testid="hero-secondary-cta">
-              <Link href="#why">{t("hero.secondaryCta")}</Link>
+              <Link href="#features">{t("hero.secondaryCta")}</Link>
             </Button>
           </div>
 
@@ -271,60 +257,8 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* WHY (6 cards) */}
-      <section id="why" className="relative border-y border-border/40 bg-muted/30 py-20 sm:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("why.tag")}</p>
-            <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-              {t("why.title")}
-            </h2>
-            <p className="mt-4 text-muted-foreground">{t("why.description")}</p>
-          </div>
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {whyItems.map((key, idx) => {
-              const Icon = whyIcons[key]
-              // Bento color-blocking: 1 ink + 1 lime + 1 purple tile, rest white
-              const tone =
-                idx === 0 ? "ink" : idx === 2 ? "lime" : idx === 4 ? "purple" : "white"
-              const tileCls =
-                tone === "ink"
-                  ? "tile-ink"
-                  : tone === "lime"
-                  ? "tile-lime"
-                  : tone === "purple"
-                  ? "tile-purple"
-                  : "bento-tile"
-              const iconWrap =
-                tone === "white"
-                  ? "bg-[var(--brand-green)] text-[var(--brand-green-ink)] border border-border"
-                  : tone === "lime"
-                  ? "bg-foreground text-background"
-                  : "bg-white/15 text-current"
-              const descCls = tone === "white" ? "text-muted-foreground" : "opacity-80"
-              return (
-                <div
-                  key={key}
-                  className={`group relative overflow-hidden p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_10px_0_-2px_var(--border)] ${tileCls}`}
-                  data-testid={`why-card-${key}`}
-                >
-                  <div
-                    className={`relative flex h-11 w-11 items-center justify-center rounded-xl transition-transform group-hover:scale-110 ${iconWrap}`}
-                  >
-                    <Icon size={22} variant="Bulk" />
-                  </div>
-                  <h3 className="relative mt-5 text-lg font-semibold tracking-tight">
-                    {t(`why.items.${key}.title`)}
-                  </h3>
-                  <p className={`relative mt-2 text-sm ${descCls}`}>
-                    {t(`why.items.${key}.description`)}
-                  </p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
+      {/* FEATURES — variable bento grid */}
+      <FeatureBento />
 
       {/* PROFILES (Individual vs Business) */}
       <section id="pricing" className="border-b border-border/40 py-20 sm:py-28">
