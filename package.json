@@ -9,14 +9,20 @@
     "prod": "next start -H 0.0.0.0 -p 3000",
     "lint": "next lint",
     "convex:dev": "convex dev",
-    "convex:deploy": "convex deploy"
+    "convex:deploy": "convex deploy",
+    "typecheck": "tsc --noEmit",
+    "sync:core": "node scripts/sync-a2e-core.mjs",
+    "poc:core": "node poc/test_core.mjs"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@a2e/core": "link:../A2E Core/packages/core",
     "@auth/core": "0.37.0",
+=======
+    "@a2e/core": "workspace:*",
+>>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
     "@aws-sdk/client-s3": "^3.1030.0",
     "@aws-sdk/s3-request-presigner": "^3.1030.0",
-    "@convex-dev/auth": "^0.0.94",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "1.2.12",
     "@radix-ui/react-alert-dialog": "1.1.15",
@@ -48,6 +54,7 @@
     "@radix-ui/react-visually-hidden": "^1.2.5",
     "@vercel/analytics": "1.6.1",
     "@workos-inc/authkit-nextjs": "^4.1.1",
+    "@workos-inc/node": "^10.9.0",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -59,6 +66,7 @@
     "html2canvas": "^1.4.1",
     "iconsax-react": "^0.0.8",
     "input-otp": "1.4.2",
+    "iron-session": "^8.0.4",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.564.0",

@@ -3,13 +3,40 @@
 import { ReactNode, useCallback, useState } from "react";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithAuth } from "convex/react";
-import {
-  AuthKitProvider,
-  useAuth,
-  useAccessToken,
-} from "@workos-inc/authkit-nextjs/components";
+import { AuthKitProvider, useAuth } from "@workos-inc/authkit-nextjs/components";
 import type { UserInfo, NoUserInfo } from "@workos-inc/authkit-nextjs";
 import { CoreProvider, type CoreTokenFetcher } from "@a2e/core";
+
+/**
+ * Fetches the WorkOS access token through `/session/token` (a plain GET Route
+ * Handler) instead of AuthKit's Server-Action-based `useAccessToken()`.
+ *
+ * Rationale: behind any reverse proxy where the browser `Origin` differs from
+ * `x-forwarded-host`, Next can reject or stall the Server Action POST, which
+ * leaves both Convex clients unauthenticated with no visible error. A GET is
+ * immune, behaves identically in dev/preview/production, and the token still
+ * never leaves the authenticated session (httpOnly cookie read server-side).
+ *
+ * Exported so the A2E Core client uses exactly the same token — one login,
+ * two deployments (integration guide §2 Step 3).
+ */
+export async function fetchWorkOSToken({
+  forceRefreshToken,
+}: { forceRefreshToken?: boolean } = {}): Promise<string | null> {
+  try {
+    const res = await fetch(`/session/token${forceRefreshToken ? "?refresh=1" : ""}`, {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+      headers: { accept: "application/json" },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { accessToken: string | null };
+    return data.accessToken ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export function ConvexClientProvider({
   children,
@@ -30,7 +57,9 @@ export function ConvexClientProvider({
   );
 
   return (
-    <AuthKitProvider initialAuth={initialAuth}>
+    // `onSessionExpired={false}` disables AuthKit's visibility-change probe,
+    // which also relies on a Server Action.
+    <AuthKitProvider initialAuth={initialAuth} onSessionExpired={false}>
       <ConvexProviderWithAuth client={convex} useAuth={useAuthFromAuthKit}>
         {/* Mount the shared A2E core client inside the app's auth context so
             it can reuse the same WorkOS access token. */}
@@ -46,33 +75,16 @@ function CoreAuthBridge({ children }: { children: ReactNode }) {
 }
 
 function useAuthFromAuthKit() {
-  const { user, loading: isLoading } = useAuth();
-  const { getAccessToken, refresh } = useAccessToken();
+  const { user, loading } = useAuth();
   const isAuthenticated = !!user;
 
   const fetchAccessToken = useCallback(
-    async ({
-      forceRefreshToken,
-    }: { forceRefreshToken?: boolean } = {}): Promise<string | null> => {
-      if (!user) {
-        return null;
-      }
-      try {
-        if (forceRefreshToken) {
-          return (await refresh()) ?? null;
-        }
-        return (await getAccessToken()) ?? null;
-      } catch (error) {
-        console.error("Failed to get WorkOS access token:", error);
-        return null;
-      }
+    async ({ forceRefreshToken }: { forceRefreshToken?: boolean } = {}) => {
+      if (!user) return null;
+      return await fetchWorkOSToken({ forceRefreshToken });
     },
-    [user, refresh, getAccessToken],
+    [user],
   );
 
-  return {
-    isLoading,
-    isAuthenticated,
-    fetchAccessToken,
-  };
+  return { isLoading: loading, isAuthenticated, fetchAccessToken };
 }

@@ -1,20 +1,43 @@
-import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
-import { assertWorkspaceMember } from "./lib/auth"
+import { mutation, query } from "./_generated/server"
+import { assertWorkspaceMember, logActivity } from "./lib/auth"
+import { decryptFields, encryptOptional } from "./lib/crypto"
 
-// Organisation legal profile — stored ONCE per workspace and reused to
-// auto-prefill every legal document (demande de subvention, convention,
-// attestation, reçu, budget, rapport d'activité...).
+/**
+ * Organisation legal profile — stored once per workspace and auto-prefilled into
+ * every legal document (CERFA, reçus fiscaux, conventions).
+ *
+ * Bank details and contact identifiers are ENCRYPTED AT REST with AES-256-GCM
+ * (per-workspace key, context-bound) — see `convex/lib/crypto.ts`. They are
+ * decrypted only for authenticated members of the owning workspace.
+ */
+
+const ENCRYPTED = [
+  "iban",
+  "bic",
+  "siret",
+  "rna",
+  "address",
+  "phone",
+  "email",
+  "representativeName",
+] as const
 
 export const get = query({
   args: { workspaceId: v.string() },
+<<<<<<< HEAD
   handler: async (ctx, args) => {
     await assertWorkspaceMember(ctx, args.workspaceId)
+=======
+  handler: async (ctx, { workspaceId }) => {
+    await assertWorkspaceMember(ctx, workspaceId)
+>>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
     const row = await ctx.db
       .query("a2e_orgProfile")
-      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
       .unique()
-    return row ?? null
+    if (!row) return null
+    return await decryptFields(workspaceId, "a2e_orgProfile", row, ENCRYPTED)
   },
 })
 
@@ -41,23 +64,48 @@ export const upsert = mutation({
   },
   handler: async (ctx, args) => {
     const { userId } = await assertWorkspaceMember(ctx, args.workspaceId, "member")
-    const { workspaceId, ...fields } = args
+    const { workspaceId, ...rest } = args
     const now = Date.now()
+
+    const payload: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(rest)) {
+      if (value === undefined) continue
+      payload[key] = (ENCRYPTED as readonly string[]).includes(key)
+        ? await encryptOptional(workspaceId, "a2e_orgProfile", key, value as string)
+        : value
+    }
+
     const existing = await ctx.db
       .query("a2e_orgProfile")
       .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
       .unique()
-    const patch: any = { updatedAt: now }
-    for (const [k, val] of Object.entries(fields)) if (val !== undefined) patch[k] = val
+
     if (existing) {
-      await ctx.db.patch(existing._id, patch)
+      await ctx.db.patch(existing._id, { ...payload, updatedAt: now })
+      await logActivity(ctx, {
+        workspaceId,
+        actorId: userId,
+        action: "org.updated",
+        targetType: "orgProfile",
+        targetId: existing._id,
+      })
       return existing._id
     }
-    return ctx.db.insert("a2e_orgProfile", {
+
+    const id = await ctx.db.insert("a2e_orgProfile", {
       workspaceId,
-      ...patch,
+      ...(payload as any),
       createdBy: userId,
       createdAt: now,
+      updatedAt: now,
     })
+    await logActivity(ctx, {
+      workspaceId,
+      actorId: userId,
+      action: "org.created",
+      targetType: "orgProfile",
+      targetId: id,
+    })
+    return id
   },
 })

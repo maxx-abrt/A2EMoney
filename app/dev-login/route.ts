@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server"
-import { sealData } from "iron-session"
-import { WorkOS } from "@workos-inc/node"
+import { getWorkOS, saveSession } from "@workos-inc/authkit-nextjs"
 
 /**
  * DEV-ONLY login bypass.
  *
- * Establishes a real WorkOS AuthKit session (same shape as the hosted-login
- * callback) without going through the cross-domain hosted-login redirect. This
- * is used for automated testing in the preview environment where the headless
- * browser struggles with the WorkOS cross-origin redirect.
+ * Establishes a REAL WorkOS AuthKit session (password grant) without the
+ * cross-domain hosted-login redirect, which headless browsers cannot complete in
+ * the preview environment. The session cookie is written by AuthKit's own
+ * `saveSession()`, so its format always matches what the middleware expects.
  *
- * Guarded by ALLOW_DEV_LOGIN=true (set only in .env.local, never committed).
- * Remove the env var before production deploy.
+ * Guarded by `ALLOW_DEV_LOGIN=true` (set only in .env.local, never committed).
+ * MUST be false/absent in production.
  */
 export async function GET(request: Request) {
   if (process.env.ALLOW_DEV_LOGIN !== "true") {
@@ -24,32 +23,20 @@ export async function GET(request: Request) {
   const returnPathname = url.searchParams.get("returnPathname") || "/dashboard"
 
   try {
-    const workos = new WorkOS(process.env.WORKOS_API_KEY!)
-    const { user, accessToken, refreshToken } =
-      await workos.userManagement.authenticateWithPassword({
-        clientId: process.env.WORKOS_CLIENT_ID!,
-        email,
-        password,
-      })
+    const workos = getWorkOS()
+    const authResponse = await workos.userManagement.authenticateWithPassword({
+      clientId: process.env.WORKOS_CLIENT_ID!,
+      email,
+      password,
+    })
 
-    const encryptedSession = await sealData(
-      { accessToken, refreshToken, user },
-      { password: process.env.WORKOS_COOKIE_PASSWORD!, ttl: 0 },
-    )
+    // Writes the `wos-session` cookie with AuthKit's own sealing + options.
+    await saveSession(authResponse, process.env.NEXT_PUBLIC_SITE_URL || url.origin)
 
     const base = process.env.NEXT_PUBLIC_SITE_URL || url.origin
-    const res = NextResponse.redirect(new URL(returnPathname, base))
-    res.cookies.set("wos-session", encryptedSession, {
-      path: "/",
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 400,
-    })
-    return res
+    return NextResponse.redirect(new URL(returnPathname, base))
   } catch (e: any) {
-    return new NextResponse("Dev login failed: " + (e?.message || "error"), {
-      status: 500,
-    })
+    console.error("[dev-login] failed", e)
+    return new NextResponse("Dev login failed: " + (e?.message || "error"), { status: 500 })
   }
 }

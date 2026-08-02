@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
-import { useWorkspace } from "@/lib/workspace-context"
+import { useLinkedFiles, useTaskMutations, useTaskStatuses, useTasks, useWorkspace } from "@a2e/core"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,10 +34,12 @@ import {
   Loader2,
   Trash2,
   ClipboardList,
+  ClipboardTick,
   FileText,
   HardDrive,
   NoteText,
   Receipt,
+  TickCircle,
 } from "@/components/iconsax"
 import { toast } from "sonner"
 import { CATEGORIES, CATEGORY_I18N } from "@/lib/options"
@@ -62,7 +64,22 @@ export default function ProjectHubPage() {
   const project = useQuery(api.projects.get, projectId ? { projectId } : "skip")
   const expenses = useQuery(api.a2e_expenses.listByProject, projectId ? { projectId } : "skip")
   const fiches = useQuery(api.a2e_fiches.list, activeWorkspace?._id ? { workspaceId: activeWorkspace._id, projectId } : "skip")
-  const docs = useQuery(api.a2e_documents.list, activeWorkspace?._id ? { workspaceId: activeWorkspace._id, linkedToType: "project", linkedToId: projectId } : "skip")
+  const docs = useLinkedFiles(
+    activeWorkspace?._id,
+    projectId ? { app: "bilan", type: "project", id: projectId } : null,
+  )
+  const allTasks = useTasks(activeWorkspace?._id)
+  const taskStatuses = useTaskStatuses(activeWorkspace?._id)
+  const { create: createTask, setStatus: setTaskStatus, remove: removeTask } = useTaskMutations()
+  const tasks = React.useMemo(
+    () => (allTasks ?? []).filter((task) => task.linkedTo?.type === "project" && task.linkedTo?.id === projectId),
+    [allTasks, projectId],
+  )
+  const [newTask, setNewTask] = React.useState("")
+  const doneKeys = React.useMemo(
+    () => new Set((taskStatuses ?? []).filter((s) => s.isDone).map((s) => s.key)),
+    [taskStatuses],
+  )
   const grantReports = useQuery(api.a2e_grantReports.listByProject, projectId ? { projectId } : "skip")
 
   const updateProject = useMutation(api.projects.update)
@@ -240,6 +257,7 @@ export default function ProjectHubPage() {
             <TabsTrigger value="transactions" className="gap-1"><Receipt className="h-3.5 w-3.5" /> {t("tabs.transactions")}</TabsTrigger>
             <TabsTrigger value="fiches" className="gap-1"><ClipboardList className="h-3.5 w-3.5" /> {t("tabs.fiches")}</TabsTrigger>
             <TabsTrigger value="cerfa" className="gap-1"><NoteText className="h-3.5 w-3.5" /> CERFA</TabsTrigger>
+            <TabsTrigger value="tasks" className="gap-1"><ClipboardTick className="h-3.5 w-3.5" /> {t("tabs.tasks")}</TabsTrigger>
             <TabsTrigger value="documents" className="gap-1"><HardDrive className="h-3.5 w-3.5" /> {t("tabs.documents")}</TabsTrigger>
             <TabsTrigger value="details" className="gap-1"><FileText className="h-3.5 w-3.5" /> {t("tabs.details")}</TabsTrigger>
           </TabsList>
@@ -356,6 +374,89 @@ export default function ProjectHubPage() {
             </div>
           </TabsContent>
 
+          <TabsContent value="tasks" className="space-y-4 pt-4">
+            <div>
+              <h2 className="text-sm font-semibold">{t("tabs.tasks")}</h2>
+              <p className="text-xs text-muted-foreground">{t("tasksShared")}</p>
+            </div>
+            <GlassCard className="p-5">
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  if (!activeWorkspace?._id || !newTask.trim()) return
+                  try {
+                    await createTask({
+                      workspaceId: activeWorkspace._id,
+                      title: newTask.trim(),
+                      sourceApp: "bilan",
+                      linkedTo: { app: "bilan", type: "project", id: projectId },
+                    })
+                    setNewTask("")
+                  } catch (err: any) {
+                    toast.error(err?.message ?? "Erreur")
+                  }
+                }}
+                className="flex gap-2"
+              >
+                <Input
+                  value={newTask}
+                  onChange={(e) => setNewTask(e.target.value)}
+                  placeholder={t("newTaskPlaceholder")}
+                  data-testid="new-task-input"
+                />
+                <Button type="submit" disabled={!newTask.trim()} className="gap-1.5" data-testid="add-task-btn">
+                  <Plus className="h-4 w-4" /> {tCommon("create")}
+                </Button>
+              </form>
+            </GlassCard>
+            <GlassCard>
+              {allTasks === undefined ? (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : tasks.length === 0 ? (
+                <div className="px-5 py-8 text-center text-sm text-muted-foreground">{t("empty.tasks")}</div>
+              ) : (
+                <ul className="divide-y divide-border/60" data-testid="project-tasks">
+                  {tasks.map((task) => {
+                    const done = doneKeys.has(task.status)
+                    return (
+                      <li key={task._id} className="flex items-center gap-3 px-5 py-3">
+                        <button
+                          type="button"
+                          onClick={() => setTaskStatus({ taskId: task._id, status: done ? "todo" : "done" })}
+                          className={done ? "text-success" : "text-muted-foreground"}
+                          aria-label="toggle"
+                        >
+                          <TickCircle className="h-4 w-4" />
+                        </button>
+                        <span className={done ? "flex-1 text-sm line-through opacity-60" : "flex-1 text-sm"}>
+                          {task.title}
+                        </span>
+                        {task.assignee?.name && (
+                          <Badge variant="outline" className="text-[10px]">
+                            {task.assignee.name}
+                          </Badge>
+                        )}
+                        <Badge variant="secondary" className="text-[10px]">
+                          {task.status}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive"
+                          onClick={() => removeTask({ taskId: task._id })}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </GlassCard>
+          </TabsContent>
+
           <TabsContent value="documents" className="space-y-4 pt-4">
             <h2 className="text-sm font-semibold">{t("tabs.documents")}</h2>
             <GlassCard className="p-5">
@@ -369,8 +470,11 @@ export default function ProjectHubPage() {
                   {(docs ?? []).map((d) => (
                     <li key={d._id} className="flex items-center gap-3 px-5 py-3">
                       <FileText className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{d.name}</span>
-                      <span className="ml-auto text-xs text-muted-foreground">{d.type}</span>
+                      <span className="truncate text-sm">{d.name}</span>
+                      <Badge variant="secondary" className="ml-auto shrink-0 text-[10px]">
+                        A2E Drive
+                      </Badge>
+                      <span className="shrink-0 text-xs text-muted-foreground">{d.contentType ?? ""}</span>
                     </li>
                   ))}
                 </ul>

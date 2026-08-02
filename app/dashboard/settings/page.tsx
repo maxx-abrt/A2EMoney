@@ -3,22 +3,32 @@
 import * as React from "react"
 import { useTranslations } from "next-intl"
 import { useMutation, useQuery } from "convex/react"
-import { useAuth } from "@workos-inc/authkit-nextjs/components"
+import { useWorkspace, useWorkspaceMutations } from "@a2e/core"
 import { api } from "@/convex/_generated/api"
+<<<<<<< HEAD
 import { useCoreMutation, coreApi } from "@a2e/core"
 import { useWorkspace } from "@/lib/workspace-context"
+=======
+import { useIdentity } from "@/lib/core-bridge"
+>>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { GlassCard } from "@/components/glass-card"
-import { LogoutCurve, Save2, Trash, Danger, DocumentDownload } from "@/components/iconsax"
+import { CoreStatusCard } from "@/components/core-status-card"
+import { SecurityStatusCard } from "@/components/security-status-card"
+import { LogoutCurve, Save2, Danger, ShieldTick, Buildings2 } from "@/components/iconsax"
 import { toast } from "sonner"
-import { exportToJSON } from "@/lib/export"
 
+/**
+ * Settings — profile & workspace live in A2E Core, the organisation legal profile
+ * and the security/GDPR controls are Bilan's own (encrypted at rest).
+ */
 export default function SettingsPage() {
   const t = useTranslations("pages.settings")
   const tCommon = useTranslations("common")
+<<<<<<< HEAD
   const { signOut } = useAuth()
   const { activeWorkspace, setActiveWorkspaceId } = useWorkspace()
   const wsId = activeWorkspace?._id
@@ -27,16 +37,43 @@ export default function SettingsPage() {
   const updateCoreUser = useCoreMutation(coreApi.users.updateProfile)
   const updateWs = useCoreMutation(coreApi.workspaces.update)
   const exportWs = useQuery(api.activities.exportWorkspace, wsId ? { workspaceId: wsId } : "skip")
+=======
+  const signOut = () => {
+    window.location.href = "/session/signout"
+  }
+  const { activeWorkspace, activeWorkspaceId } = useWorkspace()
+  const identity = useIdentity()
+  const { update, updateProfile } = useWorkspaceMutations()
+  const org = useQuery(api.a2e_org.get, activeWorkspaceId ? { workspaceId: activeWorkspaceId } : "skip")
+  const upsertOrg = useMutation(api.a2e_org.upsert)
+>>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 
   const [name, setName] = React.useState("")
   const [wsName, setWsName] = React.useState("")
   const [wsDesc, setWsDesc] = React.useState("")
   const [wsCurrency, setWsCurrency] = React.useState("EUR")
   const [saving, setSaving] = React.useState(false)
+  const [orgForm, setOrgForm] = React.useState({
+    legalName: "",
+    rna: "",
+    siret: "",
+    address: "",
+    postalCode: "",
+    city: "",
+    email: "",
+    phone: "",
+    website: "",
+    representativeName: "",
+    representativeRole: "",
+    iban: "",
+    bic: "",
+    objet: "",
+  })
 
   React.useEffect(() => {
-    if (me?.name) setName(me.name)
-  }, [me])
+    if (identity.name) setName(identity.name)
+  }, [identity.name])
+
   React.useEffect(() => {
     if (activeWorkspace) {
       setWsName(activeWorkspace.name)
@@ -45,13 +82,38 @@ export default function SettingsPage() {
     }
   }, [activeWorkspace])
 
+  React.useEffect(() => {
+    if (org) {
+      setOrgForm({
+        legalName: org.legalName ?? "",
+        rna: org.rna ?? "",
+        siret: org.siret ?? "",
+        address: org.address ?? "",
+        postalCode: org.postalCode ?? "",
+        city: org.city ?? "",
+        email: org.email ?? "",
+        phone: org.phone ?? "",
+        website: org.website ?? "",
+        representativeName: org.representativeName ?? "",
+        representativeRole: org.representativeRole ?? "",
+        iban: org.iban ?? "",
+        bic: org.bic ?? "",
+        objet: org.objet ?? "",
+      })
+    }
+  }, [org])
+
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault()
     try {
       setSaving(true)
+<<<<<<< HEAD
       await updateUser({ name })
       // Keep the shared suite profile in sync (cross-app identity).
       updateCoreUser({ name }).catch(() => {})
+=======
+      await updateProfile({ name })
+>>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
       toast.success(t("toasts.profileSaved"))
     } catch (err: any) {
       toast.error(err?.message || t("toasts.failed"))
@@ -62,10 +124,19 @@ export default function SettingsPage() {
 
   async function handleSaveWorkspace(e: React.FormEvent) {
     e.preventDefault()
-    if (!wsId) return
+    if (!activeWorkspaceId) return
     try {
       setSaving(true)
+<<<<<<< HEAD
       await updateWs({ workspaceId: wsId as any, name: wsName, description: wsDesc || undefined, currency: wsCurrency })
+=======
+      await update({
+        workspaceId: activeWorkspaceId,
+        name: wsName,
+        description: wsDesc || undefined,
+        currency: wsCurrency,
+      })
+>>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
       toast.success(t("toasts.workspaceSaved"))
     } catch (err: any) {
       toast.error(err?.message || t("toasts.failed"))
@@ -74,10 +145,40 @@ export default function SettingsPage() {
     }
   }
 
+<<<<<<< HEAD
   function handleExport() {
     if (!exportWs) return
     exportToJSON(`${activeWorkspace?.slug || "workspace"}-export`, exportWs)
   }
+=======
+  async function handleSaveOrg(e: React.FormEvent) {
+    e.preventDefault()
+    if (!activeWorkspaceId) return
+    try {
+      setSaving(true)
+      await upsertOrg({ workspaceId: activeWorkspaceId, ...orgForm })
+      toast.success(t("toasts.orgSaved"))
+    } catch (err: any) {
+      toast.error(err?.message || t("toasts.failed"))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const orgField = (key: keyof typeof orgForm, label: string, sensitive = false) => (
+    <div>
+      <Label className="flex items-center gap-1.5">
+        {label}
+        {sensitive && <ShieldTick className="h-3 w-3 text-success" />}
+      </Label>
+      <Input
+        data-testid={`org-${key}`}
+        value={orgForm[key]}
+        onChange={(e) => setOrgForm({ ...orgForm, [key]: e.target.value })}
+      />
+    </div>
+  )
+>>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
@@ -87,6 +188,7 @@ export default function SettingsPage() {
           <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
         </div>
 
+        {/* Profile (shared identity) */}
         <GlassCard className="p-6">
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <h2 className="text-sm font-semibold">{t("profile")}</h2>
@@ -96,7 +198,8 @@ export default function SettingsPage() {
             </div>
             <div>
               <Label>Email</Label>
-              <Input value={me?.email ?? ""} disabled />
+              <Input value={identity.email ?? ""} disabled />
+              <p className="mt-1 text-xs text-muted-foreground">{t("emailManagedByWorkOS")}</p>
             </div>
             <div className="flex justify-end">
               <Button data-testid="save-profile-btn" type="submit" disabled={saving} className="gap-2">
@@ -106,6 +209,7 @@ export default function SettingsPage() {
           </form>
         </GlassCard>
 
+        {/* Workspace (shared) */}
         {activeWorkspace && (
           <GlassCard className="p-6">
             <form onSubmit={handleSaveWorkspace} className="space-y-4">
@@ -120,7 +224,11 @@ export default function SettingsPage() {
               </div>
               <div>
                 <Label>{tCommon("currency")}</Label>
-                <select value={wsCurrency} onChange={(e) => setWsCurrency(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+                <select
+                  value={wsCurrency}
+                  onChange={(e) => setWsCurrency(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                >
                   <option value="EUR">EUR €</option>
                   <option value="USD">USD $</option>
                   <option value="GBP">GBP £</option>
@@ -128,10 +236,8 @@ export default function SettingsPage() {
                   <option value="CAD">CAD $</option>
                 </select>
               </div>
-              <div className="flex flex-wrap justify-end gap-2">
-                <Button data-testid="export-gdpr-btn" type="button" variant="outline" onClick={handleExport} className="gap-2" disabled={!exportWs}>
-                  <DocumentDownload size={14} variant="Bulk" /> {t("exportGdpr")}
-                </Button>
+              <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">{t("workspaceShared")}</p>
+              <div className="flex justify-end">
                 <Button data-testid="save-workspace-btn" type="submit" disabled={saving} className="gap-2">
                   <Save2 size={14} variant="Bulk" /> {tCommon("save")}
                 </Button>
@@ -140,17 +246,81 @@ export default function SettingsPage() {
           </GlassCard>
         )}
 
+        {/* Organisation legal identity (Bilan, encrypted) */}
+        {activeWorkspace && (
+          <GlassCard className="p-6">
+            <form onSubmit={handleSaveOrg} className="space-y-4">
+              <div>
+                <h2 className="flex items-center gap-2 text-sm font-semibold">
+                  <Buildings2 size={16} variant="Bulk" /> {t("organisation")}
+                </h2>
+                <p className="mt-1 text-xs text-muted-foreground">{t("organisationDescription")}</p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {orgField("legalName", t("org.legalName"))}
+                {orgField("rna", t("org.rna"), true)}
+                {orgField("siret", "SIRET", true)}
+                {orgField("email", "Email", true)}
+                {orgField("phone", t("org.phone"), true)}
+                {orgField("website", t("org.website"))}
+                {orgField("postalCode", t("org.postalCode"))}
+                {orgField("city", t("org.city"))}
+                {orgField("representativeName", t("org.representativeName"), true)}
+                {orgField("representativeRole", t("org.representativeRole"))}
+                {orgField("iban", "IBAN", true)}
+                {orgField("bic", "BIC", true)}
+              </div>
+              <div>
+                <Label>{t("org.address")}</Label>
+                <Textarea
+                  data-testid="org-address"
+                  value={orgForm.address}
+                  onChange={(e) => setOrgForm({ ...orgForm, address: e.target.value })}
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label>{t("org.objet")}</Label>
+                <Textarea
+                  value={orgForm.objet}
+                  onChange={(e) => setOrgForm({ ...orgForm, objet: e.target.value })}
+                  rows={2}
+                />
+              </div>
+              <p className="flex items-start gap-2 rounded-lg bg-success/10 px-3 py-2 text-xs text-muted-foreground">
+                <ShieldTick className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
+                {t("org.encryptedNotice")}
+              </p>
+              <div className="flex justify-end">
+                <Button data-testid="save-org-btn" type="submit" disabled={saving} className="gap-2">
+                  <Save2 size={14} variant="Bulk" /> {tCommon("save")}
+                </Button>
+              </div>
+            </form>
+          </GlassCard>
+        )}
+
+        {/* Shared layer status */}
+        <CoreStatusCard />
+
+        {/* Security & GDPR */}
+        <SecurityStatusCard />
+
         {activeWorkspace?.role === "owner" && (
-          <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-6 space-y-3 backdrop-blur-xl">
+          <div className="space-y-3 rounded-2xl border border-destructive/40 bg-destructive/5 p-6 backdrop-blur-xl">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-destructive">
               <Danger size={16} variant="Bulk" /> {t("danger")}
             </h2>
             <p className="text-xs text-muted-foreground">{t("dangerDescription")}</p>
+<<<<<<< HEAD
             {/* Workspaces are shared across the A2E suite (A2E Core); deletion
                 is handled centrally, not per-app. */}
             <Button data-testid="delete-workspace-btn" variant="destructive" disabled className="gap-2">
               <Trash size={14} variant="Bulk" /> {t("deleteWorkspace")}
             </Button>
+=======
+            <p className="text-xs text-muted-foreground">{t("dangerCoreNotice")}</p>
+>>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
           </div>
         )}
 

@@ -226,6 +226,13 @@ export const BellOff = get("Notification")
 export const CheckCheck = get("Check")
 export const FilePlus2 = get("DocumentText1")
 export const Save = get("Save2")
+export const Lock = get("Lock")
+export const Buildings = get("Buildings")
+export const Lock1 = get("Lock1")
+export const Global = get("Global")
+export const Key = get("Key")
+export const Fingerprint = get("Scan")
+export const ShieldSearch = get("ShieldSearch")
 
 // Generic proxy fallback: anything else still works via lazy lookup.
 const proxy = new Proxy(

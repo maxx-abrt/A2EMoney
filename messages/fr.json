@@ -58,7 +58,8 @@
     "toasts": {
       "created": "Espace de travail créé !",
       "failed": "Impossible de créer l'espace de travail"
-    }
+    },
+    "sharedNotice": "Cet espace est partagé avec toute la suite A2E : membres, rôles, fichiers et notifications sont communs. Vos données financières restent dans Bilan, chiffrées."
   },
   "workspace": {
     "switcher": {
@@ -67,7 +68,8 @@
       "manage": "Gérer les espaces",
       "noWorkspace": "Aucun espace sélectionné",
       "members": "{count, plural, =0 {Aucun membre} =1 {1 membre} other {# membres}}",
-      "currentRole": "Votre rôle : {role}"
+      "currentRole": "Votre rôle : {role}",
+      "sharedHint": "L'espace est créé dans A2E Core : il sera immédiatement disponible dans toutes les apps de la suite (Bilan, Bureau, Drive…)."
     },
     "empty": {
       "title": "Aucun espace de travail",
@@ -127,7 +129,8 @@
     "view": "Voir",
     "open": "Ouvrir",
     "update": "Mettre à jour",
-    "title": "Titre"
+    "title": "Titre",
+    "restore": "Restaurer"
   },
   "nav": {
     "features": "Fonctionnalités",
@@ -149,7 +152,8 @@
     "fiches": "Fiches projet",
     "settings": "Paramètres",
     "signOut": "Déconnexion",
-    "storage": "Stockage"
+    "storage": "Stockage",
+    "security": "Sécurité"
   },
   "landing": {
     "badge": "v1.0 · Lancement progressif",
@@ -438,6 +442,30 @@
       "description": "Rejoignez les équipes et associations qui bâtissent leur prochaine étape avec Bilan.",
       "primary": "Accès anticipé",
       "secondary": "Nous contacter"
+    },
+    "security": {
+      "badge": "Sécurité & conformité",
+      "title": "Chiffré au repos. Hébergé en Europe. Auditable.",
+      "subtitle": "Les données financières les plus sensibles (IBAN, BIC, SIRET, coordonnées) sont chiffrées en AES-256-GCM avec une clé dérivée par espace. Les justificatifs vivent dans un bucket privé en UE, accessibles seulement par liens signés.",
+      "cta": "Voir le centre de confiance",
+      "items": {
+        "encryption": {
+          "title": "AES-256-GCM par espace",
+          "body": "Clés dérivées par HKDF, chiffrés liés à leur espace, table et champ."
+        },
+        "files": {
+          "title": "Fichiers en bucket privé",
+          "body": "Backblaze B2 (UE), URLs signées 10 minutes, aucune URL publique."
+        },
+        "gdpr": {
+          "title": "RGPD de A à Z",
+          "body": "Export, effacement, registre des traitements et consentement versionné intégrés."
+        },
+        "suite": {
+          "title": "Espace partagé A2E",
+          "body": "Membres, rôles, notifications et Drive communs à toute la suite, une seule connexion."
+        }
+      }
     }
   },
   "dashboard": {
@@ -533,27 +561,27 @@
     "noInvitationsDescription": "Invitez vos collègues à collaborer sur cet espace.",
     "invitationExpiresAt": "Expire le {date}",
     "invitationExpired": "Expirée",
-    "copyInviteLink": "Copier le lien d'invitation",
+    "copyInviteLink": "Copier le lien",
     "revoke": "Révoquer",
-    "makeAdmin": "Promouvoir admin",
-    "makeMember": "Définir comme membre",
-    "makeViewer": "Définir comme observateur",
-    "remove": "Retirer de l'espace",
-    "you": "Vous",
+    "makeAdmin": "Passer administrateur",
+    "makeMember": "Passer membre",
+    "makeViewer": "Passer lecteur",
+    "remove": "Retirer",
+    "you": "vous",
     "confirmDelete": "Supprimer cet espace ? Cette action est irréversible.",
-    "confirmRemoveMember": "Retirer ce membre de l'espace ?",
-    "gdprTitle": "Vos données, vos règles",
-    "gdprDescription": "Toutes les données sont rattachées à votre compte et chiffrées en transit. Les membres n'accèdent qu'aux données partagées avec eux. Vous pouvez supprimer un espace à tout moment — toutes les données associées sont définitivement effacées.",
+    "confirmRemoveMember": "Retirer ce membre de l'espace partagé ?",
+    "gdprTitle": "Conformité RGPD",
+    "gdprDescription": "Les membres, rôles et invitations sont conservés dans A2E Core (UE). Chaque action est journalisée et exportable ; l'effacement est disponible depuis Paramètres → Sécurité & conformité.",
     "roles": {
       "owner": "Propriétaire",
-      "admin": "Admin",
+      "admin": "Administrateur",
       "member": "Membre",
-      "viewer": "Observateur"
+      "viewer": "Lecteur"
     },
     "roleHint": {
-      "admin": "Peut inviter des membres, gérer les rôles et modifier toutes les données.",
-      "member": "Peut créer et modifier les données partagées.",
-      "viewer": "Accès en lecture seule aux données de l'espace."
+      "admin": "Peut tout gérer sauf supprimer l'espace.",
+      "member": "Peut créer et modifier les données financières.",
+      "viewer": "Lecture seule."
     },
     "toasts": {
       "workspaceCreated": "Espace créé",
@@ -563,8 +591,18 @@
       "invitationRevoked": "Invitation révoquée",
       "roleUpdated": "Rôle mis à jour",
       "memberRemoved": "Membre retiré",
-      "linkCopied": "Lien d'invitation copié"
-    }
+      "linkCopied": "Lien d'invitation copié",
+      "roleCreated": "Rôle créé"
+    },
+    "seats": "{used} membre(s) sur {limit} inclus dans le plan",
+    "seatsExceeded": "Limite de {limit} membres atteinte — passez à un plan supérieur.",
+    "rolesExceeded": "Limite de {limit} rôles personnalisés atteinte.",
+    "sharedInviteNotice": "L'invitation est émise par A2E Core : la personne rejoindra cet espace dans Bilan et dans toutes les apps de la suite.",
+    "customRoles": "Rôles personnalisés",
+    "customRolesDescription": "Des permissions fines, partagées avec toute la suite A2E.",
+    "newRole": "Nouveau rôle",
+    "permissions": "Permissions",
+    "noRoles": "Aucun rôle personnalisé. Les rôles de base (propriétaire, admin, membre, lecteur) s'appliquent."
   },
   "book": {
     "smartOverview": {
@@ -735,7 +773,9 @@
       },
       "empty": {
         "title": "Aucun projet pour l'instant",
-        "description": "Créez un projet pour regrouper factures, dépenses et tâches."
+        "description": "Créez un projet pour regrouper factures, dépenses et tâches.",
+        "tasks": "Aucune tâche pour ce projet.",
+        "documents": "Aucun document lié à ce projet."
       },
       "budget": "Budget",
       "startDate": "Date de début",
@@ -743,7 +783,16 @@
       "toasts": {
         "created": "Projet créé",
         "failed": "Impossible d'enregistrer"
-      }
+      },
+      "tabs": {
+        "transactions": "Transactions",
+        "fiches": "Fiches",
+        "documents": "Documents",
+        "details": "Détails",
+        "tasks": "Tâches"
+      },
+      "tasksShared": "Les tâches sont stockées dans A2E Core : elles apparaissent aussi dans Bureau et sur mobile.",
+      "newTaskPlaceholder": "Nouvelle tâche pour ce projet…"
     },
     "fiches": {
       "navTitle": "Fiches projet",
@@ -916,17 +965,40 @@
       }
     },
     "documents": {
-      "title": "Documents",
-      "description": "Reçus, contrats, certificats — stockés sur Backblaze B2 (UE, Francfort).",
+      "title": "Documents (A2E Drive)",
+      "description": "Reçus, contrats, justificatifs — stockés dans le Drive partagé A2E sur Backblaze B2 (UE), bucket privé, liens signés 10 minutes.",
       "uploadTitle": "Téléverser un document",
       "uploadDescription": "Les fichiers téléversés ici ne sont liés à aucune entité. Vous pourrez les lier depuis une facture, dépense, projet ou ligne de livre.",
       "storage": {
         "used": "Stockage utilisé",
-        "files": "{count, plural, =0 {Aucun fichier} =1 {1 fichier} other {# fichiers}}"
+        "files": "{count, plural, =0 {Aucun fichier} =1 {1 fichier} other {# fichiers}}",
+        "plan": "plan {plan}",
+        "encrypted": "chiffré au repos"
       },
       "empty": {
         "title": "Aucun document pour l'instant",
         "description": "Téléversez vos reçus, certificats et pièces justificatives."
+      },
+      "upload": "Téléverser",
+      "newFolder": "Nouveau dossier",
+      "uploaded": "{name} téléversé dans A2E Drive",
+      "quotaExceeded": "Quota de stockage atteint",
+      "dropHint": "Glissez vos fichiers ici — ils rejoignent le Drive partagé de l'espace.",
+      "uploading": "Téléversement…",
+      "searchPlaceholder": "Rechercher un fichier dans tout l'espace…",
+      "allFiles": "Tous les fichiers",
+      "inFolder": "Dossier : {name}",
+      "subfolders": "sous-dossiers",
+      "renamePrompt": "Nouveau nom du fichier",
+      "folderNamePrompt": "Nom du dossier",
+      "trashNotice": "Les fichiers supprimés sont conservés 30 jours puis effacés définitivement de B2.",
+      "confirmEmptyTrash": "Vider définitivement la corbeille ?",
+      "emptyTrash": "Vider la corbeille",
+      "trashEmptied": "{count} fichier(s) supprimé(s) définitivement",
+      "trashEmpty": "Corbeille vide",
+      "tabs": {
+        "files": "Fichiers",
+        "trash": "Corbeille"
       }
     },
     "reports": {
@@ -952,7 +1024,8 @@
       "empty": {
         "title": "Aucune activité pour l'instant",
         "description": "Les événements de l'espace apparaîtront ici."
-      }
+      },
+      "auditNotice": "Journal fusionné : les évènements partagés (espace, membres, fichiers, tâches) viennent d'A2E Core, les évènements financiers de Bilan."
     },
     "settings": {
       "title": "Paramètres",
@@ -968,7 +1041,86 @@
         "profileSaved": "Profil enregistré",
         "workspaceSaved": "Espace enregistré",
         "workspaceDeleted": "Espace supprimé",
-        "failed": "Impossible d'enregistrer"
+        "failed": "Impossible d'enregistrer",
+        "orgSaved": "Organisation enregistrée"
+      },
+      "emailManagedByWorkOS": "L'email est géré par votre identité A2E (WorkOS) et vérifié côté serveur.",
+      "workspaceShared": "Nom, devise et description sont partagés avec toute la suite A2E.",
+      "organisation": "Identité de l'organisation",
+      "organisationDescription": "Utilisée pour préremplir les CERFA, reçus fiscaux et conventions. Les champs marqués d'un bouclier sont chiffrés au repos.",
+      "dangerCoreNotice": "L'espace partagé lui-même ne peut pas être supprimé depuis Bilan (décision A2E Core). Vous pouvez effacer toutes les données financières Bilan depuis Sécurité & conformité.",
+      "org": {
+        "legalName": "Dénomination légale",
+        "rna": "N° RNA",
+        "phone": "Téléphone",
+        "website": "Site web",
+        "postalCode": "Code postal",
+        "city": "Ville",
+        "address": "Adresse",
+        "objet": "Objet social",
+        "representativeName": "Représentant légal",
+        "representativeRole": "Fonction",
+        "encryptedNotice": "IBAN, BIC, SIRET, RNA, adresse, téléphone, email et représentant sont chiffrés en AES-256-GCM avec une clé dérivée par espace. Ils ne sont lisibles que par les membres de cet espace."
+      },
+      "core": {
+        "title": "Espace partagé A2E",
+        "description": "État du lien entre Bilan et la base partagée A2E Core.",
+        "coreHost": "Déploiement core",
+        "session": "Session partagée",
+        "connected": "connectée",
+        "notConnected": "non connectée",
+        "identity": "Identité vérifiée",
+        "coreUser": "Utilisateur core",
+        "linkedWorkspace": "Espace lié",
+        "membership": "Appartenance (miroir)",
+        "notMirrored": "non synchronisée",
+        "workspaceCount": "Espaces accessibles",
+        "plan": "Plan & stockage",
+        "modules": "Modules servis par core",
+        "appAccess": "Apps incluses",
+        "lastError": "Dernière erreur",
+        "degraded": "Mode dégradé : les modules partagés sont désactivés, Bilan fonctionne sur ses propres données.",
+        "resync": "Resynchroniser",
+        "resynced": "Appartenances resynchronisées"
+      },
+      "security": {
+        "title": "Sécurité & conformité",
+        "description": "État réel du chiffrement, de l'hébergement et de vos droits RGPD — calculé côté serveur.",
+        "encryptionOn": "Chiffrement actif",
+        "encryptionOff": "Chiffrement inactif",
+        "encryption": "Chiffrement au repos",
+        "algorithm": "Algorithme",
+        "kdf": "Dérivation de clé",
+        "binding": "Liaison de contexte",
+        "keyLocation": "Emplacement de la clé",
+        "encryptedFields": "Champs chiffrés",
+        "fieldsTitle": "Champs chiffrés au repos",
+        "residency": "Hébergement des données",
+        "appDb": "Base Bilan",
+        "sharedDb": "Base partagée",
+        "filesStore": "Fichiers",
+        "bucket": "Bucket",
+        "private": "privé",
+        "public": "public",
+        "fileAccess": "Accès fichiers",
+        "auth": "Authentification",
+        "bridge": "Passerelle de service",
+        "gdpr": "RGPD — vos droits",
+        "analytics": "Statistiques produit",
+        "analyticsHint": "Aucun traceur publicitaire. Mesure d'usage anonymisée, désactivée par défaut.",
+        "consentGranted": "Consentement enregistré",
+        "consentWithdrawn": "Consentement retiré",
+        "exportAll": "Exporter tout (Bilan + A2E)",
+        "exportMe": "Exporter mes données",
+        "exportDone": "Export généré",
+        "trustCenter": "Centre de confiance",
+        "retentionNotice": "Les pièces comptables sont conservées 10 ans (obligation légale, art. L123-22 du code de commerce). L'effacement retire vos identifiants personnels sans détruire la comptabilité.",
+        "eraseMe": "Effacer mon identité",
+        "eraseWorkspace": "Effacer les données financières",
+        "confirmEraseMe": "Effacer votre profil et pseudonymiser vos actions dans Bilan ?",
+        "confirmEraseWorkspace": "Effacer DÉFINITIVEMENT toutes les données financières de cet espace ?",
+        "erasedMe": "Profil effacé, {count} action(s) pseudonymisée(s)",
+        "erasedWorkspace": "Données financières effacées"
       }
     },
     "legal": {
@@ -1007,6 +1159,121 @@
       "openOriginal": "Ouvrir l'original",
       "loading": "Chargement de l'aperçu…",
       "noPreview": "Aucun aperçu disponible pour ce type de fichier."
+    },
+    "clients": {
+      "title": "Clients & donateurs",
+      "description": "Le répertoire de personnes partagé A2E : un contact créé ici est disponible dans toute la suite.",
+      "new": "Nouveau contact",
+      "edit": "Modifier le contact",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "company": "Organisation",
+      "invoices": "Factures",
+      "totalPaid": "Encaissé",
+      "searchPlaceholder": "Rechercher par nom, email, SIRET…",
+      "quota": "{used} contact(s) / {limit}",
+      "sharedNotice": "Ce contact est enregistré dans le répertoire partagé A2E (UE). Les factures Bilan y font référence par identifiant.",
+      "confirmDelete": "Supprimer ce contact du répertoire partagé ?",
+      "empty": {
+        "title": "Aucun contact",
+        "description": "Ajoutez vos clients, donateurs et partenaires — ils seront disponibles dans toute la suite A2E."
+      },
+      "toasts": {
+        "created": "Contact créé",
+        "updated": "Contact mis à jour",
+        "failed": "Enregistrement impossible",
+        "duplicate": "Un contact existe déjà avec cet email : {name}",
+        "quota": "Limite de {limit} contacts atteinte"
+      }
+    },
+    "security": {
+      "badge": "Centre de confiance — état en direct",
+      "title": "La sécurité n'est pas une promesse : c'est une page qui interroge le serveur.",
+      "subtitle": "Bilan gère l'argent d'associations et de petites structures. Chaque donnée sensible est chiffrée avec une clé dérivée par espace, les fichiers vivent dans un bucket privé en Europe, et tout ce qui est affiché ci-dessous est lu en direct depuis le backend.",
+      "cta": "Ouvrir Bilan",
+      "live": {
+        "encryption": "Chiffrement des champs",
+        "active": "Actif",
+        "inactive": "Inactif",
+        "fields": "Champs chiffrés",
+        "bucket": "Bucket fichiers",
+        "private": "Privé",
+        "public": "Public",
+        "region": "Hébergement",
+        "notice": "Valeurs lues en direct depuis le déploiement (aucune valeur codée en dur)."
+      },
+      "pillars": {
+        "encryption": {
+          "title": "Chiffrement applicatif au repos",
+          "body": "IBAN, BIC, SIRET, coordonnées et notes sont chiffrés avant écriture en base. Une clé racine unique reste dans les variables d'environnement du backend ; chaque espace obtient sa propre clé dérivée, et chaque valeur est liée à son espace, sa table et son champ."
+        },
+        "auth": {
+          "title": "Une seule identité, deux backends",
+          "body": "L'authentification est déléguée à WorkOS AuthKit. Le même jeton signé RS256 est vérifié par le backend Bilan et par la base partagée A2E Core : aucun échange de jeton, aucun mot de passe stocké."
+        },
+        "files": {
+          "title": "Fichiers en bucket privé",
+          "body": "Aucun fichier n'est public. A2E Core délivre des URLs signées de courte durée, uniquement à un membre vérifié de l'espace. Les clés du stockage n'atteignent jamais le navigateur.",
+          "private": "bucket privé — aucune URL publique"
+        },
+        "residency": {
+          "title": "Données hébergées en Europe",
+          "body": "Base applicative, base partagée et stockage de fichiers sont en Union européenne. Les sous-traitants hors UE sont encadrés par des clauses contractuelles types."
+        }
+      },
+      "fields": {
+        "title": "Ce qui est chiffré, précisément",
+        "body": "Nous préférons une liste exacte à une formule marketing. Cette liste est la source de vérité utilisée par le code lui-même."
+      },
+      "architecture": {
+        "title": "Où vivent vos données",
+        "body": "Bilan fait partie de la suite A2E : une base partagée pour ce qui est commun, une base dédiée pour la comptabilité. Cette séparation limite le rayon d'impact et garde la comptabilité isolée.",
+        "bilan": {
+          "title": "Base Bilan",
+          "body": "Factures, transactions, budgets, livres, fiches, CERFA, identité de l'organisation (chiffrée)."
+        },
+        "core": {
+          "title": "A2E Core",
+          "body": "Identités, espaces, membres, rôles, invitations, notifications, tâches, contacts, journal d'audit."
+        },
+        "drive": {
+          "title": "A2E Drive (B2)",
+          "body": "Pièces justificatives liées à une dépense, une facture ou un projet — bucket privé, liens signés."
+        }
+      },
+      "gdpr": {
+        "title": "RGPD, de A à Z",
+        "body": "Registre des traitements, base légale, durées de conservation, sous-traitants et droits : tout est exposé et actionnable depuis l'application.",
+        "purpose": "Finalité",
+        "basis": "Base légale",
+        "retention": "Conservation",
+        "subProcessors": "Sous-traitants",
+        "rights": "Vos droits",
+        "contact": "Exercice des droits et contact délégué :"
+      },
+      "practices": {
+        "title": "Pratiques d'ingénierie",
+        "item1": "Chaque fonction backend dérive l'utilisateur du jeton vérifié : aucun identifiant client n'est jamais accepté tel quel.",
+        "item2": "L'accès aux données d'un espace est contrôlé contre un miroir d'appartenance rafraîchi par une passerelle serveur-à-serveur protégée par secret.",
+        "item3": "Aucun secret dans le bundle navigateur : seules les URLs publiques des déploiements et l'identifiant client WorkOS y figurent.",
+        "item4": "Les liens de partage public sont revalidés à chaque requête (expiration, révocation, phrase secrète).",
+        "item5": "Les valeurs chiffrées sont liées à leur contexte : déplacer un chiffré dans une autre colonne le rend indéchiffrable.",
+        "item6": "Le journal d'audit est immuable côté application et exportable pour vos contrôles.",
+        "item7": "Dégradation contrôlée : si la couche partagée tombe, Bilan continue sur ses propres données au lieu d'échouer.",
+        "item8": "Les quotas sont appliqués côté serveur, jamais seulement dans l'interface."
+      },
+      "footerCta": {
+        "title": "Prêt à tenir vos comptes sans compromis",
+        "body": "Comptabilité claire, documents légaux français, fichiers sécurisés et espace partagé avec le reste de la suite A2E.",
+        "privacy": "Politique de confidentialité"
+      }
     }
+  },
+  "consent": {
+    "title": "Vos données, vos règles",
+    "body": "Bilan n'utilise aucun traceur publicitaire. Seules des statistiques produit anonymisées sont optionnelles.",
+    "learnMore": "Centre de confiance",
+    "accept": "Accepter",
+    "refuse": "Refuser"
   }
 }

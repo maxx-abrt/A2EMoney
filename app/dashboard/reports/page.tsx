@@ -39,7 +39,7 @@ export default function ReportsPage() {
   const budgets = useQuery(api.a2e_budgets.list, wsId ? { workspaceId: wsId } : "skip")
   const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
   const activities = useQuery(
-    api.activities.list,
+    api.a2e_activity.list,
     wsId ? { workspaceId: wsId, limit: 8 } : "skip",
   )
 
