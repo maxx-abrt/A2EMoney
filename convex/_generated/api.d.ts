@@ -8,24 +8,25 @@
  * @module
  */
 
+import type * as _cryptoProbe from "../_cryptoProbe.js";
+import type * as a2e_activity from "../a2e_activity.js";
 import type * as a2e_books from "../a2e_books.js";
 import type * as a2e_budgets from "../a2e_budgets.js";
 import type * as a2e_categories from "../a2e_categories.js";
-import type * as a2e_clients from "../a2e_clients.js";
-import type * as a2e_documents from "../a2e_documents.js";
 import type * as a2e_expenses from "../a2e_expenses.js";
 import type * as a2e_fiches from "../a2e_fiches.js";
 import type * as a2e_grantReports from "../a2e_grantReports.js";
 import type * as a2e_invoices from "../a2e_invoices.js";
 import type * as a2e_org from "../a2e_org.js";
-import type * as activities from "../activities.js";
+import type * as coreSync from "../coreSync.js";
+import type * as directory from "../directory.js";
+import type * as gdpr from "../gdpr.js";
 import type * as http from "../http.js";
-import type * as invitations from "../invitations.js";
 import type * as lib_auth from "../lib/auth.js";
-import type * as notifications from "../notifications.js";
+import type * as lib_crypto from "../lib/crypto.js";
+import type * as migrations from "../migrations.js";
 import type * as projects from "../projects.js";
-import type * as users from "../users.js";
-import type * as workspaces from "../workspaces.js";
+import type * as security from "../security.js";
 
 import type {
   ApiFromModules,
@@ -34,24 +35,25 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  _cryptoProbe: typeof _cryptoProbe;
+  a2e_activity: typeof a2e_activity;
   a2e_books: typeof a2e_books;
   a2e_budgets: typeof a2e_budgets;
   a2e_categories: typeof a2e_categories;
-  a2e_clients: typeof a2e_clients;
-  a2e_documents: typeof a2e_documents;
   a2e_expenses: typeof a2e_expenses;
   a2e_fiches: typeof a2e_fiches;
   a2e_grantReports: typeof a2e_grantReports;
   a2e_invoices: typeof a2e_invoices;
   a2e_org: typeof a2e_org;
-  activities: typeof activities;
+  coreSync: typeof coreSync;
+  directory: typeof directory;
+  gdpr: typeof gdpr;
   http: typeof http;
-  invitations: typeof invitations;
   "lib/auth": typeof lib_auth;
-  notifications: typeof notifications;
+  "lib/crypto": typeof lib_crypto;
+  migrations: typeof migrations;
   projects: typeof projects;
-  users: typeof users;
-  workspaces: typeof workspaces;
+  security: typeof security;
 }>;
 
 /**

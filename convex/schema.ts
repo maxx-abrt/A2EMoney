@@ -1,99 +1,110 @@
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
-import { authTables } from "@convex-dev/auth/server";
+import { defineSchema, defineTable } from "convex/server"
+import { v } from "convex/values"
 
 /**
- * A2E SUITE SHARED SCHEMA + A2EMoney APP TABLES
+ * BILAN (A2EMoney) — app-owned schema.
  *
- * - Auth tables come from convex-auth (do not redefine).
- * - Shared tables (workspaces, memberships, invitations, projects, tasks, activities)
- *   are owned by the A2E foundation. Defined here because A2EMoney is the
- *   foundation app for the suite.
- * - App tables are prefixed `a2e_` for A2EMoney.
+ * A2E SUITE CONTRACT (see A2E_APP_INTEGRATION_GUIDE.md — binding):
+ *  - Shared entities live in the A2E **core** deployment and are NEVER redefined
+ *    here: users, workspaces, memberships, invitations, roles, notifications,
+ *    tasks, contacts, drive files/folders, events, comments, links, intents.
+ *  - Bilan references core entities by **string id**:
+ *      `workspaceId`  → core `workspaces._id`
+ *      `createdBy`    → the WorkOS user id (`sub`), server-derived, never client-sent
+ *      `linkedClientId` → core `contacts._id`
+ *      attachments    → core `drive_files` (linked back via `linkedTo`, not stored here)
+ *  - Bilan's own tables are prefixed `a2e_` (plus the domain table `projects`).
+ *  - `coreMemberships` is a **mirror** of core memberships (Pattern A) used only
+ *    to enforce access on Bilan's own rows; core stays the source of truth.
  */
-export default defineSchema({
-  // ---- auth tables (users table reused; auth itself handled by WorkOS) ----
-  ...authTables,
 
-  // Maps a verified WorkOS user (JWT `sub`) to a Convex `users` record.
-  // Populated by `users.store` on first login.
-  authIdentities: defineTable({
+const roleValidator = v.union(
+  v.literal("owner"),
+  v.literal("admin"),
+  v.literal("member"),
+  v.literal("viewer"),
+)
+
+export default defineSchema({
+  // ---------------------------------------------------------------- suite glue
+
+  /**
+   * Mirror of the caller's core workspace memberships, refreshed by
+   * `coreSync.syncFromCore` through the secret-gated core service bridge.
+   * Never written from the client.
+   */
+  coreMemberships: defineTable({
     workosId: v.string(),
-    userId: v.id("users"),
+    workspaceId: v.string(),
+    role: roleValidator,
+    name: v.string(),
+    slug: v.optional(v.string()),
+    avatar: v.optional(v.string()),
+    locale: v.optional(v.string()),
+    currency: v.optional(v.string()),
+    type: v.optional(v.string()),
+    syncedAt: v.number(),
+  })
+    .index("by_workos", ["workosId"])
+    .index("by_workos_workspace", ["workosId", "workspaceId"])
+    .index("by_workspace", ["workspaceId"]),
+
+  /**
+   * Verified identity directory: maps a WorkOS user id to the authoritative
+   * profile fetched server-side from the WorkOS Management API (WorkOS access
+   * tokens carry no email/name claims). Used to display real names/emails next
+   * to core member ids. One row per human, written only for the caller.
+   */
+  a2e_directory: defineTable({
+    workosId: v.string(),
+    coreUserId: v.optional(v.string()),
     email: v.optional(v.string()),
     name: v.optional(v.string()),
     image: v.optional(v.string()),
-    createdAt: v.number(),
-    lastSeenAt: v.optional(v.number()),
-  })
-    .index("by_workos", ["workosId"])
-    .index("by_user", ["userId"]),
-
-  // ---- SHARED TABLES (used by every app in the suite) ----
-  workspaces: defineTable({
-    name: v.string(),
-    slug: v.string(),
-    description: v.optional(v.string()),
-    avatar: v.optional(v.string()),
-    storageQuota: v.number(),
-    ownerId: v.id("users"),
-    // Default locale & currency for the workspace
-    locale: v.optional(v.string()),
-    currency: v.optional(v.string()),
-    type: v.optional(
-      v.union(
-        v.literal("individual"),
-        v.literal("business"),
-        v.literal("association"),
-      ),
-    ),
-    createdAt: v.number(),
+    lastSeenAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_slug", ["slug"])
-    .index("by_owner", ["ownerId"]),
+    .index("by_workos", ["workosId"])
+    .index("by_core_user", ["coreUserId"]),
 
-  memberships: defineTable({
-    userId: v.id("users"),
-    workspaceId: v.id("workspaces"),
-    role: v.union(
-      v.literal("owner"),
-      v.literal("admin"),
-      v.literal("member"),
-      v.literal("viewer"),
-    ),
-    joinedAt: v.number(),
-  })
-    .index("by_user", ["userId"])
-    .index("by_workspace", ["workspaceId"])
-    .index("by_user_workspace", ["userId", "workspaceId"]),
-
-  invitations: defineTable({
-    email: v.string(),
-    workspaceId: v.id("workspaces"),
-    role: v.union(
-      v.literal("owner"),
-      v.literal("admin"),
-      v.literal("member"),
-      v.literal("viewer"),
-    ),
-    token: v.string(),
-    status: v.union(
-      v.literal("pending"),
-      v.literal("accepted"),
-      v.literal("revoked"),
-      v.literal("expired"),
-    ),
-    invitedBy: v.id("users"),
-    expiresAt: v.number(),
+  /** Bilan-local audit trail (core logs its own). GDPR-exportable. */
+  a2e_activity: defineTable({
+    workspaceId: v.string(),
+    actorId: v.string(),
+    action: v.string(),
+    targetType: v.string(),
+    targetId: v.string(),
+    metadata: v.optional(v.any()),
     createdAt: v.number(),
   })
-    .index("by_workspace", ["workspaceId"])
-    .index("by_email", ["email"])
-    .index("by_token", ["token"]),
+    .index("by_workspace", ["workspaceId", "createdAt"])
+    .index("by_actor", ["actorId"]),
+
+  /** GDPR consent ledger (art. 7.1 — provable consent, per purpose & version). */
+  a2e_consents: defineTable({
+    workosId: v.string(),
+    purpose: v.string(),
+    granted: v.boolean(),
+    version: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_workos", ["workosId"])
+    .index("by_workos_purpose", ["workosId", "purpose"]),
+
+  /** GDPR erasure / portability request ledger (art. 15 & 17 traceability). */
+  a2e_dataRequests: defineTable({
+    workosId: v.string(),
+    workspaceId: v.optional(v.string()),
+    kind: v.union(v.literal("export"), v.literal("erasure")),
+    scope: v.string(),
+    result: v.optional(v.any()),
+    createdAt: v.number(),
+  }).index("by_workos", ["workosId"]),
+
+  // ---------------------------------------------------------------- domain
 
   projects: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     client: v.string(),
     status: v.union(
@@ -108,69 +119,20 @@ export default defineSchema({
     endDate: v.optional(v.number()),
     description: v.optional(v.string()),
     color: v.optional(v.string()),
-    createdBy: v.id("users"),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_status", ["workspaceId", "status"]),
 
-  tasks: defineTable({
-    workspaceId: v.id("workspaces"),
-    projectId: v.optional(v.id("projects")),
-    title: v.string(),
-    description: v.optional(v.string()),
-    status: v.union(
-      v.literal("todo"),
-      v.literal("in_progress"),
-      v.literal("done"),
-    ),
-    assigneeId: v.optional(v.id("users")),
-    dueDate: v.optional(v.number()),
-    createdBy: v.id("users"),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_workspace", ["workspaceId"])
-    .index("by_project", ["projectId"])
-    .index("by_assignee", ["assigneeId"]),
-
-  activities: defineTable({
-    workspaceId: v.id("workspaces"),
-    actorId: v.id("users"),
-    action: v.string(),
-    targetType: v.string(),
-    targetId: v.string(),
-    metadata: v.optional(v.any()),
-    createdAt: v.number(),
-  })
-    .index("by_workspace", ["workspaceId", "createdAt"])
-    .index("by_actor", ["actorId"])
-    .index("by_target", ["targetType", "targetId"]),
-
-  // User-scoped notifications. Activities are the audit trail; notifications
-  // are personal, dismissable, and used to drive the bell dropdown.
-  notifications: defineTable({
-    userId: v.id("users"),
-    workspaceId: v.id("workspaces"),
-    type: v.string(),
-    title: v.string(),
-    message: v.string(),
-    read: v.boolean(),
-    link: v.optional(v.string()),
-    metadata: v.optional(v.any()),
-    createdAt: v.number(),
-  })
-    .index("by_user", ["userId", "read"])
-    .index("by_user_created", ["userId", "createdAt"])
-    .index("by_workspace", ["workspaceId"]),
-
-  // ---- A2EMoney APP TABLES (prefix: a2e_) ----
   a2e_invoices: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     number: v.string(),
     client: v.string(),
+    /** Core `contacts._id` (the suite People directory). */
+    linkedClientId: v.optional(v.string()),
     clientEmail: v.string(),
     clientAddress: v.optional(v.string()),
     items: v.array(
@@ -192,11 +154,12 @@ export default defineSchema({
     dueDate: v.number(),
     paidDate: v.optional(v.number()),
     notes: v.optional(v.string()),
+    /** Core `drive_files._id`s (files also carry `linkedTo` back to this row). */
     linkedDocuments: v.optional(v.array(v.string())),
     linkedBookEntries: v.optional(v.array(v.string())),
     taxRate: v.optional(v.number()),
     currency: v.string(),
-    createdBy: v.id("users"),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -206,7 +169,7 @@ export default defineSchema({
     .index("by_number", ["workspaceId", "number"]),
 
   a2e_expenses: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     description: v.string(),
     amount: v.number(),
@@ -220,60 +183,27 @@ export default defineSchema({
     linkedBookEntries: v.optional(v.array(v.string())),
     isRecurring: v.optional(v.boolean()),
     recurringFrequency: v.optional(
-      v.union(
-        v.literal("weekly"),
-        v.literal("monthly"),
-        v.literal("yearly"),
-      ),
+      v.union(v.literal("weekly"), v.literal("monthly"), v.literal("yearly")),
     ),
     tags: v.optional(v.array(v.string())),
     currency: v.optional(v.string()),
-    sheetId: v.optional(v.id("a2e_bookSheets")), // legacy link from older book-entry flow
-    createdBy: v.id("users"),
+    sheetId: v.optional(v.id("a2e_bookSheets")),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_workspace_date", ["workspaceId", "date"])
     .index("by_category", ["workspaceId", "category"])
-    .index("by_project", ["projectId"]),
-
-  a2e_documents: defineTable({
-    workspaceId: v.id("workspaces"),
-    name: v.string(),
-    type: v.union(
-      v.literal("invoice"),
-      v.literal("receipt"),
-      v.literal("certificate"),
-      v.literal("contract"),
-      v.literal("other"),
-    ),
-    size: v.number(),
-    contentType: v.optional(v.string()),
-    url: v.string(),
-    s3Key: v.string(),
-    linkedToType: v.optional(
-      v.union(
-        v.literal("expense"),
-        v.literal("invoice"),
-        v.literal("book_entry"),
-        v.literal("project"),
-      ),
-    ),
-    linkedToId: v.optional(v.string()),
-    createdBy: v.id("users"),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_workspace", ["workspaceId"])
-    .index("by_linked", ["linkedToType", "linkedToId"]),
+    .index("by_project", ["projectId"])
+    .index("by_sheet", ["sheetId"]),
 
   a2e_bookSheets: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
-    type: v.optional(v.string()), // legacy field (kept for backwards-compat with older sheets)
+    type: v.optional(v.string()),
     columns: v.array(
       v.object({
         id: v.string(),
@@ -288,7 +218,7 @@ export default defineSchema({
     ),
     isTemplate: v.optional(v.boolean()),
     description: v.optional(v.string()),
-    createdBy: v.id("users"),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -296,14 +226,14 @@ export default defineSchema({
     .index("by_template", ["isTemplate"]),
 
   a2e_bookEntries: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     sheetId: v.id("a2e_bookSheets"),
     cells: v.any(),
     linkedDocuments: v.optional(v.array(v.string())),
     linkedExpenses: v.optional(v.array(v.id("a2e_expenses"))),
     linkedInvoices: v.optional(v.array(v.id("a2e_invoices"))),
     linkedProjectId: v.optional(v.id("projects")),
-    createdBy: v.id("users"),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -311,49 +241,42 @@ export default defineSchema({
     .index("by_workspace", ["workspaceId"]),
 
   a2e_budgets: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     amount: v.number(),
     spent: v.optional(v.number()),
     category: v.string(),
-    period: v.union(
-      v.literal("monthly"),
-      v.literal("yearly"),
-      v.literal("custom"),
-    ),
+    period: v.union(v.literal("monthly"), v.literal("yearly"), v.literal("custom")),
     startDate: v.number(),
     endDate: v.optional(v.number()),
     color: v.string(),
     currency: v.optional(v.string()),
-    createdBy: v.id("users"),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_category", ["workspaceId", "category"]),
 
-  /** Workspace-scoped categories for expenses & income. Defaults exist client-side. */
   a2e_categories: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
     type: v.union(v.literal("expense"), v.literal("income"), v.literal("both")),
     archived: v.optional(v.boolean()),
-    createdBy: v.id("users"),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
-  })
-    .index("by_workspace", ["workspaceId"]),
+  }).index("by_workspace", ["workspaceId"]),
 
-  /** Project sheets ("fiches projet") - rich template-based docs linked to projects. */
   a2e_fiches: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
-    template: v.string(), // "asso_fr" | "blank" | "custom"
+    template: v.string(),
     title: v.string(),
     subtitle: v.optional(v.string()),
-    data: v.any(), // template-specific JSON payload
+    data: v.any(),
     status: v.optional(
       v.union(
         v.literal("draft"),
@@ -363,16 +286,19 @@ export default defineSchema({
       ),
     ),
     locale: v.optional(v.string()),
-    createdBy: v.id("users"),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_project", ["projectId"]),
 
-  /** Organisation legal profile — stored once per workspace, auto-prefills docs. */
+  /**
+   * Organisation legal identity — one row per workspace. Bank details and
+   * contact identifiers are encrypted at rest (AES-256-GCM, see lib/crypto.ts).
+   */
   a2e_orgProfile: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     legalName: v.optional(v.string()),
     shortName: v.optional(v.string()),
     objet: v.optional(v.string()),
@@ -390,30 +316,13 @@ export default defineSchema({
     bic: v.optional(v.string()),
     rupRecognized: v.optional(v.boolean()),
     fiscalRegime: v.optional(v.string()),
-    createdBy: v.id("users"),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_workspace", ["workspaceId"]),
 
-  /** Clients / donors / partners directory. */
-  a2e_clients: defineTable({
-    workspaceId: v.id("workspaces"),
-    name: v.string(),
-    email: v.optional(v.string()),
-    address: v.optional(v.string()),
-    siret: v.optional(v.string()),
-    phone: v.optional(v.string()),
-    notes: v.optional(v.string()),
-    totalInvoiced: v.optional(v.number()),
-    totalPaid: v.optional(v.number()),
-    createdBy: v.id("users"),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("by_workspace", ["workspaceId"]),
-
-  /** CERFA 15059 grant financial reports (compte-rendu financier de subvention). */
   a2e_grantReports: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     title: v.string(),
     data: v.any(),
@@ -426,10 +335,10 @@ export default defineSchema({
       ),
     ),
     locale: v.optional(v.string()),
-    createdBy: v.id("users"),
+    createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_workspace", ["workspaceId"])
     .index("by_project", ["projectId"]),
-});
+})

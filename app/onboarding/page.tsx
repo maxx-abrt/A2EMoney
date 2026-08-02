@@ -2,16 +2,15 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { useMutation, useQuery } from "convex/react"
 import { useTranslations } from "next-intl"
-import { api } from "@/convex/_generated/api"
+import { useWorkspace, useWorkspaceMutations } from "@a2e/core"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Wallet, Building2, HeartHandshake, User as UserIcon, Loader2 } from "@/components/iconsax"
+import { Building2, HeartHandshake, UserIcon, Loader2, ShieldTick } from "@/components/iconsax"
 import { BilanWordmark } from "@/components/bilan-logo"
-import { useWorkspace } from "@/lib/workspace-context"
+import { useCoreBridge } from "@/lib/core-bridge"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -21,42 +20,61 @@ const TYPES = [
   { id: "association", icon: HeartHandshake, key: "association" },
 ] as const
 
+/**
+ * First-run workspace creation. The workspace is created in **A2E Core**, so it
+ * is immediately available to every other app of the suite.
+ */
 export default function OnboardingPage() {
   const router = useRouter()
   const t = useTranslations("onboarding")
-  const me = useQuery(api.users.me, {})
-  const myWorkspaces = useQuery(api.workspaces.listMine, {})
-  const createWorkspace = useMutation(api.workspaces.create)
-  const { setActiveWorkspaceId } = useWorkspace()
-  const [type, setType] = React.useState<typeof TYPES[number]["id"]>("business")
+  const { workspaces, setActiveWorkspaceId, isLoading } = useWorkspace()
+  const { create, update } = useWorkspaceMutations()
+  const { resync } = useCoreBridge()
+  const [type, setType] = React.useState<(typeof TYPES)[number]["id"]>("association")
   const [name, setName] = React.useState("")
   const [description, setDescription] = React.useState("")
   const [currency, setCurrency] = React.useState("EUR")
   const [loading, setLoading] = React.useState(false)
 
-  // If user already has a workspace, redirect to dashboard.
-  React.useEffect(() => {
-    if (myWorkspaces && myWorkspaces.length > 0) {
-      router.replace("/dashboard")
-    }
-  }, [myWorkspaces, router])
+  // Core auto-provisions a personal workspace on first login; treat a single
+  // untouched "…'s Workspace" as a blank slate the user can name here.
+  const autoProvisioned = React.useMemo(
+    () => (workspaces ?? []).find((w) => /'s Workspace$/.test(w.name)) ?? null,
+    [workspaces],
+  )
+  const hasRealWorkspace = (workspaces ?? []).some((w) => !/'s Workspace$/.test(w.name))
 
   React.useEffect(() => {
-    if (me?.name && !name) setName(`${me.name.split(" ")[0]}'s Workspace`)
-  }, [me, name])
+    if (hasRealWorkspace) router.replace("/dashboard")
+  }, [hasRealWorkspace, router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
     try {
       setLoading(true)
-      const id = await createWorkspace({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        type,
-        currency,
-      })
+      let id: string
+      if (autoProvisioned) {
+        await update({
+          workspaceId: autoProvisioned._id,
+          name: name.trim(),
+          description: description.trim() || undefined,
+          type,
+          currency,
+          locale: "fr",
+        })
+        id = autoProvisioned._id
+      } else {
+        id = await create({
+          name: name.trim(),
+          description: description.trim() || undefined,
+          type,
+          currency,
+          locale: "fr",
+        })
+      }
       setActiveWorkspaceId(id)
+      await resync().catch(() => {})
       toast.success(t("toasts.created"))
       router.push("/dashboard")
     } catch (err: any) {
@@ -66,7 +84,7 @@ export default function OnboardingPage() {
     }
   }
 
-  if (myWorkspaces === undefined) {
+  if (isLoading || workspaces === undefined) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -130,6 +148,7 @@ export default function OnboardingPage() {
               <Label htmlFor="name">{t("nameLabel")}</Label>
               <Input
                 id="name"
+                data-testid="onboarding-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t("namePlaceholder")}
@@ -164,7 +183,17 @@ export default function OnboardingPage() {
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !name.trim()}>
+          <div className="flex items-start gap-2 rounded-xl border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+            <ShieldTick className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+            <p>{t("sharedNotice")}</p>
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading || !name.trim()}
+            data-testid="onboarding-submit"
+          >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("submit")}
           </Button>
         </form>

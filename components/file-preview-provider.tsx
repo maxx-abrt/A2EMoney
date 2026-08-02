@@ -1,15 +1,18 @@
 "use client"
 
 import * as React from "react"
-import { useAction } from "convex/react"
 import { useTranslations } from "next-intl"
-import { api } from "@/convex/_generated/api"
-import type { Id } from "@/convex/_generated/dataModel"
+import { coreApi, useCoreAction } from "@a2e/core"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { Download, ExternalLink, FileText, Image as ImageIcon, Loader2 } from "@/components/iconsax"
+import { Download, ExternalLink, FileText, Image as ImageIcon, Loader2, ShieldTick } from "@/components/iconsax"
 import { formatBytes } from "@/lib/utils"
 
+/**
+ * Inline preview for A2E Core drive files. Bytes never travel through Bilan:
+ * core issues a short-lived (10 min) presigned URL against the private B2
+ * bucket, scoped to a verified workspace member.
+ */
 interface FilePreviewContext {
   preview: (doc: PreviewDoc) => void
   close: () => void
@@ -28,10 +31,10 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
   const t = useTranslations("pages.preview")
   const [doc, setDoc] = React.useState<PreviewDoc | null>(null)
   const [open, setOpen] = React.useState(false)
-  const [signed, setSigned] = React.useState<{ url: string; contentType?: string } | null>(null)
+  const [signed, setSigned] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
-  const presignView = useAction(api.a2e_documents.presignView)
-  const presignDownload = useAction(api.a2e_documents.presignDownload)
+  const presignView = useCoreAction(coreApi.drive.presignView)
+  const presignDownload = useCoreAction(coreApi.drive.presignDownload)
 
   const ctxValue = React.useMemo<FilePreviewContext>(
     () => ({
@@ -51,8 +54,10 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
       setLoading(true)
       setSigned(null)
       try {
-        const res = await presignView({ documentId: doc._id as Id<"a2e_documents"> })
-        if (!cancelled && res) setSigned({ url: res.url, contentType: res.contentType })
+        const res = await presignView({ fileId: doc._id })
+        if (!cancelled && res) setSigned(res.url)
+      } catch {
+        if (!cancelled) setSigned(null)
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -63,14 +68,15 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
     }
   }, [doc, open, presignView])
 
-  const isImage = (doc?.contentType ?? signed?.contentType ?? "").startsWith("image/")
-  const isPdf = (doc?.contentType ?? signed?.contentType ?? "") === "application/pdf"
-  const isText = (doc?.contentType ?? signed?.contentType ?? "").startsWith("text/")
+  const type = doc?.contentType ?? ""
+  const isImage = type.startsWith("image/")
+  const isPdf = type === "application/pdf"
+  const isText = type.startsWith("text/")
   const canPreview = isImage || isPdf || isText
 
   async function handleDownload() {
     if (!doc) return
-    const res = await presignDownload({ documentId: doc._id as Id<"a2e_documents"> })
+    const res = await presignDownload({ fileId: doc._id })
     if (res?.url) window.open(res.url, "_blank")
   }
 
@@ -81,13 +87,20 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
         <SheetContent side="right" className="w-full max-w-3xl p-0 sm:max-w-3xl">
           <SheetHeader className="border-b border-border px-5 py-3">
             <SheetTitle className="flex items-center gap-2 text-base">
-              {isImage ? <ImageIcon className="h-4 w-4 text-muted-foreground" /> : <FileText className="h-4 w-4 text-muted-foreground" />}
+              {isImage ? (
+                <ImageIcon className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              )}
               <span className="truncate">{doc?.name ?? t("title")}</span>
             </SheetTitle>
             {doc && (
-              <p className="text-xs text-muted-foreground">
+              <p className="flex items-center gap-2 text-xs text-muted-foreground">
                 {formatBytes(doc.size)}
                 {doc.contentType ? ` · ${doc.contentType}` : ""}
+                <span className="inline-flex items-center gap-1 rounded bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
+                  <ShieldTick className="h-3 w-3" /> A2E Drive · lien signé 10 min
+                </span>
               </p>
             )}
           </SheetHeader>
@@ -100,15 +113,11 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
                 </div>
               ) : !signed ? null : isImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={signed.url}
-                  alt={doc?.name ?? ""}
-                  className="max-h-full max-w-full object-contain"
-                />
+                <img src={signed} alt={doc?.name ?? ""} className="max-h-full max-w-full object-contain" />
               ) : isPdf ? (
-                <iframe src={signed.url} className="h-full w-full" title={doc?.name ?? "PDF"} />
+                <iframe src={signed} className="h-full w-full" title={doc?.name ?? "PDF"} />
               ) : isText ? (
-                <iframe src={signed.url} className="h-full w-full bg-background" title={doc?.name ?? "Text"} />
+                <iframe src={signed} className="h-full w-full bg-background" title={doc?.name ?? "Text"} />
               ) : (
                 <div className="flex flex-col items-center gap-3 px-6 py-12 text-center text-sm text-muted-foreground">
                   <FileText className="h-10 w-10" />
@@ -122,7 +131,7 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
             <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
               {signed && canPreview && (
                 <Button asChild variant="ghost" size="sm" className="gap-2">
-                  <a href={signed.url} target="_blank" rel="noreferrer">
+                  <a href={signed} target="_blank" rel="noreferrer">
                     <ExternalLink className="h-3.5 w-3.5" /> {t("openOriginal")}
                   </a>
                 </Button>

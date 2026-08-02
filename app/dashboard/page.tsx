@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const invoices = useQuery(api.a2e_invoices.list, wsId ? { workspaceId: wsId } : "skip")
   const expenses = useQuery(api.a2e_expenses.list, wsId ? { workspaceId: wsId } : "skip")
   const activities = useQuery(
-    api.activities.list,
+    api.a2e_activity.list,
     wsId ? { workspaceId: wsId, limit: 6 } : "skip",
   )
   const projects = useQuery(api.projects.list, wsId ? { workspaceId: wsId } : "skip")
@@ -320,7 +320,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="min-w-0">
                         <p className="truncate font-medium">
-                          {a.actor?.name ?? a.actor?.email ?? "Someone"}{" "}
+                          {a.actorName ?? "Someone"}{" "}
                           <span className="font-normal text-muted-foreground">
                             {a.action.replace(/_/g, " ").replace(/\./g, " ")}
                           </span>

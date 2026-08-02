@@ -2,31 +2,40 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { useMutation, useQuery } from "convex/react"
-import { useConvexAuth } from "convex/react"
-import { api } from "@/convex/_generated/api"
+import { useCoreAuthState, useInvitationByToken, useInvitationMutations, useWorkspace } from "@a2e/core"
 import { Button } from "@/components/ui/button"
-import { Loader2, Wallet, CheckCircle2 } from "@/components/iconsax"
-import { useWorkspace } from "@/lib/workspace-context"
+import { Loader2, CheckCircle2, ShieldTick } from "@/components/iconsax"
+import { BilanWordmark } from "@/components/bilan-logo"
+import { useCoreBridge } from "@/lib/core-bridge"
 import { toast } from "sonner"
 
-export default function InviteAcceptPage({ params }: { params: { token: string } }) {
+/**
+ * Invitation acceptance. Invitations live in A2E Core, so accepting here also
+ * grants access in every other suite app — one workspace, one roster.
+ */
+export default function InviteAcceptPage({ params }: { params: Promise<{ token: string }> | { token: string } }) {
   const router = useRouter()
-  const { isAuthenticated, isLoading } = useConvexAuth()
-  const invitation = useQuery(api.invitations.getByToken, { token: params.token })
-  const accept = useMutation(api.invitations.accept)
+  const resolved = params instanceof Promise ? React.use(params) : params
+  const token = resolved.token
+
+  const { isAuthenticated, isLoading } = useCoreAuthState()
+  const invitation = useInvitationByToken(token)
+  const { accept } = useInvitationMutations()
   const { setActiveWorkspaceId } = useWorkspace()
+  const { resync } = useCoreBridge()
   const [accepting, setAccepting] = React.useState(false)
 
   async function handleAccept() {
     try {
       setAccepting(true)
-      const wsId = await accept({ token: params.token })
-      setActiveWorkspaceId(wsId)
-      toast.success("Joined workspace!")
+      const workspaceId = await accept({ token })
+      setActiveWorkspaceId(workspaceId)
+      // Mirror the new membership into Bilan before the dashboard queries run.
+      await resync().catch(() => {})
+      toast.success("Bienvenue dans l'espace partagé !")
       router.push("/dashboard")
-    } catch (err: any) {
-      toast.error(err?.message || "Could not accept invitation")
+    } catch (error: any) {
+      toast.error(error?.message || "Impossible d'accepter l'invitation")
     } finally {
       setAccepting(false)
     }
@@ -40,50 +49,65 @@ export default function InviteAcceptPage({ params }: { params: { token: string }
     )
   }
 
+  const shell = (children: React.ReactNode) => (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="flex h-16 items-center px-4 sm:px-6">
+        <BilanWordmark size={30} />
+      </header>
+      <main className="flex flex-1 items-start justify-center px-4 pb-16 pt-6 sm:items-center sm:pt-0">{children}</main>
+    </div>
+  )
+
   if (!invitation) {
-    return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="max-w-md text-center">
-          <h1 className="text-xl font-semibold">Invitation not found</h1>
-          <p className="mt-2 text-sm text-muted-foreground">This invitation does not exist or has been revoked.</p>
-          <Button asChild className="mt-6"><a href="/">Go home</a></Button>
-        </div>
-      </div>
+    return shell(
+      <div className="max-w-md text-center">
+        <h1 className="text-xl font-semibold">Invitation introuvable</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Ce lien n&apos;existe pas ou a été révoqué. Demandez un nouveau lien à l&apos;administrateur.
+        </p>
+        <Button asChild className="mt-6">
+          <a href="/">Retour à l&apos;accueil</a>
+        </Button>
+      </div>,
     )
   }
 
   if (invitation.status !== "pending") {
-    return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="max-w-md text-center">
-          <h1 className="text-xl font-semibold">Invitation {invitation.status}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">This invitation is no longer valid.</p>
-          <Button asChild className="mt-6"><a href="/dashboard">Go to dashboard</a></Button>
-        </div>
-      </div>
+    return shell(
+      <div className="max-w-md text-center">
+        <h1 className="text-xl font-semibold">Invitation {invitation.status}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Cette invitation n&apos;est plus valide.</p>
+        <Button asChild className="mt-6">
+          <a href="/dashboard">Aller au tableau de bord</a>
+        </Button>
+      </div>,
     )
   }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-primary">
-          <Wallet className="h-5 w-5" />
-        </div>
-        <h1 className="mt-4 text-xl font-semibold">You're invited to join</h1>
-        <p className="mt-1 text-2xl font-semibold tracking-tight">{invitation.workspace?.name ?? "a workspace"}</p>
-        <p className="mt-3 text-sm text-muted-foreground">As a <strong>{invitation.role}</strong>, you'll be able to collaborate on this workspace.</p>
-        {isAuthenticated ? (
-          <Button onClick={handleAccept} disabled={accepting} className="mt-6 w-full gap-2">
-            {accepting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            Accept invitation
-          </Button>
-        ) : (
-          <Button asChild className="mt-6 w-full">
-            <a href={`/auth?next=${encodeURIComponent(`/invite/${params.token}`)}`}>Sign in to accept</a>
-          </Button>
-        )}
+  return shell(
+    <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--primary)_18%,var(--card))] text-primary">
+        <ShieldTick className="h-5 w-5" />
       </div>
-    </div>
+      <h1 className="mt-4 text-sm font-medium uppercase tracking-widest text-muted-foreground">
+        Invitation à rejoindre
+      </h1>
+      <p className="mt-1 text-2xl font-semibold tracking-tight">{invitation.workspace?.name ?? "un espace de travail"}</p>
+      <p className="mt-3 text-sm text-muted-foreground">
+        En tant que <strong>{invitation.role}</strong>, vous accéderez à cet espace dans Bilan et dans toute la suite
+        A2E (fichiers, notifications, équipe).
+      </p>
+      <p className="mt-2 text-xs text-muted-foreground">Invitation envoyée à {invitation.email}</p>
+      {isAuthenticated ? (
+        <Button onClick={handleAccept} disabled={accepting} className="mt-6 w-full gap-2" data-testid="accept-invite-btn">
+          {accepting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+          Accepter l&apos;invitation
+        </Button>
+      ) : (
+        <Button asChild className="mt-6 w-full">
+          <a href={`/sign-in?returnPathname=${encodeURIComponent(`/invite/${token}`)}`}>Se connecter pour accepter</a>
+        </Button>
+      )}
+    </div>,
   )
 }

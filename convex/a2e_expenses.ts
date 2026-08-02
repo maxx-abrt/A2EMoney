@@ -1,19 +1,24 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { assertWorkspaceMember, logActivity } from "./lib/auth";
+import { decryptFields, decryptMany, encryptOptional } from "./lib/crypto";
+
+/** Free-text + payment details are encrypted at rest (AES-256-GCM, per workspace). */
+const ENCRYPTED = ["notes", "paymentMethod"] as const;
 import { api } from "./_generated/api";
 
 export const list = query({
-  args: { workspaceId: v.id("workspaces") },
+  args: { workspaceId: v.string() },
   handler: async (ctx, args) => {
     await assertWorkspaceMember(ctx, args.workspaceId);
-    return ctx.db
+    const rows = await ctx.db
       .query("a2e_expenses")
       .withIndex("by_workspace_date", (q) =>
         q.eq("workspaceId", args.workspaceId),
       )
       .order("desc")
       .collect();
+    return await decryptMany(args.workspaceId, "a2e_expenses", rows, ENCRYPTED);
   },
 });
 
@@ -23,13 +28,13 @@ export const get = query({
     const e = await ctx.db.get(args.expenseId);
     if (!e) return null;
     await assertWorkspaceMember(ctx, e.workspaceId);
-    return e;
+    return await decryptFields(e.workspaceId, "a2e_expenses", e, ENCRYPTED);
   },
 });
 
 export const create = mutation({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     sheetId: v.optional(v.id("a2e_bookSheets")),
     description: v.string(),
@@ -66,9 +71,11 @@ export const create = mutation({
       amount: args.amount,
       category: args.category,
       date: args.date,
-      paymentMethod: args.paymentMethod,
+      paymentMethod:
+        (await encryptOptional(args.workspaceId, "a2e_expenses", "paymentMethod", args.paymentMethod)) ??
+        "",
       type: args.type,
-      notes: args.notes,
+      notes: await encryptOptional(args.workspaceId, "a2e_expenses", "notes", args.notes),
       linkedDocuments: [],
       linkedInvoice: args.linkedInvoice,
       linkedBookEntries: [],
@@ -140,7 +147,10 @@ export const update = mutation({
     const { expenseId, ...rest } = args as any;
     const patch: any = { updatedAt: Date.now() };
     for (const [k, val] of Object.entries(rest)) {
-      if (val !== undefined) patch[k] = val;
+      if (val === undefined) continue;
+      patch[k] = (ENCRYPTED as readonly string[]).includes(k)
+        ? await encryptOptional(e.workspaceId, "a2e_expenses", k, val as string)
+        : val;
     }
     await ctx.db.patch(args.expenseId, patch);
     await logActivity(ctx, {
@@ -181,7 +191,7 @@ export const listBySheet = query({
       .withIndex("by_sheet", (q) => q.eq("sheetId", args.sheetId))
       .order("desc")
       .collect();
-    return exps;
+    return await decryptMany(s.workspaceId, "a2e_expenses", exps, ENCRYPTED);
   },
 });
 
@@ -191,11 +201,12 @@ export const listByProject = query({
     const project = await ctx.db.get(args.projectId);
     if (!project) return [];
     await assertWorkspaceMember(ctx, project.workspaceId);
-    return ctx.db
+    const rows = await ctx.db
       .query("a2e_expenses")
       .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
       .order("desc")
       .collect();
+    return await decryptMany(project.workspaceId, "a2e_expenses", rows, ENCRYPTED);
   },
 });
 

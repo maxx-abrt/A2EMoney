@@ -24,6 +24,10 @@ import {
   Building4,
   People,
   Star1,
+  ShieldTick,
+  Lock,
+  Folder2,
+  Global,
 } from "@/components/iconsax"
 
 export default async function LandingPage() {
@@ -64,6 +68,7 @@ export default async function LandingPage() {
               { href: "#why", label: nav("features") },
               { href: "#pricing", label: nav("pricing") },
               { href: "#testimonials", label: nav("testimonials") },
+              { href: "#security", label: nav("security") },
               { href: "#faq", label: "FAQ" },
             ].map((link) => (
               <Link
@@ -210,6 +215,58 @@ export default async function LandingPage() {
             <Button asChild variant="outline" className="mt-7 rounded-full">
               <Link href="/auth">{t("evolve.cta")}<ArrowUpRight size={14} className="ml-1.5" /></Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECURITY AT A GLANCE */}
+      <section id="security" className="relative border-y border-border/40 py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+            <div>
+              <p className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                <ShieldTick size={14} /> {t("security.badge")}
+              </p>
+              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+                {t("security.title")}
+              </h2>
+              <p className="mt-4 text-pretty text-base text-muted-foreground">{t("security.subtitle")}</p>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <Button asChild className="rounded-full" data-testid="trust-center-btn">
+                  <Link href="/security">
+                    {t("security.cta")}
+                    <ArrowRight size={14} className="ml-1.5" />
+                  </Link>
+                </Button>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <Badge variant="outline" className="font-mono text-[10px]">AES-256-GCM</Badge>
+                  <Badge variant="outline" className="font-mono text-[10px]">HKDF-SHA256</Badge>
+                  <Badge variant="outline" className="font-mono text-[10px]">EU eu-west-1</Badge>
+                  <Badge variant="outline" className="font-mono text-[10px]">RGPD</Badge>
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {([
+                ["encryption", Lock],
+                ["files", Folder2],
+                ["gdpr", TickCircle],
+                ["suite", Global],
+              ] as const).map(([key, Icon]) => (
+                <div
+                  key={key}
+                  className="rounded-2xl border border-border bg-card p-5 transition-transform duration-300 hover:-translate-y-0.5"
+                >
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_16%,var(--card))] text-primary">
+                    <Icon size={18} />
+                  </div>
+                  <h3 className="mt-3 text-sm font-semibold">{t(`security.items.${key}.title`)}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {t(`security.items.${key}.body`)}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -437,6 +494,9 @@ export default async function LandingPage() {
             </Link>
             <Link href="/legal/terms" className="transition-colors hover:text-foreground">
               {t("footer.terms")}
+            </Link>
+            <Link href="/security" className="transition-colors hover:text-foreground">
+              {nav("security")}
             </Link>
             <Link href="#" className="transition-colors hover:text-foreground">
               {t("footer.contact")}

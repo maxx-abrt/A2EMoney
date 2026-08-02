@@ -2,50 +2,56 @@
 
 import "@/lib/intl-guard"
 import * as React from "react"
-import { useConvexAuth, useMutation } from "convex/react"
 import { useAuth } from "@workos-inc/authkit-nextjs/components"
-import { api } from "@/convex/_generated/api"
+import { CoreProvider, WorkspaceProvider } from "@a2e/core"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "sonner"
-import { WorkspaceProvider } from "@/lib/workspace-context"
 import { FilePreviewProvider } from "@/components/file-preview-provider"
-import { ConvexClientProvider } from "@/components/ConvexClientProvider"
+import { ConvexClientProvider, fetchWorkOSToken } from "@/components/ConvexClientProvider"
+import { CoreErrorBoundary } from "@/components/core-error-boundary"
+import { CoreBridge } from "@/lib/core-bridge"
+import { coreRoutes } from "@/lib/core-api"
 import type { UserInfo, NoUserInfo } from "@workos-inc/authkit-nextjs"
 
-/**
- * Provisions (or refreshes) the Convex user record for the authenticated WorkOS
- * identity. Runs once per authenticated session.
- */
-function StoreUser() {
-  const { isAuthenticated } = useConvexAuth()
-  const { user } = useAuth()
-  const store = useMutation(api.users.store)
-  const done = React.useRef(false)
-
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      done.current = false
-      return
-    }
-    if (done.current) return
-    done.current = true
-    const name = user
-      ? [user.firstName, user.lastName].filter(Boolean).join(" ") || undefined
-      : undefined
-    store({
-      email: user?.email ?? undefined,
-      name,
-      image: (user as any)?.profilePictureUrl ?? undefined,
-    }).catch(() => {
-      done.current = false
-    })
-  }, [isAuthenticated, user, store])
-
-  return null
-}
-
 export type InitialAuth = Omit<UserInfo | NoUserInfo, "accessToken">
+
+/**
+ * Provider order is contractual (A2E guide §2 Step 4):
+ *   ConvexClientProvider (Bilan's own deployment)
+ *     → CoreProvider      (a second Convex client, the A2E Core deployment)
+ *       → WorkspaceProvider (shared active workspace, same ids + storage key
+ *                            as every other suite app)
+ *         → CoreBridge      (membership mirror + verified identity)
+ *
+ * The SAME WorkOS access token authenticates both deployments — no token
+ * exchange, no second login.
+ */
+function CoreLayer({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
+
+  const fetchToken = React.useCallback(
+    async ({ forceRefreshToken }: { forceRefreshToken: boolean }) => {
+      if (!user) return null
+      return await fetchWorkOSToken({ forceRefreshToken })
+    },
+    [user],
+  )
+
+  return (
+    <CoreProvider
+      /* Passed explicitly: the vendored package reads env vars dynamically, and
+         Next only inlines *literal* `process.env.NEXT_PUBLIC_*` references. */
+      url={process.env.NEXT_PUBLIC_CONVEX_CORE_URL}
+      fetchToken={fetchToken}
+      routes={coreRoutes}
+    >
+      <WorkspaceProvider>
+        <CoreBridge>{children}</CoreBridge>
+      </WorkspaceProvider>
+    </CoreProvider>
+  )
+}
 
 export function Providers({
   children,
@@ -56,18 +62,14 @@ export function Providers({
 }) {
   return (
     <ConvexClientProvider initialAuth={initialAuth}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="light"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <StoreUser />
-        <WorkspaceProvider>
-          <FilePreviewProvider>{children}</FilePreviewProvider>
-          <Toaster />
-          <SonnerToaster position="top-right" richColors closeButton />
-        </WorkspaceProvider>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <CoreErrorBoundary>
+          <CoreLayer>
+            <FilePreviewProvider>{children}</FilePreviewProvider>
+            <Toaster />
+            <SonnerToaster position="top-right" richColors closeButton />
+          </CoreLayer>
+        </CoreErrorBoundary>
       </ThemeProvider>
     </ConvexClientProvider>
   )

@@ -40,6 +40,8 @@ const nextConfig = {
   // correctly during Next 15 production builds unless we transpile it
   // (along with its peer deps).
   transpilePackages: [
+    // Vendored A2E Core package ships raw TypeScript source.
+    "@a2e/core",
     "reaviz",
     "rdk",
     "realayers",
