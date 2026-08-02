@@ -33,11 +33,13 @@ import {
   ShieldTick,
   Calendar,
   ClipboardTick,
+  HeartTick,
 } from "@/components/iconsax"
 
 const pages = [
   { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: Element4 },
   { key: "book", label: "Book", href: "/dashboard/book", icon: Book1 },
+  { key: "subventions", label: "Grants", href: "/dashboard/subventions", icon: HeartTick },
   { key: "expenses", label: "Expenses", href: "/dashboard/expenses", icon: ReceiptText },
   { key: "projects", label: "Projects", href: "/dashboard/projects", icon: FolderOpen },
   { key: "budget", label: "Budget", href: "/dashboard/budget", icon: Wallet3 },

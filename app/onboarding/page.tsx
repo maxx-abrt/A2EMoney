@@ -2,15 +2,8 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-<<<<<<< HEAD
-import { useQuery } from "convex/react"
-import { useTranslations } from "next-intl"
-import { api } from "@/convex/_generated/api"
-import { useCoreMutation, coreApi } from "@a2e/core"
-=======
 import { useTranslations } from "next-intl"
 import { useWorkspace, useWorkspaceMutations } from "@a2e/core"
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -34,17 +27,10 @@ const TYPES = [
 export default function OnboardingPage() {
   const router = useRouter()
   const t = useTranslations("onboarding")
-<<<<<<< HEAD
-  const me = useQuery(api.users.me, {})
-  const createWorkspace = useCoreMutation(coreApi.workspaces.create)
-  const { workspaces: myWorkspaces, setActiveWorkspaceId } = useWorkspace()
-  const [type, setType] = React.useState<typeof TYPES[number]["id"]>("business")
-=======
   const { workspaces, setActiveWorkspaceId, isLoading } = useWorkspace()
   const { create, update } = useWorkspaceMutations()
   const { resync } = useCoreBridge()
   const [type, setType] = React.useState<(typeof TYPES)[number]["id"]>("association")
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
   const [name, setName] = React.useState("")
   const [description, setDescription] = React.useState("")
   const [currency, setCurrency] = React.useState("EUR")

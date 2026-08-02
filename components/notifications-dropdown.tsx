@@ -4,11 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { formatDistanceToNowStrict } from "date-fns"
-<<<<<<< HEAD
-import { useNotifications, useNotificationMutations } from "@a2e/core"
-=======
 import { useNotificationMutations, useNotifications, useUnreadCount } from "@a2e/core"
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
@@ -85,13 +81,8 @@ function shortType(type: string) {
 export function NotificationsDropdown() {
   const t = useTranslations("notifications")
   const [open, setOpen] = React.useState(false)
-<<<<<<< HEAD
-  // Suite-wide bell: notifications from every app, served by A2E Core.
-  const items = useNotifications({ limit: 50 })
-=======
   const items = useNotifications({ limit: 50 })
   const unreadCount = useUnreadCount() ?? 0
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
   const { markRead, markAllRead, remove, clearAll } = useNotificationMutations()
 
   const list = items ?? []
@@ -172,11 +163,7 @@ export function NotificationsDropdown() {
                       onClick={(e) => {
                         e.stopPropagation()
                         e.preventDefault()
-<<<<<<< HEAD
-                        remove({ notificationId: n._id })
-=======
                         void remove({ notificationId: n._id })
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
                       }}
                       className="opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
                       aria-label={t("dismiss")}
@@ -186,11 +173,7 @@ export function NotificationsDropdown() {
                   </div>
                 )
                 const onClick = () => {
-<<<<<<< HEAD
-                  if (!n.read) markRead({ notificationId: n._id })
-=======
                   if (!n.read) void markRead({ notificationId: n._id })
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
                   if (n.link) setOpen(false)
                 }
                 return (

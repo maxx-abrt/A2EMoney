@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GlassCard } from "@/components/glass-card"
-import { Plus, BookOpen, Trash2, Loader2 } from "@/components/iconsax"
+import { Plus, BookOpen, Trash2, Loader2, Lock, Sparkles } from "@/components/iconsax"
 import { toast } from "sonner"
 import { SheetIcon, SheetIconPicker, SHEET_COLORS } from "@/components/sheet-icon-picker"
 
@@ -84,6 +84,17 @@ export default function BookPage() {
   const sheets = useQuery(api.a2e_books.listSheets, wsId ? { workspaceId: wsId } : "skip")
   const createSheet = useMutation(api.a2e_books.createSheet)
   const removeSheet = useMutation(api.a2e_books.removeSheet)
+  const ensureDefault = useMutation(api.a2e_books.ensureDefault)
+
+  // The auto-journal exists from the first visit, even before any movement,
+  // and back-fills anything recorded before it existed.
+  React.useEffect(() => {
+    if (!wsId || sheets === undefined) return
+    const auto = sheets.find((s: any) => s.isDefault)
+    if (!auto || (auto.autoCount ?? 0) === 0) {
+      void ensureDefault({ workspaceId: wsId }).catch(() => {})
+    }
+  }, [wsId, sheets, ensureDefault])
 
   const [open, setOpen] = React.useState(false)
   const [tplIdx, setTplIdx] = React.useState(0)
@@ -109,7 +120,10 @@ export default function BookPage() {
         name: name.trim() || t(`templates.${tpl.id}`),
         icon: iconKey,
         color,
-        columns: [...tpl.columns],
+        columns: tpl.columns.map((c: any) => ({
+          ...c,
+          options: c.options ? [...c.options] : undefined,
+        })),
       })
       toast.success(t("toasts.created"))
       setOpen(false)
@@ -221,8 +235,9 @@ export default function BookPage() {
           </GlassCard>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {sheets.map((s, idx) => {
+            {sheets.map((s: any, idx: number) => {
               const sheetColor = s.color || SHEET_COLORS[0]
+              const isAuto = Boolean(s.isDefault)
               return (
                 <motion.div
                   key={s._id}
@@ -232,9 +247,19 @@ export default function BookPage() {
                 >
                   <Link href={`/dashboard/book/${s._id}`}>
                     <GlassCard
-                      className="group relative p-5 transition-all hover:-translate-y-0.5 hover:shadow-md"
+                      className={`group relative p-5 transition-all hover:-translate-y-0.5 hover:shadow-md ${
+                        isAuto ? "ring-1 ring-[color-mix(in_srgb,var(--primary)_45%,transparent)]" : ""
+                      }`}
                       data-testid={`sheet-card-${s._id}`}
                     >
+                      {isAuto && (
+                        <span
+                          className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_16%,var(--card))] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary"
+                          data-testid="default-book-badge"
+                        >
+                          <Sparkles size={10} variant="Bulk" /> {t("autoBadge")}
+                        </span>
+                      )}
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <div
@@ -246,26 +271,44 @@ export default function BookPage() {
                           <div>
                             <h3 className="text-base font-semibold">{s.name}</h3>
                             <p className="text-xs text-muted-foreground">
+                              {t("rows", { count: s.entryCount ?? 0 })} ·{" "}
                               {t("columns", { count: (s.columns || []).length })}
                             </p>
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive opacity-0 transition-opacity group-hover:opacity-100"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            removeSheet({ sheetId: s._id })
-                          }}
-                          data-testid={`sheet-delete-${s._id}`}
-                        >
-                          <Trash2 size={14} variant="Bulk" />
-                        </Button>
+                        {isAuto ? (
+                          <span
+                            className="mt-6 text-muted-foreground opacity-60"
+                            title={t("autoLocked")}
+                          >
+                            <Lock size={14} variant="Bulk" />
+                          </span>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive opacity-0 transition-opacity group-hover:opacity-100"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              removeSheet({ sheetId: s._id }).catch((err: any) =>
+                                toast.error(err?.message || t("toasts.failed")),
+                              )
+                            }}
+                            data-testid={`sheet-delete-${s._id}`}
+                          >
+                            <Trash2 size={14} variant="Bulk" />
+                          </Button>
+                        )}
                       </div>
-                      <p className="mt-3 text-xs text-muted-foreground">
-                        {t("updated", { when: formatDate(s.updatedAt) })}
-                      </p>
+                      {isAuto ? (
+                        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                          {t("autoDescription", { proofs: s.proofCount ?? 0 })}
+                        </p>
+                      ) : (
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          {t("updated", { when: formatDate(s.updatedAt) })}
+                        </p>
+                      )}
                     </GlassCard>
                   </Link>
                 </motion.div>

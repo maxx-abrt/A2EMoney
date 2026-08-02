@@ -2,10 +2,6 @@
 
 import * as React from "react"
 import { useTranslations } from "next-intl"
-<<<<<<< HEAD
-import { useMembers, useMe, useCoreMutation, useCoreQuery, coreApi } from "@a2e/core"
-import { useWorkspace } from "@/lib/workspace-context"
-=======
 import { useQuery } from "convex/react"
 import {
   QuotaExceededError,
@@ -21,7 +17,6 @@ import {
 } from "@a2e/core"
 import { api } from "@/convex/_generated/api"
 import { useCoreBridge, useIdentity } from "@/lib/core-bridge"
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -96,21 +91,6 @@ const ROLE_COLORS = ["#8590C8", "#3fa780", "#e0964e", "#c96a6a", "#6a9ec9", "#9a
 export default function TeamPage() {
   const t = useTranslations("team")
   const tCommon = useTranslations("common")
-<<<<<<< HEAD
-  const { activeWorkspace } = useWorkspace()
-  const wsId = activeWorkspace?._id
-  const me = useMe()
-
-  const members = useMembers(wsId as any)
-  const invitations = useCoreQuery(
-    coreApi.invitations.listByWorkspace,
-    wsId ? { workspaceId: wsId as any } : "skip",
-  )
-  const invite = useCoreMutation(coreApi.invitations.invite)
-  const revoke = useCoreMutation(coreApi.invitations.revoke)
-  const updateRole = useCoreMutation(coreApi.workspaces.updateMemberRole)
-  const removeMember = useCoreMutation(coreApi.workspaces.removeMember)
-=======
   const { activeWorkspace, activeWorkspaceId } = useWorkspace()
   const members = useMembers(activeWorkspaceId)
   const invitations = useInvitations(activeWorkspaceId)
@@ -126,7 +106,6 @@ export default function TeamPage() {
   const roleMutations = useRoleMutations()
   const { resync } = useCoreBridge()
   const me = useIdentity()
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 
   const [inviteOpen, setInviteOpen] = React.useState(false)
   const [email, setEmail] = React.useState("")
@@ -167,11 +146,7 @@ export default function TeamPage() {
     if (!activeWorkspaceId || !email.trim()) return
     try {
       setInviting(true)
-<<<<<<< HEAD
-      const res = await invite({ workspaceId: wsId as any, email: email.trim(), role })
-=======
       const res = await invite({ workspaceId: activeWorkspaceId, email: email.trim(), role })
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
       const link = `${window.location.origin}/invite/${res.token}`
       await navigator.clipboard.writeText(link).catch(() => {})
       toast.success(t("toasts.invitationSent", { email: email.trim() }), { description: link })
@@ -313,20 +288,6 @@ export default function TeamPage() {
           ) : (
             <ul className="divide-y divide-border" data-testid="members-list">
               {members.map((m) => {
-<<<<<<< HEAD
-                const isMe = me?._id === m.userId
-                const mName = m.user?.name
-                const mEmail = m.user?.email
-                const mImage = m.user?.image
-                return (
-                  <li key={m._id} className="flex items-center gap-3 px-5 py-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent/10 text-sm font-medium text-primary">
-                      {mImage ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={mImage} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        (mName || mEmail || "?").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
-=======
                 const isMe = me.coreUserId === m.userId
                 const name = nameFor.get(m.userId) ?? m.user?.name ?? null
                 const mail = displayEmail(m.userId, m.user?.email)
@@ -344,21 +305,14 @@ export default function TeamPage() {
                         <img src={m.user.image} alt="" className="h-full w-full object-cover" />
                       ) : (
                         initials
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">
-<<<<<<< HEAD
-                        {mName || mEmail || "—"} {isMe && <span className="ml-1 text-xs text-muted-foreground">({t("you")})</span>}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">{mEmail || ""}</p>
-=======
                         {name || mail}
                         {isMe && <span className="ml-1 text-xs text-muted-foreground">({t("you")})</span>}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">{mail}</p>
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
                     </div>
                     <Badge variant="secondary" className="shrink-0">
                       {t(`roles.${m.role}`)}
@@ -371,15 +325,6 @@ export default function TeamPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-<<<<<<< HEAD
-                          <DropdownMenuItem onClick={() => updateRole({ workspaceId: wsId! as any, userId: m.userId, role: "admin" })}><ShieldCheck className="mr-2 h-4 w-4" /> {t("makeAdmin")}</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => updateRole({ workspaceId: wsId! as any, userId: m.userId, role: "member" })}><UserCheck className="mr-2 h-4 w-4" /> {t("makeMember")}</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => updateRole({ workspaceId: wsId! as any, userId: m.userId, role: "viewer" })}><Eye className="mr-2 h-4 w-4" /> {t("makeViewer")}</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive" onClick={() => {
-                            if (confirm(t("confirmRemoveMember"))) removeMember({ workspaceId: wsId! as any, userId: m.userId })
-                          }}><XCircle className="mr-2 h-4 w-4" /> {t("remove")}</DropdownMenuItem>
-=======
                           <DropdownMenuItem onClick={() => changeRole(m.userId, "admin")}>
                             <ShieldCheck className="mr-2 h-4 w-4" /> {t("makeAdmin")}
                           </DropdownMenuItem>
@@ -401,7 +346,6 @@ export default function TeamPage() {
                           >
                             <XCircle className="mr-2 h-4 w-4" /> {t("remove")}
                           </DropdownMenuItem>
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}

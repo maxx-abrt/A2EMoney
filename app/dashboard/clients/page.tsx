@@ -13,12 +13,6 @@ import {
   useWorkspace,
 } from "@a2e/core"
 import { api } from "@/convex/_generated/api"
-<<<<<<< HEAD
-import type { Id } from "@/convex/_generated/dataModel"
-import { useWorkspace } from "@/lib/workspace-context"
-import { useCoreMutation, coreApi } from "@a2e/core"
-=======
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { formatCurrency } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -50,16 +44,7 @@ export default function ClientsPage() {
   const { activeWorkspace, activeWorkspaceId } = useWorkspace()
   const currency = activeWorkspace?.currency ?? "EUR"
 
-<<<<<<< HEAD
-  const clients = useQuery(api.a2e_clients.list, wsId ? { workspaceId: wsId } : "skip")
-  const invoices = useQuery(api.a2e_invoices.list, wsId ? { workspaceId: wsId } : "skip")
-  const create = useMutation(api.a2e_clients.create)
-  const remove = useMutation(api.a2e_clients.remove)
-  const createCoreContact = useCoreMutation(coreApi.contacts.create)
-
-=======
   const contacts = useContacts(activeWorkspaceId)
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
   const [query, setQuery] = React.useState("")
   const hits = useContactSearch(activeWorkspaceId, query)
   const quota = useQuota(activeWorkspaceId, "maxContacts")
@@ -109,31 +94,6 @@ export default function ClientsPage() {
     if (!activeWorkspaceId || !form.name.trim()) return
     try {
       setSaving(true)
-<<<<<<< HEAD
-      const clientId = await create({
-        workspaceId: wsId,
-        name: name.trim(),
-        email: email.trim() || undefined,
-        address: address.trim() || undefined,
-        siret: siret.trim() || undefined,
-        phone: phone.trim() || undefined,
-        notes: notes.trim() || undefined,
-      })
-      // Mirror into the suite-wide People directory (A2E Core contacts),
-      // linked back to this Bilan client. Best-effort: never blocks the create.
-      createCoreContact({
-        workspaceId: wsId as any,
-        name: name.trim(),
-        email: email.trim() || undefined,
-        phone: phone.trim() || undefined,
-        address: address.trim() || undefined,
-        siret: siret.trim() || undefined,
-        notes: notes.trim() || undefined,
-        sourceApp: "bilan",
-        link: { app: "bilan", type: "client", id: clientId as string },
-      }).catch(() => {})
-      toast.success(t("toasts.created"))
-=======
       const payload = {
         name: form.name.trim(),
         email: form.email.trim() || undefined,
@@ -158,7 +118,6 @@ export default function ClientsPage() {
         await create({ workspaceId: activeWorkspaceId, sourceApp: "bilan", ...payload })
         toast.success(t("toasts.created"))
       }
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
       setOpen(false)
       reset()
     } catch (err: any) {

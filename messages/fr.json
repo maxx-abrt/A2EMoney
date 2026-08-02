@@ -153,7 +153,10 @@
     "settings": "Paramètres",
     "signOut": "Déconnexion",
     "storage": "Stockage",
-    "security": "Sécurité"
+    "security": "Sécurité",
+    "subventions": "Subventions",
+    "search": "Rechercher une page, une facture, un projet…",
+    "clients": "Contacts"
   },
   "landing": {
     "badge": "v1.0 · Lancement progressif",
@@ -464,6 +467,56 @@
         "suite": {
           "title": "Espace partagé A2E",
           "body": "Membres, rôles, notifications et Drive communs à toute la suite, une seule connexion."
+        }
+      }
+    },
+    "bento": {
+      "tag": "Tout Bilan, en un coup d'œil",
+      "title": "Les fonctionnalités qui font le travail à votre place",
+      "description": "Chaque module est relié aux autres : une dépense justifie une ligne de journal, une subvention obtenue devient une recette, un fichier reste retrouvable partout dans la suite.",
+      "cta": "Ouvrir l'application",
+      "items": {
+        "journal": {
+          "title": "Journal comptable automatique",
+          "body": "Un livre par espace, rempli tout seul. Chaque recette et chaque dépense y crée sa ligne — date, libellé, catégorie, montant, moyen de paiement, projet, justificatifs, référence. Vous n'y touchez jamais : en fin d'exercice, vous l'exportez.",
+          "tagline": "Zéro saisie double"
+        },
+        "subventions": {
+          "title": "Subventions & appels à projets",
+          "body": "Plus de 3 000 aides publiques françaises, actualisées chaque jour. Décrivez votre projet : l'assistant IA cible celles auxquelles vous êtes vraiment éligible, explique pourquoi, et suit vos dossiers jusqu'à la décision.",
+          "tagline": "Mis à jour quotidiennement"
+        },
+        "transactions": {
+          "title": "Recettes & dépenses",
+          "body": "Enregistrez en quelques secondes, joignez le justificatif, classez par catégorie et par projet."
+        },
+        "invoices": {
+          "title": "Factures",
+          "body": "Numérotation automatique, TVA, export PDF, relances — et l'encaissement bascule en recette."
+        },
+        "budget": {
+          "title": "Budgets",
+          "body": "Enveloppes par catégorie et par période, alertes de dépassement, budget à l'équilibre."
+        },
+        "projects": {
+          "title": "Projets & CERFA",
+          "body": "Suivi du budget par projet, fiches projet, CERFA 15059 et reçus fiscaux pré-remplis."
+        },
+        "drive": {
+          "title": "Drive partagé & justificatifs",
+          "body": "Vos pièces vivent dans le drive chiffré de la suite A2E (Backblaze B2, bucket privé, liens signés à durée limitée). Un reçu joint à une dépense reste retrouvable depuis n'importe quelle app A2E, et depuis la ligne de journal qu'il justifie."
+        },
+        "reports": {
+          "title": "Rapports & exports",
+          "body": "Trésorerie, répartition, comparaison de périodes. Export CSV, XLSX et PDF."
+        },
+        "team": {
+          "title": "Équipe, rôles & espaces partagés",
+          "body": "Les espaces, membres, rôles et notifications sont communs à toute la suite A2E : une invitation, un accès partout."
+        },
+        "security": {
+          "title": "Chiffré et conforme RGPD",
+          "body": "Chiffrement AES-256-GCM par espace sur les données sensibles, hébergement UE, export et effacement en un clic."
         }
       }
     }
@@ -962,6 +1015,32 @@
       "toasts": {
         "created": "Feuille créée",
         "failed": "Impossible d'enregistrer"
+      },
+      "autoBadge": "Auto",
+      "autoLocked": "Journal automatique — non supprimable",
+      "autoDescription": "Alimenté automatiquement par vos recettes et dépenses · {proofs} justificatif(s) liés",
+      "detail": {
+        "rowsColumns": "{rows} lignes · {columns} colonnes",
+        "columnsBtn": "Colonnes",
+        "settings": "Réglages de la feuille",
+        "manageColumns": "Gérer les colonnes",
+        "name": "Nom",
+        "type": "Type",
+        "required": "Obligatoire",
+        "optionsHint": "Options (séparées par des virgules)",
+        "addColumn": "Ajouter une colonne",
+        "saveColumns": "Enregistrer les colonnes",
+        "addRow": "Ajouter une ligne",
+        "add": "Ajouter",
+        "autoLine": "Ligne générée automatiquement",
+        "cannotDelete": "Impossible de supprimer",
+        "couldNotUpdate": "Modification impossible",
+        "saved": "Enregistré",
+        "autoBanner": "<b>Journal automatique.</b> Chaque recette et chaque dépense enregistrée dans Bilan crée, met à jour ou supprime sa ligne ici — justificatifs compris. Les colonnes grisées sont pilotées par l'application ; la colonne Commentaire reste libre. Exportez ce journal tel quel en fin d'exercice.",
+        "autoNoManual": "Les lignes de ce journal proviennent de vos transactions.",
+        "autoAddCta": "Ajouter une transaction",
+        "proofs": "Justificatifs",
+        "noRowsYet": "Aucune ligne pour l'instant — enregistrez une recette ou une dépense et elle apparaîtra ici."
       }
     },
     "documents": {
@@ -1266,6 +1345,89 @@
         "title": "Prêt à tenir vos comptes sans compromis",
         "body": "Comptabilité claire, documents légaux français, fichiers sécurisés et espace partagé avec le reste de la suite A2E.",
         "privacy": "Politique de confidentialité"
+      }
+    },
+    "subventions": {
+      "title": "Subventions",
+      "description": "Toutes les aides publiques françaises au même endroit — mises à jour chaque jour — et un assistant qui trouve celles qui correspondent vraiment à votre projet.",
+      "refresh": "Actualiser",
+      "save": "Suivre",
+      "saved": "Suivi",
+      "stats": {
+        "total": "{count} aides référencées",
+        "updated": "Mis à jour {when}"
+      },
+      "toasts": {
+        "saved": "Ajoutée à votre suivi",
+        "refreshing": "Actualisation du catalogue lancée",
+        "converted": "Recette créée et inscrite au journal"
+      },
+      "ai": {
+        "title": "Décrivez votre projet",
+        "subtitle": "L'assistant lit votre description, cible les aides compatibles et explique pourquoi. Chaque recherche est mise en cache : la relancer ne coûte rien.",
+        "placeholder": "Ex. : Notre association ouvre un tiers-lieu à Lyon pour l'insertion numérique des 16-25 ans. 3 salariés, budget 120 000 €, besoin de financer un poste et l'équipement informatique.",
+        "cta": "Trouver mes aides",
+        "running": "Analyse en cours…",
+        "fit": "de correspondance",
+        "resultCount": "{count} aide(s) pertinente(s)",
+        "scanned": "{count} aides analysées",
+        "cached": "Résultat en cache",
+        "history": "Recherches précédentes",
+        "tooShort": "Décrivez votre projet en quelques phrases (20 caractères minimum).",
+        "noMatch": "Aucune aide suffisamment pertinente. Précisez votre territoire, votre public et votre besoin.",
+        "failed": "L'analyse a échoué. Réessayez dans un instant.",
+        "notConfigured": "Assistant IA non configuré sur ce déploiement (clé Gemini manquante). Le catalogue reste consultable.",
+        "examples": {
+          "assoJeunes": "Association d'éducation populaire en Seine-Saint-Denis, accompagnement scolaire de 80 collégiens, besoin de financer un poste de coordinateur.",
+          "tiersLieu": "Tiers-lieu rural en Occitanie : coworking, réparation de vélos et ateliers numériques, besoin d'investir dans l'aménagement du local.",
+          "startup": "Startup de 4 personnes développant un logiciel de mesure de l'empreinte carbone, phase de R&D, recherche subventions et crédits d'impôt."
+        },
+        "privacyNote": "Seule la description que vous écrivez est envoyée au modèle Google Gemini. Aucun montant, aucun justificatif, aucune donnée nominative ne quitte Bilan.",
+        "consentTitle": "Avant la première recherche",
+        "consentBody": "Pour trouver les aides pertinentes, la description de votre projet est envoyée à Google Gemini (sous-traitant, transfert encadré par les clauses contractuelles types). Rien d'autre n'est transmis : ni vos écritures comptables, ni vos justificatifs, ni les données de vos membres. Vous pouvez retirer ce consentement à tout moment depuis le Centre de confiance.",
+        "consentAccept": "J'accepte et je lance la recherche",
+        "consentDecline": "Annuler"
+      },
+      "track": {
+        "title": "Mon suivi de dossiers",
+        "count": "{count} dossier(s)",
+        "noProject": "Sans projet",
+        "markGranted": "Marquer obtenue",
+        "booked": "au journal",
+        "deadline": "Dépôt avant le {when}",
+        "removedSource": "Aide retirée du catalogue",
+        "amountRequired": "Indiquez le montant obtenu.",
+        "grantTitle": "Subvention obtenue",
+        "grantHelp": "Le montant est enregistré comme recette et apparaît immédiatement dans le journal automatique, avec le financeur en référence.",
+        "grantAmount": "Montant obtenu ({currency})",
+        "grantConfirm": "Enregistrer la recette",
+        "status": {
+          "shortlisted": "Repérée",
+          "preparing": "En préparation",
+          "submitted": "Déposée",
+          "granted": "Obtenue",
+          "rejected": "Refusée",
+          "abandoned": "Abandonnée"
+        }
+      },
+      "catalogue": {
+        "title": "Catalogue des aides",
+        "searchPlaceholder": "Rechercher une aide, un financeur, un thème…",
+        "filters": "Filtres",
+        "all": "Toutes",
+        "audience": "Bénéficiaire",
+        "scale": "Échelle",
+        "aidType": "Type d'aide",
+        "openOnly": "Candidatures ouvertes uniquement",
+        "callsOnly": "Appels à projets uniquement",
+        "callBadge": "Appel à projets",
+        "open": "Ouvrir",
+        "loadMore": "Voir plus d'aides",
+        "sourcesLabel": "Sources :",
+        "empty": {
+          "title": "Aucune aide ne correspond",
+          "description": "Élargissez vos filtres, ou lancez l'assistant IA avec une description de votre projet."
+        }
       }
     }
   },

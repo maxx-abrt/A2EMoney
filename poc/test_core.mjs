@@ -32,7 +32,7 @@ const CORE_URL = process.env.NEXT_PUBLIC_CONVEX_CORE_URL
 const SECRET = process.env.A2E_SERVICE_SECRET
 const WORKOS_API_KEY = process.env.WORKOS_API_KEY
 const WORKOS_CLIENT_ID = process.env.WORKOS_CLIENT_ID
-const QA_EMAIL = process.env.QA_EMAIL || "qa.tester@a2emoney.app"
+const QA_EMAIL = process.env.QA_EMAIL || "devlogin@association.org"
 const QA_PASSWORD = process.env.QA_PASSWORD || "A2eMoney!Test2025"
 
 const results = []

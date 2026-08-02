@@ -183,7 +183,7 @@ export function ActivityStatsCard({
   currency?: string
   format?: "currency" | "number"
   tone?: "positive" | "negative" | "neutral"
-  icon?: React.ComponentType<{ size?: number; variant?: any; className?: string }>
+  icon?: React.ComponentType<{ size?: number | string; variant?: any; className?: string }>
   delay?: number
 }) {
   const delta =

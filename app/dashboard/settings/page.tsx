@@ -5,12 +5,7 @@ import { useTranslations } from "next-intl"
 import { useMutation, useQuery } from "convex/react"
 import { useWorkspace, useWorkspaceMutations } from "@a2e/core"
 import { api } from "@/convex/_generated/api"
-<<<<<<< HEAD
-import { useCoreMutation, coreApi } from "@a2e/core"
-import { useWorkspace } from "@/lib/workspace-context"
-=======
 import { useIdentity } from "@/lib/core-bridge"
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -28,16 +23,6 @@ import { toast } from "sonner"
 export default function SettingsPage() {
   const t = useTranslations("pages.settings")
   const tCommon = useTranslations("common")
-<<<<<<< HEAD
-  const { signOut } = useAuth()
-  const { activeWorkspace, setActiveWorkspaceId } = useWorkspace()
-  const wsId = activeWorkspace?._id
-  const me = useQuery(api.users.me, {})
-  const updateUser = useMutation(api.users.updateProfile)
-  const updateCoreUser = useCoreMutation(coreApi.users.updateProfile)
-  const updateWs = useCoreMutation(coreApi.workspaces.update)
-  const exportWs = useQuery(api.activities.exportWorkspace, wsId ? { workspaceId: wsId } : "skip")
-=======
   const signOut = () => {
     window.location.href = "/session/signout"
   }
@@ -46,7 +31,6 @@ export default function SettingsPage() {
   const { update, updateProfile } = useWorkspaceMutations()
   const org = useQuery(api.a2e_org.get, activeWorkspaceId ? { workspaceId: activeWorkspaceId } : "skip")
   const upsertOrg = useMutation(api.a2e_org.upsert)
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 
   const [name, setName] = React.useState("")
   const [wsName, setWsName] = React.useState("")
@@ -107,13 +91,7 @@ export default function SettingsPage() {
     e.preventDefault()
     try {
       setSaving(true)
-<<<<<<< HEAD
-      await updateUser({ name })
-      // Keep the shared suite profile in sync (cross-app identity).
-      updateCoreUser({ name }).catch(() => {})
-=======
       await updateProfile({ name })
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
       toast.success(t("toasts.profileSaved"))
     } catch (err: any) {
       toast.error(err?.message || t("toasts.failed"))
@@ -127,16 +105,12 @@ export default function SettingsPage() {
     if (!activeWorkspaceId) return
     try {
       setSaving(true)
-<<<<<<< HEAD
-      await updateWs({ workspaceId: wsId as any, name: wsName, description: wsDesc || undefined, currency: wsCurrency })
-=======
       await update({
         workspaceId: activeWorkspaceId,
         name: wsName,
         description: wsDesc || undefined,
         currency: wsCurrency,
       })
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
       toast.success(t("toasts.workspaceSaved"))
     } catch (err: any) {
       toast.error(err?.message || t("toasts.failed"))
@@ -145,12 +119,6 @@ export default function SettingsPage() {
     }
   }
 
-<<<<<<< HEAD
-  function handleExport() {
-    if (!exportWs) return
-    exportToJSON(`${activeWorkspace?.slug || "workspace"}-export`, exportWs)
-  }
-=======
   async function handleSaveOrg(e: React.FormEvent) {
     e.preventDefault()
     if (!activeWorkspaceId) return
@@ -178,7 +146,6 @@ export default function SettingsPage() {
       />
     </div>
   )
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
@@ -312,15 +279,7 @@ export default function SettingsPage() {
               <Danger size={16} variant="Bulk" /> {t("danger")}
             </h2>
             <p className="text-xs text-muted-foreground">{t("dangerDescription")}</p>
-<<<<<<< HEAD
-            {/* Workspaces are shared across the A2E suite (A2E Core); deletion
-                is handled centrally, not per-app. */}
-            <Button data-testid="delete-workspace-btn" variant="destructive" disabled className="gap-2">
-              <Trash size={14} variant="Bulk" /> {t("deleteWorkspace")}
-            </Button>
-=======
             <p className="text-xs text-muted-foreground">{t("dangerCoreNotice")}</p>
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
           </div>
         )}
 

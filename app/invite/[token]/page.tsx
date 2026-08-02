@@ -2,12 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-<<<<<<< HEAD
-import { useConvexAuth } from "convex/react"
-import { useCoreMutation, useCoreQuery, coreApi } from "@a2e/core"
-=======
 import { useCoreAuthState, useInvitationByToken, useInvitationMutations, useWorkspace } from "@a2e/core"
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { Button } from "@/components/ui/button"
 import { Loader2, CheckCircle2, ShieldTick } from "@/components/iconsax"
 import { BilanWordmark } from "@/components/bilan-logo"
@@ -18,20 +13,13 @@ import { toast } from "sonner"
  * Invitation acceptance. Invitations live in A2E Core, so accepting here also
  * grants access in every other suite app — one workspace, one roster.
  */
-export default function InviteAcceptPage({ params }: { params: Promise<{ token: string }> | { token: string } }) {
+export default function InviteAcceptPage({ params }: { params: Promise<{ token: string }> }) {
   const router = useRouter()
-<<<<<<< HEAD
-  const { isAuthenticated, isLoading } = useConvexAuth()
-  const invitation = useCoreQuery(coreApi.invitations.getByToken, { token: params.token })
-  const accept = useCoreMutation(coreApi.invitations.accept)
-=======
-  const resolved = params instanceof Promise ? React.use(params) : params
-  const token = resolved.token
+  const { token } = React.use(params)
 
   const { isAuthenticated, isLoading } = useCoreAuthState()
   const invitation = useInvitationByToken(token)
   const { accept } = useInvitationMutations()
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
   const { setActiveWorkspaceId } = useWorkspace()
   const { resync } = useCoreBridge()
   const [accepting, setAccepting] = React.useState(false)

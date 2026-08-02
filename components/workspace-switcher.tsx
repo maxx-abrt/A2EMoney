@@ -3,13 +3,8 @@
 import * as React from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-<<<<<<< HEAD
-import { useCoreMutation, coreApi } from "@a2e/core"
-import { useWorkspace } from "@/lib/workspace-context"
-=======
 import { useWorkspace, useWorkspaceMutations } from "@a2e/core"
 import { useCoreBridge } from "@/lib/core-bridge"
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -50,12 +45,8 @@ export function WorkspaceSwitcher({ collapsed }: { collapsed?: boolean }) {
   const tOnb = useTranslations("onboarding")
   const tCommon = useTranslations("common")
   const { workspaces, activeWorkspace, setActiveWorkspaceId } = useWorkspace()
-<<<<<<< HEAD
-  const createWorkspace = useCoreMutation(coreApi.workspaces.create)
-=======
   const { create } = useWorkspaceMutations()
   const { resync } = useCoreBridge()
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
   const [open, setOpen] = React.useState(false)
   const [name, setName] = React.useState("")
   const [type, setType] = React.useState<"individual" | "business" | "association">("association")

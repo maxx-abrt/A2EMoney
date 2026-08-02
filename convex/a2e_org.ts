@@ -25,13 +25,8 @@ const ENCRYPTED = [
 
 export const get = query({
   args: { workspaceId: v.string() },
-<<<<<<< HEAD
-  handler: async (ctx, args) => {
-    await assertWorkspaceMember(ctx, args.workspaceId)
-=======
   handler: async (ctx, { workspaceId }) => {
     await assertWorkspaceMember(ctx, workspaceId)
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
     const row = await ctx.db
       .query("a2e_orgProfile")
       .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
@@ -61,6 +56,11 @@ export const upsert = mutation({
     bic: v.optional(v.string()),
     rupRecognized: v.optional(v.boolean()),
     fiscalRegime: v.optional(v.string()),
+    /** Used to pre-filter subventions (association, entreprise, collectivite…). */
+    structureKind: v.optional(v.string()),
+    /** Default prompt of the subvention AI matcher. */
+    projectSummary: v.optional(v.string()),
+    headcount: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const { userId } = await assertWorkspaceMember(ctx, args.workspaceId, "member")

@@ -2,6 +2,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { assertWorkspaceMember, logActivity } from "./lib/auth";
 import { decryptFields, decryptMany, encryptOptional } from "./lib/crypto";
+import { dropAutoEntries, syncExpenseEntry } from "./lib/defaultBook";
 
 /** Free-text + payment details are encrypted at rest (AES-256-GCM, per workspace). */
 const ENCRYPTED = ["notes", "paymentMethod"] as const;
@@ -95,6 +96,9 @@ export const create = mutation({
       targetId: id,
       metadata: { amount: args.amount, category: args.category },
     });
+    // DEFAULT BOOK: the movement writes its own line in the workspace journal.
+    const created = await ctx.db.get(id);
+    if (created) await syncExpenseEntry(ctx, created);
     // Auto-recalc project spent
     if (args.projectId) {
       await ctx.runMutation(api.projects.recalcSpend, { projectId: args.projectId });
@@ -160,6 +164,9 @@ export const update = mutation({
       targetType: "expense",
       targetId: args.expenseId,
     });
+    // DEFAULT BOOK: keep the journal line in lockstep with the movement.
+    const updated = await ctx.db.get(args.expenseId);
+    if (updated) await syncExpenseEntry(ctx, updated);
     // Recalc old project if changed
     if (args.projectId !== undefined && args.projectId !== e.projectId) {
       if (e.projectId) await ctx.runMutation(api.projects.recalcSpend, { projectId: e.projectId });
@@ -221,6 +228,8 @@ export const remove = mutation({
       "member",
     );
     await ctx.db.delete(args.expenseId);
+    // DEFAULT BOOK: the auto line disappears with its source movement.
+    await dropAutoEntries(ctx, "expense", String(args.expenseId));
     await logActivity(ctx, {
       workspaceId: e.workspaceId,
       actorId: userId,

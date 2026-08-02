@@ -7,16 +7,9 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
 import { useAuth } from "@workos-inc/authkit-nextjs/components"
-<<<<<<< HEAD
-import { useConvexAuth, useQuery } from "convex/react"
-import { api } from "@/convex/_generated/api"
-import { useWorkspace } from "@/lib/workspace-context"
-import { useQuota } from "@a2e/core"
-=======
 import { useConvexAuth } from "convex/react"
 import { useQuota, useWorkspace } from "@a2e/core"
 import { useCoreBridge, useIdentity } from "@/lib/core-bridge"
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { formatBytes } from "@/lib/utils"
 import { CommandPalette } from "@/components/command-palette"
 import { ConsentBanner } from "@/components/consent-banner"
@@ -58,6 +51,7 @@ import {
   Moon,
   ArrowLeft2,
   Wallet,
+  HeartTick,
 } from "@/components/iconsax"
 import { cn } from "@/lib/utils"
 import { BilanWordmark, BilanMark } from "@/components/bilan-logo"
@@ -88,6 +82,7 @@ const Sun = iconAdapter(Sun1)
 const MoonIcon = iconAdapter(Moon)
 const ChevronLeft = iconAdapter(ArrowLeft2)
 const WalletIcon = iconAdapter(Wallet)
+const SubventionsIcon = iconAdapter(HeartTick)
 
 interface NavItem {
   key: string
@@ -105,6 +100,7 @@ const navItems: NavItem[] = [
   { key: "projects", href: "/dashboard/projects", icon: FolderOpenIcon, group: "main" },
   { key: "fiches", href: "/dashboard/fiches", icon: ClipboardList, group: "main" },
   { key: "book", href: "/dashboard/book", icon: BookOpen, group: "main" },
+  { key: "subventions", href: "/dashboard/subventions", icon: SubventionsIcon, group: "main" },
   { key: "documents", href: "/dashboard/documents", icon: HardDrive, group: "main" },
   { key: "reports", href: "/dashboard/reports", icon: BarChart3, group: "secondary" },
   { key: "team", href: "/dashboard/team", icon: Users, group: "secondary" },
@@ -122,17 +118,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [])
   const { isAuthenticated, isLoading: authLoading } = useConvexAuth()
   const [convexAuthStuck, setConvexAuthStuck] = useState(false)
-<<<<<<< HEAD
-  const me = useQuery(api.users.me, isAuthenticated ? {} : "skip")
-  const { workspaces, activeWorkspace, isLoading: wsLoading } = useWorkspace()
-  // Storage quota from A2E Core (shared drive across the suite).
-  const storage = useQuota(activeWorkspace?._id as any, "storageBytes")
-=======
   const me = useIdentity()
   const { workspaces, activeWorkspace, activeWorkspaceId, isLoading: wsLoading } = useWorkspace()
   const storage = useQuota(activeWorkspaceId, "storageBytes")
   const bridge = useCoreBridge()
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
   const { theme, setTheme, resolvedTheme } = useTheme()
   const t = useTranslations("nav")
   const tSections = useTranslations("pages.sections")
@@ -184,11 +173,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [authLoading, wsLoading, isAuthenticated, workspaces, pathname, router])
 
-<<<<<<< HEAD
-  const storagePercent = storage?.percent ?? 0
-=======
   const storagePercent = Math.min(100, storage.percent)
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 
   // WorkOS is authenticated but Convex never accepted the token — show an
   // actionable error instead of an infinite spinner/redirect loop.
@@ -324,11 +309,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Storage + Logout */}
       <div className="border-t border-border p-3">
-<<<<<<< HEAD
-        {(!collapsed || forceExpanded) && storage && storage.used != null && (
-=======
         {(!collapsed || forceExpanded) && storage.limit !== 0 && (
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
           <div className="mb-3 rounded-lg border border-border bg-muted/40 p-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium">{t("storage")}</span>
@@ -343,11 +324,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               />
             </div>
             <div className="mt-1.5 text-xs text-muted-foreground">
-<<<<<<< HEAD
-              {formatBytes(storage.used ?? 0)} / {storage.limit === -1 ? "∞" : formatBytes(storage.limit)}
-=======
               {formatBytes(storage.used)} / {storage.limit < 0 ? "\u221e" : formatBytes(storage.limit)}
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
             </div>
           </div>
         )}

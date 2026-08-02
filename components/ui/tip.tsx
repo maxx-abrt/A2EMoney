@@ -39,7 +39,7 @@ export function Tip({
   React.useEffect(() => {
     setMounted(true)
     try {
-      const stored = localStorage.getItem(`finflow_tip_${id}`)
+      const stored = localStorage.getItem(`bilan_tip_${id}`)
       if (stored === "1") setDismissed(true)
     } catch {
       // ignore
@@ -53,7 +53,7 @@ export function Tip({
   const handleDismiss = () => {
     setDismissed(true)
     try {
-      localStorage.setItem(`finflow_tip_${id}`, "1")
+      localStorage.setItem(`bilan_tip_${id}`, "1")
     } catch {
       // ignore
     }

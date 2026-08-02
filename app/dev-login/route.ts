@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url)
-  const email = url.searchParams.get("email") || "qa.tester@a2emoney.app"
+  const email = url.searchParams.get("email") || "devlogin@association.org"
   const password = url.searchParams.get("password") || "A2eMoney!Test2025"
   const returnPathname = url.searchParams.get("returnPathname") || "/dashboard"
 

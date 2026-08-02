@@ -2,11 +2,7 @@
 
 import * as React from "react"
 import { useTranslations } from "next-intl"
-<<<<<<< HEAD
-import { useCoreAction, coreApi } from "@a2e/core"
-=======
 import { coreApi, useCoreAction } from "@a2e/core"
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Download, ExternalLink, FileText, Image as ImageIcon, Loader2, ShieldTick } from "@/components/iconsax"
@@ -37,10 +33,6 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
   const [open, setOpen] = React.useState(false)
   const [signed, setSigned] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
-<<<<<<< HEAD
-  // Previews stream from the A2E Core drive (shared across the suite).
-=======
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
   const presignView = useCoreAction(coreApi.drive.presignView)
   const presignDownload = useCoreAction(coreApi.drive.presignDownload)
 
@@ -62,15 +54,10 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
       setLoading(true)
       setSigned(null)
       try {
-<<<<<<< HEAD
-        const res = await presignView({ fileId: doc._id as any })
-        if (!cancelled && res) setSigned({ url: res.url, contentType: doc.contentType })
-=======
         const res = await presignView({ fileId: doc._id })
         if (!cancelled && res) setSigned(res.url)
       } catch {
         if (!cancelled) setSigned(null)
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -89,11 +76,7 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
 
   async function handleDownload() {
     if (!doc) return
-<<<<<<< HEAD
-    const res = await presignDownload({ fileId: doc._id as any })
-=======
     const res = await presignDownload({ fileId: doc._id })
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
     if (res?.url) window.open(res.url, "_blank")
   }
 

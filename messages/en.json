@@ -153,7 +153,10 @@
     "settings": "Settings",
     "signOut": "Sign Out",
     "storage": "Storage",
-    "security": "Security"
+    "security": "Security",
+    "subventions": "Grants",
+    "search": "Search a page, an invoice, a project…",
+    "clients": "Contacts"
   },
   "landing": {
     "badge": "v1.0 · Now in beta",
@@ -464,6 +467,56 @@
         "suite": {
           "title": "Shared A2E workspace",
           "body": "Members, roles, notifications and Drive shared across the suite, one login."
+        }
+      }
+    },
+    "bento": {
+      "tag": "All of Bilan, at a glance",
+      "title": "The features that do the work for you",
+      "description": "Every module is wired to the others: an expense justifies a ledger line, an awarded grant becomes income, a file stays findable across the whole suite.",
+      "cta": "Open the app",
+      "items": {
+        "journal": {
+          "title": "Automatic accounting journal",
+          "body": "One book per workspace, filled by itself. Every income and expense creates its line — date, label, category, amount, payment method, project, proofs, reference. You never touch it: at year end, you export it.",
+          "tagline": "No double entry"
+        },
+        "subventions": {
+          "title": "Grants & calls for projects",
+          "body": "Over 3,000 French public funding schemes, refreshed daily. Describe your project: the AI assistant targets the ones you are actually eligible for, explains why, and tracks your applications to the decision.",
+          "tagline": "Refreshed daily"
+        },
+        "transactions": {
+          "title": "Income & expenses",
+          "body": "Record in seconds, attach the proof, sort by category and project."
+        },
+        "invoices": {
+          "title": "Invoices",
+          "body": "Automatic numbering, VAT, PDF export, reminders — and payment flips into income."
+        },
+        "budget": {
+          "title": "Budgets",
+          "body": "Envelopes per category and period, overspend alerts, balanced budget."
+        },
+        "projects": {
+          "title": "Projects & French filings",
+          "body": "Per-project budget tracking, project sheets, pre-filled CERFA 15059 and tax receipts."
+        },
+        "drive": {
+          "title": "Shared drive & proofs",
+          "body": "Your documents live in the encrypted A2E suite drive (Backblaze B2, private bucket, short-lived signed links). A receipt attached to an expense stays findable from any A2E app, and from the ledger line it justifies."
+        },
+        "reports": {
+          "title": "Reports & exports",
+          "body": "Cash flow, breakdowns, period comparison. CSV, XLSX and PDF export."
+        },
+        "team": {
+          "title": "Team, roles & shared workspaces",
+          "body": "Workspaces, members, roles and notifications are shared across the A2E suite: one invitation, access everywhere."
+        },
+        "security": {
+          "title": "Encrypted and GDPR-ready",
+          "body": "Per-workspace AES-256-GCM encryption on sensitive data, EU hosting, one-click export and erasure."
         }
       }
     }
@@ -962,6 +1015,32 @@
       "toasts": {
         "created": "Sheet created",
         "failed": "Could not save"
+      },
+      "autoBadge": "Auto",
+      "autoLocked": "Automatic journal — cannot be deleted",
+      "autoDescription": "Filled automatically from your income and expenses · {proofs} linked proof(s)",
+      "detail": {
+        "rowsColumns": "{rows} rows · {columns} columns",
+        "columnsBtn": "Columns",
+        "settings": "Sheet settings",
+        "manageColumns": "Manage columns",
+        "name": "Name",
+        "type": "Type",
+        "required": "Required",
+        "optionsHint": "Options (comma separated)",
+        "addColumn": "Add column",
+        "saveColumns": "Save columns",
+        "addRow": "Add row",
+        "add": "Add",
+        "autoLine": "Automatically generated line",
+        "cannotDelete": "Could not delete",
+        "couldNotUpdate": "Could not update",
+        "saved": "Saved",
+        "autoBanner": "<b>Automatic journal.</b> Every income and expense recorded in Bilan creates, updates or removes its line here — proofs included. Greyed columns are driven by the app; the Comment column stays yours. Export this journal as-is at year end.",
+        "autoNoManual": "The lines of this journal come from your transactions.",
+        "autoAddCta": "Add a transaction",
+        "proofs": "Proofs",
+        "noRowsYet": "No line yet — record an income or an expense and it will appear here."
       }
     },
     "documents": {
@@ -1266,6 +1345,89 @@
         "title": "Keep your books without compromise",
         "body": "Clear accounting, French legal documents, secured files and a workspace shared with the rest of the A2E suite.",
         "privacy": "Privacy policy"
+      }
+    },
+    "subventions": {
+      "title": "Grants",
+      "description": "Every French public funding scheme in one place — refreshed daily — plus an assistant that finds the ones that actually fit your project.",
+      "refresh": "Refresh",
+      "save": "Track",
+      "saved": "Tracked",
+      "stats": {
+        "total": "{count} schemes indexed",
+        "updated": "Updated {when}"
+      },
+      "toasts": {
+        "saved": "Added to your pipeline",
+        "refreshing": "Catalogue refresh started",
+        "converted": "Income created and posted to the journal"
+      },
+      "ai": {
+        "title": "Describe your project",
+        "subtitle": "The assistant reads your description, targets compatible schemes and explains why. Every search is cached — re-running one is free.",
+        "placeholder": "E.g. Our non-profit is opening a community workspace in Lyon for digital inclusion of 16-25 year olds. 3 staff, €120,000 budget, we need to fund a role and IT equipment.",
+        "cta": "Find my grants",
+        "running": "Analysing…",
+        "fit": "fit",
+        "resultCount": "{count} relevant scheme(s)",
+        "scanned": "{count} schemes analysed",
+        "cached": "Cached result",
+        "history": "Previous searches",
+        "tooShort": "Describe your project in a few sentences (20 characters minimum).",
+        "noMatch": "No sufficiently relevant scheme. Add your territory, audience and need.",
+        "failed": "The analysis failed. Please try again shortly.",
+        "notConfigured": "AI assistant not configured on this deployment (missing Gemini key). The catalogue is still browsable.",
+        "examples": {
+          "assoJeunes": "Community education non-profit in Seine-Saint-Denis, tutoring 80 secondary pupils, needs to fund a coordinator role.",
+          "tiersLieu": "Rural community hub in Occitanie: coworking, bike repair and digital workshops, needs to invest in fitting out the premises.",
+          "startup": "4-person startup building carbon-footprint measurement software, R&D stage, looking for grants and tax credits."
+        },
+        "privacyNote": "Only the description you type is sent to the Google Gemini model. No amount, no proof, no personal data leaves Bilan.",
+        "consentTitle": "Before your first search",
+        "consentBody": "To find relevant schemes, your project description is sent to Google Gemini (sub-processor, transfer covered by standard contractual clauses). Nothing else is transmitted: not your accounting entries, not your proofs, not your members' data. You can withdraw this consent at any time from the Trust Center.",
+        "consentAccept": "I agree — run the search",
+        "consentDecline": "Cancel"
+      },
+      "track": {
+        "title": "My applications",
+        "count": "{count} application(s)",
+        "noProject": "No project",
+        "markGranted": "Mark as granted",
+        "booked": "in journal",
+        "deadline": "Apply before {when}",
+        "removedSource": "Scheme removed from catalogue",
+        "amountRequired": "Enter the granted amount.",
+        "grantTitle": "Grant awarded",
+        "grantHelp": "The amount is recorded as income and appears immediately in the automatic journal, with the funder as reference.",
+        "grantAmount": "Granted amount ({currency})",
+        "grantConfirm": "Record the income",
+        "status": {
+          "shortlisted": "Shortlisted",
+          "preparing": "Preparing",
+          "submitted": "Submitted",
+          "granted": "Granted",
+          "rejected": "Rejected",
+          "abandoned": "Abandoned"
+        }
+      },
+      "catalogue": {
+        "title": "Grant catalogue",
+        "searchPlaceholder": "Search a scheme, a funder, a theme…",
+        "filters": "Filters",
+        "all": "All",
+        "audience": "Beneficiary",
+        "scale": "Scale",
+        "aidType": "Aid type",
+        "openOnly": "Open applications only",
+        "callsOnly": "Calls for projects only",
+        "callBadge": "Call for projects",
+        "open": "Open",
+        "loadMore": "Show more schemes",
+        "sourcesLabel": "Sources:",
+        "empty": {
+          "title": "No scheme matches",
+          "description": "Widen your filters, or run the AI assistant with a project description."
+        }
       }
     }
   },

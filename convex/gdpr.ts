@@ -47,7 +47,20 @@ export const exportWorkspace = query({
         .withIndex("by_workspace", (q: any) => q.eq("workspaceId", workspaceId))
         .collect()
 
-    const [invoices, expenses, budgets, categories, fiches, grantReports, projects, sheets, entries, activity] =
+    const [
+      invoices,
+      expenses,
+      budgets,
+      categories,
+      fiches,
+      grantReports,
+      projects,
+      sheets,
+      entries,
+      subventions,
+      subventionRuns,
+      activity,
+    ] =
       await Promise.all([
         byWorkspace("a2e_invoices"),
         byWorkspace("a2e_expenses"),
@@ -58,6 +71,11 @@ export const exportWorkspace = query({
         byWorkspace("projects"),
         byWorkspace("a2e_bookSheets"),
         byWorkspace("a2e_bookEntries"),
+        byWorkspace("a2e_subventionSaved"),
+        ctx.db
+          .query("a2e_subventionRuns")
+          .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
+          .collect(),
         ctx.db
           .query("a2e_activity")
           .withIndex("by_workspace", (q) => q.eq("workspaceId", workspaceId))
@@ -91,6 +109,13 @@ export const exportWorkspace = query({
         bookEntries: entries,
         fiches,
         grantReports,
+        subventionApplications: await decryptMany(
+          workspaceId,
+          "a2e_subventionSaved",
+          subventions as any[],
+          ["notes"] as const,
+        ),
+        subventionSearches: subventionRuns,
         auditTrail: activity,
         membershipMirror: members.map((m) => ({ workosId: m.workosId, role: m.role, syncedAt: m.syncedAt })),
       },
@@ -195,6 +220,8 @@ export const eraseWorkspaceData = mutation({
       "a2e_bookSheets",
       "a2e_bookEntries",
       "a2e_orgProfile",
+      "a2e_subventionSaved",
+      "a2e_subventionRuns",
       "projects",
     ] as const
     for (const table of tables) {
@@ -271,6 +298,12 @@ export const processingRegister = query({
       { purpose: "Legal French filings (CERFA, reçus fiscaux)", basis: "legal obligation (art. 6.1.c)", retention: "10 years" },
       { purpose: "Authentication & workspace access", basis: "contract (art. 6.1.b)", retention: "account lifetime" },
       { purpose: "Security audit trail", basis: "legitimate interest (art. 6.1.f)", retention: "3 years" },
+      {
+        purpose:
+          "Grant matching assistant: the project description you type is sent to Google Gemini to be matched against the public funding catalogue. No accounting figure, no personal identifier and no document is sent.",
+        basis: "consent (art. 6.1.a) — the feature is only used when you run a search",
+        retention: "search history kept in your workspace until you delete it; model responses cached by content hash",
+      },
     ],
     subProcessors: [
       { name: "Convex", role: "application database (Bilan + A2E Core)", location: "EU — Ireland (eu-west-1)" },
@@ -278,6 +311,11 @@ export const processingRegister = query({
       { name: "Backblaze B2", role: "encrypted document storage", location: "EU — eu-central-003" },
       { name: "Vercel", role: "frontend hosting / edge", location: "EU region" },
       { name: "Resend", role: "transactional email", location: "EU/US — SCC" },
+      {
+        name: "Google (Gemini / AI Studio)",
+        role: "grant matching assistant — receives only the project description you type",
+        location: "US — SCC/DPF",
+      },
     ],
     rights: ["access", "rectification", "erasure", "portability", "restriction", "objection"],
     contact: "privacy@association2e.org",

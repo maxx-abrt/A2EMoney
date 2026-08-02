@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
@@ -18,10 +19,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Plus, Download, Loader2, Trash2, Setting2, Layers } from "@/components/iconsax"
+import { ArrowLeft, Plus, Download, Loader2, Trash2, Setting2, Layers, Lock, Sparkles, Paperclip } from "@/components/iconsax"
 import { toast } from "sonner"
 import { exportToXLSX, exportToCSV } from "@/lib/export"
 import { SheetIcon, SheetIconPicker, SHEET_COLORS } from "@/components/sheet-icon-picker"
+import { useFilePreview } from "@/components/file-preview-provider"
+import { Badge } from "@/components/ui/badge"
 
 type Column = {
   id: string
@@ -29,6 +32,7 @@ type Column = {
   type: string
   options?: string[]
   required?: boolean
+  managed?: boolean
 }
 
 const COLUMN_TYPES = [
@@ -46,6 +50,8 @@ function slugId(name: string) {
 }
 
 export default function BookSheetPage() {
+  const t = useTranslations("pages.book.detail")
+  const tCommon = useTranslations("common")
   const params = useParams<{ id: string }>()
   const sheetId = params?.id as Id<"a2e_bookSheets">
 
@@ -55,6 +61,7 @@ export default function BookSheetPage() {
   const updateEntry = useMutation(api.a2e_books.updateEntry)
   const removeEntry = useMutation(api.a2e_books.removeEntry)
   const updateSheet = useMutation(api.a2e_books.updateSheet)
+  const { preview } = useFilePreview()
 
   const [draft, setDraft] = React.useState<Record<string, any>>({})
   const [settingsOpen, setSettingsOpen] = React.useState(false)
@@ -89,6 +96,12 @@ export default function BookSheetPage() {
   }
 
   const sheetColor = sheet.color || SHEET_COLORS[0]
+  const isDefaultSheet = Boolean((sheet as any).isDefault)
+
+  /** Auto rows mirror their source movement: managed cells are read-only. */
+  function cellLocked(entry: any, column: Column) {
+    return Boolean(entry?.auto) && column.id !== "comment" && column.managed !== false
+  }
 
   async function handleAddRow(e: React.FormEvent) {
     e.preventDefault()
@@ -96,7 +109,7 @@ export default function BookSheetPage() {
       await createEntry({ sheetId, cells: draft })
       setDraft({})
     } catch (err: any) {
-      toast.error(err?.message || "Could not add row")
+      toast.error(err?.message || t("cannotDelete"))
     }
   }
 
@@ -109,7 +122,7 @@ export default function BookSheetPage() {
         cells: { ...(entry.cells || {}), [colId]: value },
       })
     } catch (err: any) {
-      toast.error(err?.message || "Could not update")
+      toast.error(err?.message || t("couldNotUpdate"))
     }
   }
 
@@ -118,14 +131,14 @@ export default function BookSheetPage() {
       setSaving(true)
       await updateSheet({
         sheetId,
-        name: editName.trim() || sheet.name,
+        name: editName.trim() || sheet?.name || "Feuille",
         icon: editIcon,
         color: editColor,
       })
-      toast.success("Saved")
+      toast.success(t("saved"))
       setSettingsOpen(false)
     } catch (err: any) {
-      toast.error(err?.message || "Could not save")
+      toast.error(err?.message || t("couldNotUpdate"))
     } finally {
       setSaving(false)
     }
@@ -142,7 +155,7 @@ export default function BookSheetPage() {
       }))
       .filter((c) => c.name)
     if (cleaned.length === 0) {
-      toast.error("Add at least one column")
+      toast.error(t("addColumn"))
       return
     }
     try {
@@ -151,7 +164,7 @@ export default function BookSheetPage() {
       toast.success("Columns updated")
       setColumnsOpen(false)
     } catch (err: any) {
-      toast.error(err?.message || "Could not save columns")
+      toast.error(err?.message || t("couldNotUpdate"))
     } finally {
       setSaving(false)
     }
@@ -159,10 +172,11 @@ export default function BookSheetPage() {
 
   function handleExport(fmt: "csv" | "xlsx") {
     if (!sheet) return
-    const headers = columns.map((c) => c.name)
-    const rows = (entries ?? []).map((e) =>
-      columns.map((c) => formatCell(e.cells?.[c.id], c.type)),
-    )
+    const headers = [...columns.map((c) => c.name), "Justificatifs (fichiers)"]
+    const rows = (entries ?? []).map((e) => [
+      ...columns.map((c) => formatCell(e.cells?.[c.id], c.type)),
+      ((e as any).attachments ?? []).map((a: any) => a.name).join(" | "),
+    ])
     if (fmt === "csv") exportToCSV(sheet.name, headers, rows)
     else exportToXLSX(sheet.name, headers, rows)
   }
@@ -185,28 +199,38 @@ export default function BookSheetPage() {
                 <SheetIcon iconKey={sheet.icon} size={20} />
               </div>
               <div>
-                <h1 className="text-xl font-bold tracking-tight" data-testid="sheet-title">
-                  {sheet.name}
-                </h1>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-xl font-bold tracking-tight" data-testid="sheet-title">
+                    {sheet.name}
+                  </h1>
+                  {isDefaultSheet && (
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_16%,var(--card))] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary"
+                      data-testid="default-book-badge"
+                    >
+                      <Sparkles size={10} variant="Bulk" /> Auto
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  {(entries ?? []).length} rows · {columns.length} columns
+                  {t("rowsColumns", { rows: (entries ?? []).length, columns: columns.length })}
                 </p>
               </div>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" className="gap-2" onClick={openColumns} data-testid="sheet-columns-btn">
-              <Layers size={14} variant="Bulk" /> Columns
+              <Layers size={14} variant="Bulk" /> {t("columnsBtn")}
             </Button>
             <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="icon" data-testid="sheet-settings-btn" aria-label="Sheet settings">
+                <Button variant="outline" size="icon" data-testid="sheet-settings-btn" aria-label={t("settings")}>
                   <Setting2 size={16} variant="Bulk" />
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Sheet settings</DialogTitle>
+                  <DialogTitle>{t("settings")}</DialogTitle>
                 </DialogHeader>
                 <DialogBody className="space-y-4 px-1">
                   <div className="flex items-end gap-3">
@@ -222,7 +246,7 @@ export default function BookSheetPage() {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <Label className="text-xs uppercase tracking-wider">Name</Label>
+                      <Label className="text-xs uppercase tracking-wider">{t("name")}</Label>
                       <Input
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
@@ -233,10 +257,10 @@ export default function BookSheetPage() {
                 </DialogBody>
                 <DialogFooter className="pt-4">
                   <Button type="button" variant="outline" onClick={() => setSettingsOpen(false)}>
-                    Cancel
+                    {tCommon("cancel")}
                   </Button>
                   <Button type="button" onClick={handleSaveSettings} disabled={saving} data-testid="sheet-save-settings">
-                    {saving ? <Loader2 size={14} variant="Bulk" className="animate-spin" /> : "Save"}
+                    {saving ? <Loader2 size={14} variant="Bulk" className="animate-spin" /> : tCommon("save")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -250,11 +274,23 @@ export default function BookSheetPage() {
           </div>
         </div>
 
+        {/* Auto-journal explainer */}
+        {isDefaultSheet && (
+          <div className="flex items-start gap-3 rounded-[var(--radius)] border border-[color-mix(in_srgb,var(--primary)_35%,var(--border))] bg-[color-mix(in_srgb,var(--primary)_7%,var(--card))] px-4 py-3">
+            <Sparkles size={16} variant="Bulk" className="mt-0.5 shrink-0 text-primary" />
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {t.rich("autoBanner", {
+                b: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>,
+              })}
+            </p>
+          </div>
+        )}
+
         {/* Column manager */}
         <Dialog open={columnsOpen} onOpenChange={setColumnsOpen}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Manage columns</DialogTitle>
+              <DialogTitle>{t("manageColumns")}</DialogTitle>
             </DialogHeader>
             <DialogBody className="space-y-3 px-1 pr-2 scrollbar-thin">
               {colDraft.map((c, i) => (
@@ -265,7 +301,7 @@ export default function BookSheetPage() {
                 >
                   <div className="flex flex-wrap items-end gap-2">
                     <div className="min-w-[160px] flex-1">
-                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Name</Label>
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("name")}</Label>
                       <Input
                         value={c.name}
                         onChange={(e) => {
@@ -278,7 +314,7 @@ export default function BookSheetPage() {
                       />
                     </div>
                     <div className="w-[130px]">
-                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Type</Label>
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("type")}</Label>
                       <select
                         value={c.type}
                         onChange={(e) => {
@@ -307,7 +343,7 @@ export default function BookSheetPage() {
                         }}
                         className="h-3.5 w-3.5 rounded accent-[var(--primary)]"
                       />
-                      Required
+                      {t("required")}
                     </label>
                     <Button
                       variant="ghost"
@@ -322,7 +358,7 @@ export default function BookSheetPage() {
                   {c.type === "select" && (
                     <div className="mt-2">
                       <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Options (comma separated)
+                        {t("optionsHint")}
                       </Label>
                       <Input
                         value={(c.options || []).join(", ")}
@@ -349,15 +385,15 @@ export default function BookSheetPage() {
                 }
                 data-testid="add-column-btn"
               >
-                <Plus size={14} variant="Bulk" /> Add column
+                <Plus size={14} variant="Bulk" /> {t("addColumn")}
               </Button>
             </DialogBody>
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={() => setColumnsOpen(false)}>
-                Cancel
+                {tCommon("cancel")}
               </Button>
               <Button type="button" onClick={handleSaveColumns} disabled={saving} data-testid="save-columns-btn">
-                {saving ? <Loader2 size={14} variant="Bulk" className="animate-spin" /> : "Save columns"}
+                {saving ? <Loader2 size={14} variant="Bulk" className="animate-spin" /> : t("saveColumns")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -379,48 +415,84 @@ export default function BookSheetPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {(entries ?? []).map((e) => (
-                  <tr key={e._id} className="transition-colors hover:bg-secondary/40">
+                {(entries ?? []).map((e: any) => (
+                  <tr
+                    key={e._id}
+                    className={`transition-colors hover:bg-secondary/40 ${e.auto ? "bg-secondary/20" : ""}`}
+                    data-testid={e.auto ? "auto-row" : "manual-row"}
+                  >
                     {columns.map((c) => (
                       <td key={c.id} className="px-4 py-1.5 align-middle">
-                        <CellEditor
-                          column={c}
-                          value={e.cells?.[c.id]}
-                          onChange={(v) => handleCellEdit(e._id, c.id, v)}
-                        />
+                        {cellLocked(e, c) ? (
+                          c.id === "proofs" ? (
+                            <ProofChips entry={e} onPreview={preview} />
+                          ) : (
+                            <ReadOnlyCell value={e.cells?.[c.id]} type={c.type} />
+                          )
+                        ) : (
+                          <CellEditor
+                            column={c}
+                            value={e.cells?.[c.id]}
+                            onChange={(v) => handleCellEdit(e._id, c.id, v)}
+                          />
+                        )}
                       </td>
                     ))}
                     <td className="px-4 py-1.5 text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-destructive"
-                        onClick={() => removeEntry({ entryId: e._id })}
-                        data-testid={`row-delete-${e._id}`}
-                      >
-                        <Trash2 size={14} variant="Bulk" />
-                      </Button>
+                      {e.auto ? (
+                        <span
+                          className="inline-flex text-muted-foreground opacity-50"
+                          title={t("autoLine")}
+                        >
+                          <Lock size={13} variant="Bulk" />
+                        </span>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive"
+                          onClick={() =>
+                            removeEntry({ entryId: e._id }).catch((err: any) =>
+                              toast.error(err?.message || t("cannotDelete")),
+                            )
+                          }
+                          data-testid={`row-delete-${e._id}`}
+                        >
+                          <Trash2 size={14} variant="Bulk" />
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}
                 <tr>
                   <td colSpan={columns.length + 1} className="bg-secondary/30 px-4 py-3">
-                    <form onSubmit={handleAddRow} className="flex flex-wrap items-end gap-2">
-                      {columns.map((c) => (
-                        <div key={c.id} className="min-w-[140px] flex-1">
-                          <CellEditor
-                            column={c}
-                            value={draft[c.id]}
-                            onChange={(v) => setDraft({ ...draft, [c.id]: v })}
-                            compact
-                            placeholder={c.name}
-                          />
-                        </div>
-                      ))}
-                      <Button type="submit" size="sm" className="gap-1" data-testid="add-row-btn">
-                        <Plus size={12} variant="Bulk" /> Add row
-                      </Button>
-                    </form>
+                    {isDefaultSheet ? (
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-xs text-muted-foreground">{t("autoNoManual")}</p>
+                        <Button asChild size="sm" variant="outline" className="gap-1.5">
+                          <Link href="/dashboard/expenses?new=1" data-testid="auto-add-transaction">
+                            <Plus size={12} variant="Bulk" /> {t("autoAddCta")}
+                          </Link>
+                        </Button>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleAddRow} className="flex flex-wrap items-end gap-2">
+                        {columns.map((c) => (
+                          <div key={c.id} className="min-w-[140px] flex-1">
+                            <CellEditor
+                              column={c}
+                              value={draft[c.id]}
+                              onChange={(v) => setDraft({ ...draft, [c.id]: v })}
+                              compact
+                              placeholder={c.name}
+                            />
+                          </div>
+                        ))}
+                        <Button type="submit" size="sm" className="gap-1" data-testid="add-row-btn">
+                          <Plus size={12} variant="Bulk" /> {t("addRow")}
+                        </Button>
+                      </form>
+                    )}
                   </td>
                 </tr>
               </tbody>
@@ -430,40 +502,71 @@ export default function BookSheetPage() {
 
         {/* Mobile: stacked card view */}
         <div className="space-y-3 sm:hidden">
-          {(entries ?? []).map((e) => (
+          {(entries ?? []).map((e: any) => (
             <div key={e._id} className="tx-card p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 space-y-2">
+                  {e.auto && (
+                    <Badge variant="secondary" className="gap-1 text-[10px]">
+                      <Sparkles size={9} variant="Bulk" /> Auto
+                    </Badge>
+                  )}
                   {columns.map((c) => (
                     <div key={c.id}>
                       <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">
                         {c.name}
                       </Label>
-                      <CellEditor
-                        column={c}
-                        value={e.cells?.[c.id]}
-                        onChange={(v) => handleCellEdit(e._id, c.id, v)}
-                      />
+                      {cellLocked(e, c) ? (
+                        c.id === "proofs" ? (
+                          <ProofChips entry={e} onPreview={preview} />
+                        ) : (
+                          <ReadOnlyCell value={e.cells?.[c.id]} type={c.type} />
+                        )
+                      ) : (
+                        <CellEditor
+                          column={c}
+                          value={e.cells?.[c.id]}
+                          onChange={(v) => handleCellEdit(e._id, c.id, v)}
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-destructive"
-                  onClick={() => removeEntry({ entryId: e._id })}
-                >
-                  <Trash2 size={14} variant="Bulk" />
-                </Button>
+                {e.auto ? (
+                  <Lock size={13} variant="Bulk" className="mt-1 text-muted-foreground opacity-50" />
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-destructive"
+                    onClick={() =>
+                      removeEntry({ entryId: e._id }).catch((err: any) =>
+                        toast.error(err?.message || t("cannotDelete")),
+                      )
+                    }
+                  >
+                    <Trash2 size={14} variant="Bulk" />
+                  </Button>
+                )}
               </div>
             </div>
           ))}
+          {isDefaultSheet ? (
+            <div className="space-y-2 rounded-[var(--radius)] border border-dashed border-border bg-card/60 p-4 text-center">
+              <p className="text-xs text-muted-foreground">{t("autoNoManual")}</p>
+              <Button asChild size="sm" variant="outline" className="w-full gap-1.5">
+                <Link href="/dashboard/expenses?new=1">
+                  <Plus size={12} variant="Bulk" /> {t("autoAddCta")}
+                </Link>
+              </Button>
+            </div>
+          ) : (
           <form
             onSubmit={handleAddRow}
             className="space-y-2 rounded-[var(--radius)] border border-dashed border-border bg-card/60 p-4"
           >
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Add row
+              {t("addRow")}
             </p>
             {columns.map((c) => (
               <div key={c.id}>
@@ -479,11 +582,60 @@ export default function BookSheetPage() {
               </div>
             ))}
             <Button type="submit" size="sm" className="w-full gap-1">
-              <Plus size={12} variant="Bulk" /> Add
+              <Plus size={12} variant="Bulk" /> {t("add")}
             </Button>
           </form>
+          )}
         </div>
       </div>
+    </div>
+  )
+}
+
+function ReadOnlyCell({ value, type }: { value: any; type: string }) {
+  if (value === undefined || value === null || value === "") {
+    return <span className="text-xs text-muted-foreground/60">—</span>
+  }
+  if (type === "checkbox") {
+    return <span className="text-xs">{value ? "Oui" : "Non"}</span>
+  }
+  if (type === "currency" || type === "number") {
+    return (
+      <span className="font-numeric text-sm tabular-nums">
+        {typeof value === "number" ? value.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) : String(value)}
+      </span>
+    )
+  }
+  return <span className="block truncate text-sm" title={String(value)}>{String(value)}</span>
+}
+
+function ProofChips({ entry, onPreview }: { entry: any; onPreview: (file: any) => void }) {
+  const files = entry.attachments ?? []
+  if (files.length === 0) {
+    return <span className="text-xs text-muted-foreground/60">—</span>
+  }
+  return (
+    <div className="flex flex-wrap gap-1">
+      {files.map((file: any) => (
+        <button
+          key={file.fileId}
+          type="button"
+          onClick={() =>
+            onPreview({
+              _id: file.fileId,
+              name: file.name,
+              contentType: file.contentType,
+              size: file.size,
+            })
+          }
+          className="inline-flex max-w-[160px] items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          title={file.name}
+          data-testid={`proof-chip-${file.fileId}`}
+        >
+          <Paperclip size={9} variant="Bulk" />
+          <span className="truncate">{file.name}</span>
+        </button>
+      ))}
     </div>
   )
 }

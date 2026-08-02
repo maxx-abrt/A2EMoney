@@ -3,27 +3,7 @@
 import { useCallback, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
-<<<<<<< HEAD
-import { Button } from "@/components/ui/button"
-import { useWorkspace } from "@/lib/workspace-context"
-import { formatBytes, cn } from "@/lib/utils"
-import {
-  useUpload,
-  useLinkedFiles,
-  useFileUrl,
-  useDriveMutations,
-  QuotaExceededError,
-} from "@a2e/core"
-import {
-  Download,
-  FileImage,
-  FileText,
-  Loader2,
-  Paperclip,
-  Trash2,
-  UploadCloud,
-} from "@/components/iconsax"
-=======
+import { useMutation } from "convex/react"
 import {
   QuotaExceededError,
   coreApi,
@@ -33,11 +13,11 @@ import {
   useUpload,
   useWorkspace,
 } from "@a2e/core"
+import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { useFilePreview } from "@/components/file-preview-provider"
 import { formatBytes, cn } from "@/lib/utils"
 import { Download, FileImage, FileText, Loader2, Trash2, UploadCloud } from "@/components/iconsax"
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 
 /**
  * Attachments on any Bilan record — backed by the **A2E Core drive** (Backblaze
@@ -60,32 +40,10 @@ interface AttachmentsFieldProps {
   onUploaded?: (fileId: string) => void
 }
 
-<<<<<<< HEAD
-const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB per file UI guard
-=======
 const MAX_FILE_SIZE = 25 * 1024 * 1024
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
 
 function fileIcon(type: string) {
   return type.startsWith("image/") ? FileImage : FileText
-}
-
-function FileDownloadLink({ fileId, name }: { fileId: string; name: string }) {
-  const url = useFileUrl(fileId, "download")
-  if (!url) {
-    return (
-      <span className="text-muted-foreground">
-        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-      </span>
-    )
-  }
-  return (
-    <Button variant="ghost" size="icon" className="h-7 w-7" type="button" asChild>
-      <a href={url} download={name} aria-label={name}>
-        <Download className="h-3.5 w-3.5" />
-      </a>
-    </Button>
-  )
 }
 
 export function AttachmentsField({
@@ -101,19 +59,17 @@ export function AttachmentsField({
   const files = useLinkedFiles(activeWorkspaceId, target)
   const { preview } = useFilePreview()
 
-<<<<<<< HEAD
-  const files = useLinkedFiles(
-    wsId ?? null,
-    linkedTo.id ? { app: "bilan", type: linkedTo.type, id: linkedTo.id } : null,
-  )
-  const { upload, isUploading } = useUpload()
-  const { removeFile } = useDriveMutations()
-=======
   const [pct, setPct] = useState(0)
   const { upload, isUploading } = useUpload({ onProgress: setPct })
   const { removeFile } = useDriveMutations()
   const presignDownload = useCoreAction(coreApi.drive.presignDownload)
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
+  const linkInBilan = useMutation(api.a2e_attachments.link)
+  const unlinkInBilan = useMutation(api.a2e_attachments.unlink)
+  /** Movements & invoices mirror their proofs into Bilan so the auto-journal can name them. */
+  const bilanEntity =
+    linkedTo.id && (linkedTo.type === "expense" || linkedTo.type === "invoice")
+      ? ({ entityType: linkedTo.type, entityId: linkedTo.id } as const)
+      : null
 
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [dragOver, setDragOver] = useState(false)
@@ -128,12 +84,7 @@ export function AttachmentsField({
       }
       const arr = Array.from(incoming)
       if (!arr.length) return
-<<<<<<< HEAD
-      const current = files?.length ?? 0
-      if (current + arr.length > max) {
-=======
       if (list.length + arr.length > max) {
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
         toast.error(t("tooMany", { max }))
         return
       }
@@ -144,34 +95,24 @@ export function AttachmentsField({
         }
         try {
           const { fileId } = await upload({
-<<<<<<< HEAD
-            workspaceId: wsId,
-            file,
-            sourceApp: "bilan",
-            linkedTo: linkedTo.id
-              ? { app: "bilan", type: linkedTo.type, id: linkedTo.id }
-              : undefined,
-          })
-          onUploaded?.(fileId)
-        } catch (err) {
-          console.error("Upload failed", err)
-          if (err instanceof QuotaExceededError) {
-            toast.error(`Quota exceeded (${err.domain}): ${err.used}/${err.limit}`)
-          } else if (err instanceof Error) {
-            toast.error(err.message || t("uploadFailed"))
-          } else {
-            toast.error(t("uploadFailed"))
-          }
-        }
-      }
-    },
-    [wsId, files, max, t, upload, linkedTo, onUploaded],
-=======
             workspaceId: activeWorkspaceId,
             file,
             sourceApp: "bilan",
             linkedTo: target ?? undefined,
           })
+          if (bilanEntity) {
+            // Reference (never the bytes) lands in Bilan → the ledger line and
+            // any export can now name this justificatif.
+            await linkInBilan({
+              ...bilanEntity,
+              file: {
+                fileId,
+                name: file.name,
+                contentType: file.type || undefined,
+                size: file.size,
+              },
+            }).catch(() => {})
+          }
           onUploaded?.(fileId)
         } catch (error: any) {
           if (error instanceof QuotaExceededError) {
@@ -185,22 +126,11 @@ export function AttachmentsField({
       }
       setPct(0)
     },
-    [activeWorkspaceId, list.length, max, onUploaded, t, target, upload],
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
+    [activeWorkspaceId, bilanEntity, linkInBilan, list.length, max, onUploaded, t, target, upload],
   )
 
   async function handleDownload(fileId: string) {
     try {
-<<<<<<< HEAD
-      await removeFile({ fileId: id })
-    } catch (err: any) {
-      toast.error(err?.message || "Delete failed")
-    }
-  }
-
-  const list = files ?? []
-
-=======
       const { url } = await presignDownload({ fileId })
       window.open(url, "_blank")
     } catch (error: any) {
@@ -208,7 +138,6 @@ export function AttachmentsField({
     }
   }
 
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
   return (
     <div className={cn("space-y-2", className)}>
       <button
@@ -237,11 +166,7 @@ export function AttachmentsField({
           <UploadCloud className="h-4 w-4 text-muted-foreground" />
         )}
         <span className="flex-1">
-<<<<<<< HEAD
-          <span className="font-medium">{isUploading ? t("uploading") : t("cta")}</span>
-=======
           <span className="font-medium">{isUploading ? `${t("uploading")} ${pct}%` : t("cta")}</span>
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
           <span className="ml-2 text-xs text-muted-foreground">{t("hint")}</span>
         </span>
         {list.length > 0 && (
@@ -274,13 +199,6 @@ export function AttachmentsField({
                 className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm"
               >
                 <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-<<<<<<< HEAD
-                <span className="min-w-0 flex-1 truncate">{d.name}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {formatBytes(d.size)}
-                </span>
-                <FileDownloadLink fileId={d._id} name={d.name} />
-=======
                 <button
                   type="button"
                   className="min-w-0 flex-1 truncate text-left hover:underline"
@@ -306,13 +224,17 @@ export function AttachmentsField({
                 >
                   <Download className="h-3.5 w-3.5" />
                 </Button>
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 text-destructive"
                   type="button"
-                  onClick={() => removeFile({ fileId: file._id })}
+                  onClick={async () => {
+                    await removeFile({ fileId: file._id })
+                    if (bilanEntity) {
+                      await unlinkInBilan({ ...bilanEntity, fileId: file._id }).catch(() => {})
+                    }
+                  }}
                   aria-label={t("remove")}
                 >
                   <Trash2 className="h-3.5 w-3.5" />

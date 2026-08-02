@@ -9,16 +9,8 @@ importers:
   .:
     dependencies:
       '@a2e/core':
-<<<<<<< HEAD
-        specifier: link:../A2E Core/packages/core
-        version: link:../A2E Core/packages/core
-      '@auth/core':
-        specifier: 0.37.0
-        version: 0.37.0
-=======
         specifier: workspace:*
         version: link:packages/a2e-core
->>>>>>> c7dfaa24a0c3daba911bcf8b8e6702c8cc08a454
       '@aws-sdk/client-s3':
         specifier: ^3.1030.0
         version: 3.1030.0

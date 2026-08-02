@@ -5,7 +5,6 @@ import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithAuth } from "convex/react";
 import { AuthKitProvider, useAuth } from "@workos-inc/authkit-nextjs/components";
 import type { UserInfo, NoUserInfo } from "@workos-inc/authkit-nextjs";
-import { CoreProvider, type CoreTokenFetcher } from "@a2e/core";
 
 /**
  * Fetches the WorkOS access token through `/session/token` (a plain GET Route
@@ -61,17 +60,10 @@ export function ConvexClientProvider({
     // which also relies on a Server Action.
     <AuthKitProvider initialAuth={initialAuth} onSessionExpired={false}>
       <ConvexProviderWithAuth client={convex} useAuth={useAuthFromAuthKit}>
-        {/* Mount the shared A2E core client inside the app's auth context so
-            it can reuse the same WorkOS access token. */}
-        <CoreAuthBridge>{children}</CoreAuthBridge>
+        {children}
       </ConvexProviderWithAuth>
     </AuthKitProvider>
   );
-}
-
-function CoreAuthBridge({ children }: { children: ReactNode }) {
-  const { fetchAccessToken } = useAuthFromAuthKit();
-  return <CoreProvider fetchToken={fetchAccessToken as CoreTokenFetcher}>{children}</CoreProvider>;
 }
 
 function useAuthFromAuthKit() {

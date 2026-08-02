@@ -200,6 +200,8 @@ export const ENCRYPTED_FIELDS = {
   a2e_orgProfile: ["iban", "bic", "siret", "rna", "address", "phone", "email", "representativeName"],
   a2e_invoices: ["clientEmail", "clientAddress", "notes"],
   a2e_expenses: ["notes", "paymentMethod"],
+  a2e_bookEntries: ["cells.method", "cells.notes"],
+  a2e_subventionSaved: ["notes"],
   a2e_fiches: [],
   a2e_grantReports: [],
 } as const
