@@ -9,6 +9,7 @@ import { useAuth } from "@workos-inc/authkit-nextjs/components"
 import { useConvexAuth, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useWorkspace } from "@/lib/workspace-context"
+import { useQuota } from "@a2e/core"
 import { formatBytes } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/language-switcher"
@@ -111,10 +112,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [convexAuthStuck, setConvexAuthStuck] = useState(false)
   const me = useQuery(api.users.me, isAuthenticated ? {} : "skip")
   const { workspaces, activeWorkspace, isLoading: wsLoading } = useWorkspace()
-  const storage = useQuery(
-    api.workspaces.getStorage,
-    activeWorkspace ? { workspaceId: activeWorkspace._id } : "skip",
-  )
+  // Storage quota from A2E Core (shared drive across the suite).
+  const storage = useQuota(activeWorkspace?._id as any, "storageBytes")
   const { theme, setTheme, resolvedTheme } = useTheme()
   const t = useTranslations("nav")
   const tSections = useTranslations("pages.sections")
@@ -166,7 +165,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [authLoading, wsLoading, isAuthenticated, workspaces, pathname, router])
 
-  const storagePercent = storage ? Math.min(100, storage.percentage) : 0
+  const storagePercent = storage?.percent ?? 0
 
   // WorkOS is authenticated but Convex never accepted the token — show an
   // actionable error instead of an infinite spinner/redirect loop.
@@ -300,7 +299,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Storage + Logout */}
       <div className="border-t border-border p-3">
-        {(!collapsed || forceExpanded) && storage && (
+        {(!collapsed || forceExpanded) && storage && storage.used != null && (
           <div className="mb-3 rounded-lg border border-border bg-muted/40 p-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium">{t("storage")}</span>
@@ -315,7 +314,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               />
             </div>
             <div className="mt-1.5 text-xs text-muted-foreground">
-              {formatBytes(storage.used)} / {formatBytes(storage.total)}
+              {formatBytes(storage.used ?? 0)} / {storage.limit === -1 ? "∞" : formatBytes(storage.limit)}
             </div>
           </div>
         )}

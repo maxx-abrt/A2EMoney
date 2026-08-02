@@ -9,6 +9,7 @@ import {
   useAccessToken,
 } from "@workos-inc/authkit-nextjs/components";
 import type { UserInfo, NoUserInfo } from "@workos-inc/authkit-nextjs";
+import { CoreProvider, type CoreTokenFetcher } from "@a2e/core";
 
 export function ConvexClientProvider({
   children,
@@ -31,10 +32,17 @@ export function ConvexClientProvider({
   return (
     <AuthKitProvider initialAuth={initialAuth}>
       <ConvexProviderWithAuth client={convex} useAuth={useAuthFromAuthKit}>
-        {children}
+        {/* Mount the shared A2E core client inside the app's auth context so
+            it can reuse the same WorkOS access token. */}
+        <CoreAuthBridge>{children}</CoreAuthBridge>
       </ConvexProviderWithAuth>
     </AuthKitProvider>
   );
+}
+
+function CoreAuthBridge({ children }: { children: ReactNode }) {
+  const { fetchAccessToken } = useAuthFromAuthKit();
+  return <CoreProvider fetchToken={fetchAccessToken as CoreTokenFetcher}>{children}</CoreProvider>;
 }
 
 function useAuthFromAuthKit() {

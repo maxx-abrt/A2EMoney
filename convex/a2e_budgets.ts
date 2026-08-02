@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { assertWorkspaceMember, logActivity, notifyWorkspaceMembers } from "./lib/auth";
 
 export const list = query({
-  args: { workspaceId: v.id("workspaces") },
+  args: { workspaceId: v.string() },
   handler: async (ctx, args) => {
     await assertWorkspaceMember(ctx, args.workspaceId);
     const budgets = await ctx.db
@@ -31,7 +31,7 @@ export const list = query({
 
 export const create = mutation({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     amount: v.number(),
     category: v.string(),
@@ -123,7 +123,7 @@ export const remove = mutation({
 
 /** Check budget thresholds and notify if crossed */
 export const checkAlerts = mutation({
-  args: { workspaceId: v.id("workspaces"), category: v.string() },
+  args: { workspaceId: v.string(), category: v.string() },
   handler: async (ctx, args) => {
     await assertWorkspaceMember(ctx, args.workspaceId, "member");
     const budgets = await ctx.db

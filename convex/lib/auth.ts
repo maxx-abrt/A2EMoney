@@ -1,6 +1,7 @@
 import { GenericMutationCtx, GenericQueryCtx } from "convex/server";
 import { Id } from "../_generated/dataModel";
 import { DataModel } from "../_generated/dataModel";
+import { internal } from "../_generated/api";
 
 export type QCtx = GenericQueryCtx<DataModel>;
 export type MCtx = GenericMutationCtx<DataModel>;
@@ -40,14 +41,22 @@ export async function getOptionalUserId(
   return link ? link.userId : null;
 }
 
+/**
+ * Workspace access check.
+ *
+ * Workspaces are owned by A2E Core (shared across the suite); this deployment
+ * keeps a server-verified mirror in `coreMemberships` (populated by the
+ * `sync.syncFromCore` action via the core service bridge — never from
+ * client-supplied data). `workspaceId` is the CORE workspace id (a string).
+ */
 export async function assertWorkspaceMember(
   ctx: QCtx | MCtx,
-  workspaceId: Id<"workspaces">,
+  workspaceId: string,
   minRole: Role = "viewer",
 ): Promise<{ userId: Id<"users">; role: Role }> {
   const userId = await requireUserId(ctx);
   const membership = await ctx.db
-    .query("memberships")
+    .query("coreMemberships")
     .withIndex("by_user_workspace", (q) =>
       q.eq("userId", userId).eq("workspaceId", workspaceId),
     )
@@ -63,7 +72,7 @@ export async function assertWorkspaceMember(
 
 export async function assertWorkspaceAdmin(
   ctx: QCtx | MCtx,
-  workspaceId: Id<"workspaces">,
+  workspaceId: string,
 ) {
   return assertWorkspaceMember(ctx, workspaceId, "admin");
 }
@@ -71,7 +80,7 @@ export async function assertWorkspaceAdmin(
 export async function logActivity(
   ctx: MCtx,
   args: {
-    workspaceId: Id<"workspaces">;
+    workspaceId: string;
     actorId: Id<"users">;
     action: string;
     targetType: string;
@@ -90,10 +99,16 @@ export async function logActivity(
   });
 }
 
+/**
+ * Fan out a notification to every workspace member — via A2E Core, so the
+ * suite-wide bell (shared across apps) shows it. Fire-and-forget: the actual
+ * send happens in the `sync.sendCoreNotification` internal action, which
+ * calls the core service bridge with the shared secret.
+ */
 export async function notifyWorkspaceMembers(
   ctx: MCtx,
   args: {
-    workspaceId: Id<"workspaces">;
+    workspaceId: string;
     type: string;
     title: string;
     message: string;
@@ -102,24 +117,13 @@ export async function notifyWorkspaceMembers(
     exceptUserId?: Id<"users">;
   },
 ) {
-  const members = await ctx.db
-    .query("memberships")
-    .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
-    .collect();
-  for (const m of members) {
-    if (args.exceptUserId && m.userId === args.exceptUserId) continue;
-    await ctx.db.insert("notifications", {
-      userId: m.userId,
-      workspaceId: args.workspaceId,
-      type: args.type,
-      title: args.title,
-      message: args.message,
-      read: false,
-      link: args.link,
-      metadata: args.metadata,
-      createdAt: Date.now(),
-    });
-  }
+  await ctx.scheduler.runAfter(0, internal.sync.sendCoreNotification, {
+    workspaceId: args.workspaceId,
+    type: args.type,
+    title: args.title,
+    message: args.message,
+    link: args.link,
+  });
 }
 
 export function generateSlug(name: string): string {

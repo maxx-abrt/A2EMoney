@@ -3,12 +3,16 @@
 import { useCallback, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
-import { useAction, useMutation, useQuery } from "convex/react"
-import { api } from "@/convex/_generated/api"
-import type { Id } from "@/convex/_generated/dataModel"
 import { Button } from "@/components/ui/button"
 import { useWorkspace } from "@/lib/workspace-context"
 import { formatBytes, cn } from "@/lib/utils"
+import {
+  useUpload,
+  useLinkedFiles,
+  useFileUrl,
+  useDriveMutations,
+  QuotaExceededError,
+} from "@a2e/core"
 import {
   Download,
   FileImage,
@@ -31,11 +35,29 @@ interface AttachmentsFieldProps {
   onUploaded?: (documentId: string) => void
 }
 
-const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB per file
+const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB per file UI guard
 
 function fileIcon(type: string) {
   if (type.startsWith("image/")) return FileImage
   return FileText
+}
+
+function FileDownloadLink({ fileId, name }: { fileId: string; name: string }) {
+  const url = useFileUrl(fileId, "download")
+  if (!url) {
+    return (
+      <span className="text-muted-foreground">
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      </span>
+    )
+  }
+  return (
+    <Button variant="ghost" size="icon" className="h-7 w-7" type="button" asChild>
+      <a href={url} download={name} aria-label={name}>
+        <Download className="h-3.5 w-3.5" />
+      </a>
+    </Button>
+  )
 }
 
 export function AttachmentsField({
@@ -50,24 +72,14 @@ export function AttachmentsField({
   const { activeWorkspace } = useWorkspace()
   const wsId = activeWorkspace?._id
 
-  const docs = useQuery(
-    api.a2e_documents.list,
-    wsId && linkedTo.id
-      ? {
-          workspaceId: wsId,
-          linkedToType: linkedTo.type,
-          linkedToId: linkedTo.id,
-        }
-      : "skip",
+  const files = useLinkedFiles(
+    wsId ?? null,
+    linkedTo.id ? { app: "bilan", type: linkedTo.type, id: linkedTo.id } : null,
   )
-
-  const presignUpload = useAction(api.a2e_documents.presignUpload)
-  const createDoc = useMutation(api.a2e_documents.create)
-  const removeDoc = useAction(api.a2e_documents.remove)
-  const presignDownload = useAction(api.a2e_documents.presignDownload)
+  const { upload, isUploading } = useUpload()
+  const { removeFile } = useDriveMutations()
 
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
 
   const handleFiles = useCallback(
@@ -78,73 +90,50 @@ export function AttachmentsField({
       }
       const arr = Array.from(files)
       if (!arr.length) return
-      const current = docs?.length ?? 0
+      const current = files?.length ?? 0
       if (current + arr.length > max) {
         toast.error(t("tooMany", { max }))
         return
       }
-      setUploading(true)
       for (const file of arr) {
         if (file.size > MAX_FILE_SIZE) {
           toast.error(t("fileTooLarge", { name: file.name }))
           continue
         }
         try {
-          // 1. presign
-          const { uploadUrl, key, publicUrl } = await presignUpload({
+          const { fileId } = await upload({
             workspaceId: wsId,
-            fileName: file.name,
-            contentType: file.type || "application/octet-stream",
-            size: file.size,
+            file,
+            sourceApp: "bilan",
+            linkedTo: linkedTo.id
+              ? { app: "bilan", type: linkedTo.type, id: linkedTo.id }
+              : undefined,
           })
-          // 2. PUT to S3
-          const res = await fetch(uploadUrl, {
-            method: "PUT",
-            headers: { "Content-Type": file.type || "application/octet-stream" },
-            body: file,
-          })
-          if (!res.ok) throw new Error(`S3 upload failed (${res.status})`)
-          // 3. record
-          const docId = await createDoc({
-            workspaceId: wsId,
-            name: file.name,
-            type: documentType,
-            size: file.size,
-            contentType: file.type || "application/octet-stream",
-            url: publicUrl,
-            s3Key: key,
-            linkedToType: linkedTo.type,
-            linkedToId: linkedTo.id,
-          })
-          onUploaded?.(docId)
-        } catch (err: any) {
+          onUploaded?.(fileId)
+        } catch (err) {
           console.error("Upload failed", err)
-          toast.error(err?.message || t("uploadFailed"))
+          if (err instanceof QuotaExceededError) {
+            toast.error(`Quota exceeded (${err.domain}): ${err.used}/${err.limit}`)
+          } else if (err instanceof Error) {
+            toast.error(err.message || t("uploadFailed"))
+          } else {
+            toast.error(t("uploadFailed"))
+          }
         }
       }
-      setUploading(false)
     },
-    [wsId, docs, max, t, presignUpload, createDoc, documentType, linkedTo, onUploaded],
+    [wsId, files, max, t, upload, linkedTo, onUploaded],
   )
 
   const handleDelete = async (id: string) => {
     try {
-      await removeDoc({ documentId: id as Id<"a2e_documents"> })
+      await removeFile({ fileId: id })
     } catch (err: any) {
       toast.error(err?.message || "Delete failed")
     }
   }
 
-  const handleDownload = async (id: string) => {
-    try {
-      const res = await presignDownload({ documentId: id as Id<"a2e_documents"> })
-      if (res?.url) window.open(res.url, "_blank")
-    } catch (err: any) {
-      toast.error(err?.message || "Download failed")
-    }
-  }
-
-  const list = docs ?? []
+  const list = files ?? []
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -167,13 +156,13 @@ export function AttachmentsField({
           compact && "py-2",
         )}
       >
-        {uploading ? (
+        {isUploading ? (
           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
         ) : (
           <UploadCloud className="h-4 w-4 text-muted-foreground" />
         )}
         <span className="flex-1">
-          <span className="font-medium">{uploading ? t("uploading") : t("cta")}</span>
+          <span className="font-medium">{isUploading ? t("uploading") : t("cta")}</span>
           <span className="ml-2 text-xs text-muted-foreground">{t("hint")}</span>
         </span>
         {list.length > 0 && (
@@ -206,16 +195,7 @@ export function AttachmentsField({
                 <span className="shrink-0 text-xs text-muted-foreground">
                   {formatBytes(d.size)}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  type="button"
-                  onClick={() => handleDownload(d._id)}
-                  aria-label={t("download")}
-                >
-                  <Download className="h-3.5 w-3.5" />
-                </Button>
+                <FileDownloadLink fileId={d._id} name={d.name} />
                 <Button
                   variant="ghost"
                   size="icon"

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@a2e/core':
+        specifier: link:../A2E Core/packages/core
+        version: link:../A2E Core/packages/core
       '@auth/core':
         specifier: 0.37.0
         version: 0.37.0

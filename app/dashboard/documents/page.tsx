@@ -3,9 +3,14 @@
 import * as React from "react"
 import { motion } from "framer-motion"
 import { useTranslations } from "next-intl"
-import { useAction, useQuery } from "convex/react"
-import { api } from "@/convex/_generated/api"
-import type { Id } from "@/convex/_generated/dataModel"
+import {
+  useFiles,
+  useQuota,
+  useDriveMutations,
+  useCoreAction,
+  coreApi,
+  QuotaExceededError,
+} from "@a2e/core"
 import { useWorkspace } from "@/lib/workspace-context"
 import { useFilePreview } from "@/components/file-preview-provider"
 import { formatBytes, formatDate } from "@/lib/utils"
@@ -21,18 +26,36 @@ export default function DocumentsPage() {
   const t = useTranslations("pages.documents")
   const { activeWorkspace } = useWorkspace()
   const wsId = activeWorkspace?._id
-  const docs = useQuery(api.a2e_documents.list, wsId ? { workspaceId: wsId } : "skip")
-  const storage = useQuery(api.workspaces.getStorage, wsId ? { workspaceId: wsId } : "skip")
-  const presignDownload = useAction(api.a2e_documents.presignDownload)
-  const removeDoc = useAction(api.a2e_documents.remove)
+  // Files + quotas come from the A2E Core drive — shared with every suite app.
+  const docs = useFiles(wsId as any)
+  const storage = useQuota(wsId as any, "storageBytes")
+  const fileCount = useQuota(wsId as any, "maxDriveFiles")
+  const { removeFile } = useDriveMutations()
+  const presignDownload = useCoreAction(coreApi.drive.presignDownload)
   const { preview } = useFilePreview()
 
-  async function handleDownload(id: Id<"a2e_documents">) {
+  async function handleDownload(id: string) {
     try {
-      const res = await presignDownload({ documentId: id })
+      const res = await presignDownload({ fileId: id as any })
       if (res?.url) window.open(res.url, "_blank")
-    } catch (err: any) { toast.error(err?.message || "Download failed") }
+    } catch (err: any) {
+      toast.error(err?.message || "Download failed")
+    }
   }
+
+  async function handleRemove(id: string) {
+    try {
+      await removeFile({ fileId: id as any })
+    } catch (err: any) {
+      toast.error(
+        err instanceof QuotaExceededError
+          ? `Quota exceeded (${err.domain})`
+          : err?.message || "Delete failed",
+      )
+    }
+  }
+
+  const usedPct = storage?.percent ?? 0
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
@@ -42,17 +65,19 @@ export default function DocumentsPage() {
           <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
         </div>
 
-        {storage && (
+        {storage && storage.used != null && (
           <GlassCard className="p-5">
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium">{t("storage.used")}</span>
-              <span className="text-muted-foreground">{formatBytes(storage.used)} / {formatBytes(storage.total)}</span>
+              <span className="text-muted-foreground">
+                {formatBytes(storage.used ?? 0)} / {storage.limit === -1 ? "∞" : formatBytes(storage.limit)}
+              </span>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, storage.percentage)}%` }} transition={{ duration: 0.6 }} className="h-full rounded-full bg-[var(--brand-green)]" />
+              <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, usedPct)}%` }} transition={{ duration: 0.6 }} className="h-full rounded-full bg-[var(--brand-green)]" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              {t("storage.files", { count: storage.count })} · {Math.round(storage.percentage)}%
+              {t("storage.files", { count: fileCount?.used ?? 0 })} · {Math.round(usedPct)}%
             </p>
           </GlassCard>
         )}
@@ -91,17 +116,17 @@ export default function DocumentsPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{d.name}</p>
-                        <p className="text-xs text-muted-foreground">{formatBytes(d.size)} · {formatDate(d.createdAt)} · {d.type}</p>
+                        <p className="text-xs text-muted-foreground">{formatBytes(d.size)} · {formatDate(d.createdAt)} · {d.sourceApp}</p>
                       </div>
                     </button>
-                    {d.linkedToType && <Badge variant="secondary" className="shrink-0">{d.linkedToType}</Badge>}
+                    {d.linkedTo?.type && <Badge variant="secondary" className="shrink-0">{d.linkedTo.type}</Badge>}
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => preview({ _id: d._id, name: d.name, contentType: d.contentType, size: d.size })}>
                       <Eye className="h-3.5 w-3.5" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(d._id)}>
                       <Download className="h-3.5 w-3.5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeDoc({ documentId: d._id })}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemove(d._id)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </motion.li>

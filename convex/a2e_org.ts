@@ -7,7 +7,7 @@ import { assertWorkspaceMember } from "./lib/auth"
 // attestation, reçu, budget, rapport d'activité...).
 
 export const get = query({
-  args: { workspaceId: v.id("workspaces") },
+  args: { workspaceId: v.string() },
   handler: async (ctx, args) => {
     await assertWorkspaceMember(ctx, args.workspaceId)
     const row = await ctx.db
@@ -20,7 +20,7 @@ export const get = query({
 
 export const upsert = mutation({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     legalName: v.optional(v.string()),
     shortName: v.optional(v.string()),
     objet: v.optional(v.string()),

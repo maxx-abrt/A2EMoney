@@ -4,7 +4,7 @@ import { assertWorkspaceMember } from "./lib/auth";
 
 export const list = query({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -31,16 +31,28 @@ export const list = query({
 
 /** GDPR-style workspace export: returns all data scoped to the workspace. */
 export const exportWorkspace = query({
-  args: { workspaceId: v.id("workspaces") },
+  args: { workspaceId: v.string() },
   handler: async (ctx, args) => {
     const { role } = await assertWorkspaceMember(ctx, args.workspaceId);
     if (role !== "owner" && role !== "admin") {
       throw new Error("Forbidden: requires admin role for export");
     }
-    const w = await ctx.db.get(args.workspaceId);
+    // Workspace record lives in A2E Core now — use the verified mirror.
+    const mirror = await ctx.db
+      .query("coreMemberships")
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+      .first();
+    const w = mirror
+      ? {
+          id: mirror.workspaceId,
+          name: mirror.name,
+          slug: mirror.slug,
+          locale: mirror.locale,
+          currency: mirror.currency,
+          type: mirror.type,
+        }
+      : null;
     const tables = [
-      "memberships",
-      "invitations",
       "projects",
       "tasks",
       "activities",

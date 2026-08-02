@@ -1,15 +1,33 @@
 "use client"
 
 import * as React from "react"
-import { useQuery } from "convex/react"
-import { useConvexAuth } from "convex/react"
+import { useAction, useConvexAuth, useMutation, useQuery } from "convex/react"
+import {
+  WorkspaceProvider as CoreWorkspaceProvider,
+  useWorkspace as useCoreWorkspace,
+  useCoreMutation,
+  coreApi,
+} from "@a2e/core"
 import { api } from "@/convex/_generated/api"
-import type { Id } from "@/convex/_generated/dataModel"
 
-const STORAGE_KEY = "a2e_active_workspace"
+/**
+ * Workspace state — powered by A2E Core (shared across the suite).
+ *
+ * The public interface of this module is unchanged (workspaces,
+ * activeWorkspace(Id), setActiveWorkspaceId, isLoading), so all existing
+ * components keep working — but the workspace ids are now CORE workspace ids
+ * (strings), shared with Bureau and every other suite app.
+ *
+ * This bridge also performs the one-shot legacy migration automatically:
+ *  - legacy local workspaces owned by the current user get a core workspace
+ *    created and all their app data repointed (`migrations.claim`);
+ *  - memberships in already-migrated workspaces are imported into core
+ *    (`migrations.joinCore`);
+ *  - the server-verified membership mirror is refreshed (`sync.syncFromCore`).
+ */
 
 type WorkspaceMembership = {
-  _id: Id<"workspaces">
+  _id: string
   name: string
   slug: string
   avatar?: string
@@ -19,79 +37,92 @@ type WorkspaceMembership = {
   locale?: string
   currency?: string
   type?: string
-  ownerId: Id<"users">
+  ownerId: string
   memberCount: number
 }
 
 interface WorkspaceContextValue {
   workspaces: WorkspaceMembership[] | undefined
-  activeWorkspaceId: Id<"workspaces"> | null
+  activeWorkspaceId: string | null
   activeWorkspace: WorkspaceMembership | null
-  setActiveWorkspaceId: (id: Id<"workspaces"> | null) => void
+  setActiveWorkspaceId: (id: string | null) => void
   isLoading: boolean
 }
 
 const WorkspaceContext = React.createContext<WorkspaceContextValue | null>(null)
 
-export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading: authLoading } = useConvexAuth()
-  const workspaces = useQuery(
-    api.workspaces.listMine,
-    isAuthenticated ? {} : "skip",
-  ) as WorkspaceMembership[] | undefined
+function MigrationBridge() {
+  const { isAuthenticated } = useConvexAuth()
+  const { workspaces } = useCoreWorkspace()
+  const myLegacy = useQuery(api.migrations.myLegacy, isAuthenticated ? {} : "skip")
+  const claim = useMutation(api.migrations.claim)
+  const joinCore = useAction(api.migrations.joinCore)
+  const migrateDocuments = useAction(api.migrations.migrateDocuments)
+  const syncFromCore = useAction(api.sync.syncFromCore)
+  const createCoreWorkspace = useCoreMutation(coreApi.workspaces.create)
 
-  const [activeId, setActiveIdState] = React.useState<Id<"workspaces"> | null>(
-    null,
-  )
-
-  // Hydrate from localStorage on mount
+  // Keep the server-side membership mirror fresh whenever the core
+  // workspace set changes.
+  const coreIds = (workspaces ?? []).map((w) => w._id).join(",")
   React.useEffect(() => {
-    if (typeof window === "undefined") return
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored) setActiveIdState(stored as Id<"workspaces">)
-  }, [])
+    if (!isAuthenticated || !workspaces) return
+    syncFromCore().catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, coreIds])
 
-  // Validate active id against memberships, else fall back to first one
+  // One-shot legacy → core migration (idempotent).
+  const running = React.useRef(false)
   React.useEffect(() => {
-    if (!workspaces) return
-    if (workspaces.length === 0) {
-      setActiveIdState(null)
-      return
-    }
-    if (!activeId || !workspaces.find((w) => w._id === activeId)) {
-      setActiveIdState(workspaces[0]._id)
-    }
-  }, [workspaces, activeId])
+    if (!myLegacy || myLegacy.length === 0 || running.current) return
+    running.current = true
+    ;(async () => {
+      try {
+        for (const w of myLegacy) {
+          if (!w.coreId && w.role === "owner") {
+            const coreId = await createCoreWorkspace({ name: w.name })
+            await claim({ localId: w.localId, coreId })
+            // Backfill legacy documents into the core drive (B2 untouched).
+            await migrateDocuments({ workspaceId: coreId })
+          } else if (w.coreId) {
+            await joinCore({ localId: w.localId })
+            await migrateDocuments({ workspaceId: w.coreId })
+          }
+        }
+        await syncFromCore().catch(() => {})
+      } catch (err) {
+        console.error("Workspace migration failed (will retry next load):", err)
+      } finally {
+        running.current = false
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myLegacy])
 
-  // Persist
-  React.useEffect(() => {
-    if (typeof window === "undefined") return
-    if (activeId) window.localStorage.setItem(STORAGE_KEY, activeId)
-    else window.localStorage.removeItem(STORAGE_KEY)
-  }, [activeId])
+  return null
+}
 
-  const setActiveWorkspaceId = React.useCallback(
-    (id: Id<"workspaces"> | null) => setActiveIdState(id),
-    [],
-  )
-
-  const activeWorkspace = React.useMemo(
-    () => workspaces?.find((w) => w._id === activeId) ?? null,
-    [workspaces, activeId],
-  )
-
+function Bridge({ children }: { children: React.ReactNode }) {
+  const core = useCoreWorkspace()
   const value: WorkspaceContextValue = {
-    workspaces,
-    activeWorkspaceId: activeId,
-    activeWorkspace,
-    setActiveWorkspaceId,
-    isLoading: authLoading || (isAuthenticated && workspaces === undefined),
+    workspaces: core.workspaces as WorkspaceMembership[] | undefined,
+    activeWorkspaceId: (core.activeWorkspaceId as string | null) ?? null,
+    activeWorkspace: (core.activeWorkspace as WorkspaceMembership | null) ?? null,
+    setActiveWorkspaceId: (id) => core.setActiveWorkspaceId(id as any),
+    isLoading: core.isLoading,
   }
-
   return (
     <WorkspaceContext.Provider value={value}>
+      <MigrationBridge />
       {children}
     </WorkspaceContext.Provider>
+  )
+}
+
+export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <CoreWorkspaceProvider>
+      <Bridge>{children}</Bridge>
+    </CoreWorkspaceProvider>
   )
 }
 

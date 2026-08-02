@@ -19,7 +19,7 @@ function nextInvoiceNumber(existing: string[]): string {
 }
 
 export const list = query({
-  args: { workspaceId: v.id("workspaces") },
+  args: { workspaceId: v.string() },
   handler: async (ctx, args) => {
     await assertWorkspaceMember(ctx, args.workspaceId);
     return ctx.db
@@ -42,7 +42,7 @@ export const get = query({
 
 export const create = mutation({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     client: v.string(),
     clientEmail: v.string(),

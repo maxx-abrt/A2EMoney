@@ -4,10 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { formatDistanceToNowStrict } from "date-fns"
-import { useMutation, useQuery } from "convex/react"
-import { useConvexAuth } from "convex/react"
-import { api } from "@/convex/_generated/api"
-import type { Id } from "@/convex/_generated/dataModel"
+import { useNotifications, useNotificationMutations } from "@a2e/core"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
@@ -59,16 +56,10 @@ const TONES: Record<string, string> = {
 
 export function NotificationsDropdown() {
   const t = useTranslations("notifications")
-  const { isAuthenticated } = useConvexAuth()
   const [open, setOpen] = React.useState(false)
-  const items = useQuery(
-    api.notifications.listMine,
-    isAuthenticated ? {} : "skip",
-  )
-  const markRead = useMutation(api.notifications.markRead)
-  const markAllRead = useMutation(api.notifications.markAllRead)
-  const remove = useMutation(api.notifications.remove)
-  const clearAll = useMutation(api.notifications.clearAll)
+  // Suite-wide bell: notifications from every app, served by A2E Core.
+  const items = useNotifications({ limit: 50 })
+  const { markRead, markAllRead, remove, clearAll } = useNotificationMutations()
 
   const list = items ?? []
   const unreadCount = React.useMemo(
@@ -179,7 +170,7 @@ export function NotificationsDropdown() {
                       onClick={(e) => {
                         e.stopPropagation()
                         e.preventDefault()
-                        remove({ id: n._id as Id<"notifications"> })
+                        remove({ notificationId: n._id })
                       }}
                       className="opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
                       aria-label={t("dismiss")}
@@ -189,7 +180,7 @@ export function NotificationsDropdown() {
                   </div>
                 )
                 const onClick = () => {
-                  if (!n.read) markRead({ id: n._id as Id<"notifications"> })
+                  if (!n.read) markRead({ notificationId: n._id })
                   if (n.link) setOpen(false)
                 }
                 return (

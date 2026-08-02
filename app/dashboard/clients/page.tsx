@@ -7,6 +7,7 @@ import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
 import { useWorkspace } from "@/lib/workspace-context"
+import { useCoreMutation, coreApi } from "@a2e/core"
 import { formatCurrency } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -39,6 +40,7 @@ export default function ClientsPage() {
   const invoices = useQuery(api.a2e_invoices.list, wsId ? { workspaceId: wsId } : "skip")
   const create = useMutation(api.a2e_clients.create)
   const remove = useMutation(api.a2e_clients.remove)
+  const createCoreContact = useCoreMutation(coreApi.contacts.create)
 
   const [query, setQuery] = React.useState("")
   const [open, setOpen] = React.useState(false)
@@ -62,7 +64,7 @@ export default function ClientsPage() {
     if (!wsId || !name.trim()) return
     try {
       setSaving(true)
-      await create({
+      const clientId = await create({
         workspaceId: wsId,
         name: name.trim(),
         email: email.trim() || undefined,
@@ -71,6 +73,19 @@ export default function ClientsPage() {
         phone: phone.trim() || undefined,
         notes: notes.trim() || undefined,
       })
+      // Mirror into the suite-wide People directory (A2E Core contacts),
+      // linked back to this Bilan client. Best-effort: never blocks the create.
+      createCoreContact({
+        workspaceId: wsId as any,
+        name: name.trim(),
+        email: email.trim() || undefined,
+        phone: phone.trim() || undefined,
+        address: address.trim() || undefined,
+        siret: siret.trim() || undefined,
+        notes: notes.trim() || undefined,
+        sourceApp: "bilan",
+        link: { app: "bilan", type: "client", id: clientId as string },
+      }).catch(() => {})
       toast.success(t("toasts.created"))
       setOpen(false)
       setName(""); setEmail(""); setAddress(""); setSiret(""); setPhone(""); setNotes("")

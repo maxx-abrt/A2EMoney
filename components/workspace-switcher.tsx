@@ -4,8 +4,7 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { useMutation } from "convex/react"
-import { api } from "@/convex/_generated/api"
+import { useCoreMutation, coreApi } from "@a2e/core"
 import { useWorkspace } from "@/lib/workspace-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -43,7 +42,7 @@ export function WorkspaceSwitcher({ collapsed }: { collapsed?: boolean }) {
   const tOnb = useTranslations("onboarding")
   const router = useRouter()
   const { workspaces, activeWorkspace, setActiveWorkspaceId } = useWorkspace()
-  const createWorkspace = useMutation(api.workspaces.create)
+  const createWorkspace = useCoreMutation(coreApi.workspaces.create)
   const [open, setOpen] = React.useState(false)
   const [name, setName] = React.useState("")
   const [type, setType] = React.useState<"individual" | "business" | "association">("business")

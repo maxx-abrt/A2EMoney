@@ -2,9 +2,8 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { useMutation, useQuery } from "convex/react"
 import { useConvexAuth } from "convex/react"
-import { api } from "@/convex/_generated/api"
+import { useCoreMutation, useCoreQuery, coreApi } from "@a2e/core"
 import { Button } from "@/components/ui/button"
 import { Loader2, Wallet, CheckCircle2 } from "@/components/iconsax"
 import { useWorkspace } from "@/lib/workspace-context"
@@ -13,8 +12,8 @@ import { toast } from "sonner"
 export default function InviteAcceptPage({ params }: { params: { token: string } }) {
   const router = useRouter()
   const { isAuthenticated, isLoading } = useConvexAuth()
-  const invitation = useQuery(api.invitations.getByToken, { token: params.token })
-  const accept = useMutation(api.invitations.accept)
+  const invitation = useCoreQuery(coreApi.invitations.getByToken, { token: params.token })
+  const accept = useCoreMutation(coreApi.invitations.accept)
   const { setActiveWorkspaceId } = useWorkspace()
   const [accepting, setAccepting] = React.useState(false)
 

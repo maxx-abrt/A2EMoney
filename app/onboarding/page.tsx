@@ -2,9 +2,10 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { useMutation, useQuery } from "convex/react"
+import { useQuery } from "convex/react"
 import { useTranslations } from "next-intl"
 import { api } from "@/convex/_generated/api"
+import { useCoreMutation, coreApi } from "@a2e/core"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,9 +26,8 @@ export default function OnboardingPage() {
   const router = useRouter()
   const t = useTranslations("onboarding")
   const me = useQuery(api.users.me, {})
-  const myWorkspaces = useQuery(api.workspaces.listMine, {})
-  const createWorkspace = useMutation(api.workspaces.create)
-  const { setActiveWorkspaceId } = useWorkspace()
+  const createWorkspace = useCoreMutation(coreApi.workspaces.create)
+  const { workspaces: myWorkspaces, setActiveWorkspaceId } = useWorkspace()
   const [type, setType] = React.useState<typeof TYPES[number]["id"]>("business")
   const [name, setName] = React.useState("")
   const [description, setDescription] = React.useState("")

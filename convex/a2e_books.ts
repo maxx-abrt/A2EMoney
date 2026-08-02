@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { assertWorkspaceMember, logActivity } from "./lib/auth";
 
 export const listSheets = query({
-  args: { workspaceId: v.id("workspaces") },
+  args: { workspaceId: v.string() },
   handler: async (ctx, args) => {
     await assertWorkspaceMember(ctx, args.workspaceId);
     return ctx.db
@@ -26,7 +26,7 @@ export const getSheet = query({
 
 export const createSheet = mutation({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     type: v.optional(v.union(v.literal("grid"), v.literal("ledger"))),
     icon: v.optional(v.string()),

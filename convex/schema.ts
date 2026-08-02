@@ -30,6 +30,9 @@ export default defineSchema({
     .index("by_user", ["userId"]),
 
   // ---- SHARED TABLES (used by every app in the suite) ----
+  // LEGACY (pre-A2ECore) local workspaces. Replaced by core workspaces; kept
+  // only so historical data remains readable and the auto-migration
+  // (convex/migrations.ts) can map old rows to their core workspace.
   workspaces: defineTable({
     name: v.string(),
     slug: v.string(),
@@ -37,6 +40,8 @@ export default defineSchema({
     avatar: v.optional(v.string()),
     storageQuota: v.number(),
     ownerId: v.id("users"),
+    // Set once this workspace has been migrated to A2E Core (core workspace id).
+    coreId: v.optional(v.string()),
     // Default locale & currency for the workspace
     locale: v.optional(v.string()),
     currency: v.optional(v.string()),
@@ -53,6 +58,7 @@ export default defineSchema({
     .index("by_slug", ["slug"])
     .index("by_owner", ["ownerId"]),
 
+  // LEGACY (pre-A2ECore) local memberships — read by the migration only.
   memberships: defineTable({
     userId: v.id("users"),
     workspaceId: v.id("workspaces"),
@@ -68,6 +74,33 @@ export default defineSchema({
     .index("by_workspace", ["workspaceId"])
     .index("by_user_workspace", ["userId", "workspaceId"]),
 
+  // Server-verified mirror of the user's A2E Core workspace memberships.
+  // Populated exclusively by `sync.syncFromCore` (service-bridge verified) —
+  // this is what `assertWorkspaceMember` enforces against. `workspaceId` is
+  // the CORE workspace id (string).
+  coreMemberships: defineTable({
+    userId: v.id("users"),
+    workosId: v.string(),
+    workspaceId: v.string(),
+    role: v.union(
+      v.literal("owner"),
+      v.literal("admin"),
+      v.literal("member"),
+      v.literal("viewer"),
+    ),
+    name: v.string(),
+    slug: v.string(),
+    avatar: v.optional(v.string()),
+    locale: v.optional(v.string()),
+    currency: v.optional(v.string()),
+    type: v.optional(v.string()),
+    syncedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_workspace", ["workspaceId"])
+    .index("by_user_workspace", ["userId", "workspaceId"]),
+
+  // LEGACY (pre-A2ECore) — invitations are owned by core now.
   invitations: defineTable({
     email: v.string(),
     workspaceId: v.id("workspaces"),
@@ -93,7 +126,7 @@ export default defineSchema({
     .index("by_token", ["token"]),
 
   projects: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     client: v.string(),
     status: v.union(
@@ -116,7 +149,7 @@ export default defineSchema({
     .index("by_status", ["workspaceId", "status"]),
 
   tasks: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     title: v.string(),
     description: v.optional(v.string()),
@@ -136,7 +169,7 @@ export default defineSchema({
     .index("by_assignee", ["assigneeId"]),
 
   activities: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     actorId: v.id("users"),
     action: v.string(),
     targetType: v.string(),
@@ -152,7 +185,7 @@ export default defineSchema({
   // are personal, dismissable, and used to drive the bell dropdown.
   notifications: defineTable({
     userId: v.id("users"),
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     type: v.string(),
     title: v.string(),
     message: v.string(),
@@ -167,7 +200,7 @@ export default defineSchema({
 
   // ---- A2EMoney APP TABLES (prefix: a2e_) ----
   a2e_invoices: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     number: v.string(),
     client: v.string(),
@@ -206,7 +239,7 @@ export default defineSchema({
     .index("by_number", ["workspaceId", "number"]),
 
   a2e_expenses: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     description: v.string(),
     amount: v.number(),
@@ -239,7 +272,7 @@ export default defineSchema({
     .index("by_project", ["projectId"]),
 
   a2e_documents: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     type: v.union(
       v.literal("invoice"),
@@ -269,7 +302,7 @@ export default defineSchema({
     .index("by_linked", ["linkedToType", "linkedToId"]),
 
   a2e_bookSheets: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
@@ -296,7 +329,7 @@ export default defineSchema({
     .index("by_template", ["isTemplate"]),
 
   a2e_bookEntries: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     sheetId: v.id("a2e_bookSheets"),
     cells: v.any(),
     linkedDocuments: v.optional(v.array(v.string())),
@@ -311,7 +344,7 @@ export default defineSchema({
     .index("by_workspace", ["workspaceId"]),
 
   a2e_budgets: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     amount: v.number(),
     spent: v.optional(v.number()),
@@ -334,7 +367,7 @@ export default defineSchema({
 
   /** Workspace-scoped categories for expenses & income. Defaults exist client-side. */
   a2e_categories: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
@@ -348,7 +381,7 @@ export default defineSchema({
 
   /** Project sheets ("fiches projet") - rich template-based docs linked to projects. */
   a2e_fiches: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     template: v.string(), // "asso_fr" | "blank" | "custom"
     title: v.string(),
@@ -372,7 +405,7 @@ export default defineSchema({
 
   /** Organisation legal profile — stored once per workspace, auto-prefills docs. */
   a2e_orgProfile: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     legalName: v.optional(v.string()),
     shortName: v.optional(v.string()),
     objet: v.optional(v.string()),
@@ -397,7 +430,7 @@ export default defineSchema({
 
   /** Clients / donors / partners directory. */
   a2e_clients: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     email: v.optional(v.string()),
     address: v.optional(v.string()),
@@ -413,7 +446,7 @@ export default defineSchema({
 
   /** CERFA 15059 grant financial reports (compte-rendu financier de subvention). */
   a2e_grantReports: defineTable({
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     title: v.string(),
     data: v.any(),

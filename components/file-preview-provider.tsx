@@ -1,10 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { useAction } from "convex/react"
 import { useTranslations } from "next-intl"
-import { api } from "@/convex/_generated/api"
-import type { Id } from "@/convex/_generated/dataModel"
+import { useCoreAction, coreApi } from "@a2e/core"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Download, ExternalLink, FileText, Image as ImageIcon, Loader2 } from "@/components/iconsax"
@@ -30,8 +28,9 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
   const [open, setOpen] = React.useState(false)
   const [signed, setSigned] = React.useState<{ url: string; contentType?: string } | null>(null)
   const [loading, setLoading] = React.useState(false)
-  const presignView = useAction(api.a2e_documents.presignView)
-  const presignDownload = useAction(api.a2e_documents.presignDownload)
+  // Previews stream from the A2E Core drive (shared across the suite).
+  const presignView = useCoreAction(coreApi.drive.presignView)
+  const presignDownload = useCoreAction(coreApi.drive.presignDownload)
 
   const ctxValue = React.useMemo<FilePreviewContext>(
     () => ({
@@ -51,8 +50,8 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
       setLoading(true)
       setSigned(null)
       try {
-        const res = await presignView({ documentId: doc._id as Id<"a2e_documents"> })
-        if (!cancelled && res) setSigned({ url: res.url, contentType: res.contentType })
+        const res = await presignView({ fileId: doc._id as any })
+        if (!cancelled && res) setSigned({ url: res.url, contentType: doc.contentType })
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -70,7 +69,7 @@ export function FilePreviewProvider({ children }: { children: React.ReactNode })
 
   async function handleDownload() {
     if (!doc) return
-    const res = await presignDownload({ documentId: doc._id as Id<"a2e_documents"> })
+    const res = await presignDownload({ fileId: doc._id as any })
     if (res?.url) window.open(res.url, "_blank")
   }
 

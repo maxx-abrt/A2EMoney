@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl"
 import { useMutation, useQuery } from "convex/react"
 import { useAuth } from "@workos-inc/authkit-nextjs/components"
 import { api } from "@/convex/_generated/api"
+import { useCoreMutation, coreApi } from "@a2e/core"
 import { useWorkspace } from "@/lib/workspace-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,8 +24,8 @@ export default function SettingsPage() {
   const wsId = activeWorkspace?._id
   const me = useQuery(api.users.me, {})
   const updateUser = useMutation(api.users.updateProfile)
-  const updateWs = useMutation(api.workspaces.update)
-  const removeWs = useMutation(api.workspaces.remove)
+  const updateCoreUser = useCoreMutation(coreApi.users.updateProfile)
+  const updateWs = useCoreMutation(coreApi.workspaces.update)
   const exportWs = useQuery(api.activities.exportWorkspace, wsId ? { workspaceId: wsId } : "skip")
 
   const [name, setName] = React.useState("")
@@ -49,6 +50,8 @@ export default function SettingsPage() {
     try {
       setSaving(true)
       await updateUser({ name })
+      // Keep the shared suite profile in sync (cross-app identity).
+      updateCoreUser({ name }).catch(() => {})
       toast.success(t("toasts.profileSaved"))
     } catch (err: any) {
       toast.error(err?.message || t("toasts.failed"))
@@ -62,24 +65,12 @@ export default function SettingsPage() {
     if (!wsId) return
     try {
       setSaving(true)
-      await updateWs({ workspaceId: wsId, name: wsName, description: wsDesc || undefined, currency: wsCurrency })
+      await updateWs({ workspaceId: wsId as any, name: wsName, description: wsDesc || undefined, currency: wsCurrency })
       toast.success(t("toasts.workspaceSaved"))
     } catch (err: any) {
       toast.error(err?.message || t("toasts.failed"))
     } finally {
       setSaving(false)
-    }
-  }
-
-  async function handleDeleteWorkspace() {
-    if (!wsId) return
-    if (!confirm(t("dangerDescription"))) return
-    try {
-      await removeWs({ workspaceId: wsId })
-      setActiveWorkspaceId(null)
-      toast.success(t("toasts.workspaceDeleted"))
-    } catch (err: any) {
-      toast.error(err?.message || t("toasts.failed"))
     }
   }
 
@@ -155,7 +146,9 @@ export default function SettingsPage() {
               <Danger size={16} variant="Bulk" /> {t("danger")}
             </h2>
             <p className="text-xs text-muted-foreground">{t("dangerDescription")}</p>
-            <Button data-testid="delete-workspace-btn" variant="destructive" onClick={handleDeleteWorkspace} className="gap-2">
+            {/* Workspaces are shared across the A2E suite (A2E Core); deletion
+                is handled centrally, not per-app. */}
+            <Button data-testid="delete-workspace-btn" variant="destructive" disabled className="gap-2">
               <Trash size={14} variant="Bulk" /> {t("deleteWorkspace")}
             </Button>
           </div>

@@ -4,7 +4,7 @@ import { assertWorkspaceMember, logActivity } from "./lib/auth";
 import { api } from "./_generated/api";
 
 export const list = query({
-  args: { workspaceId: v.id("workspaces") },
+  args: { workspaceId: v.string() },
   handler: async (ctx, args) => {
     await assertWorkspaceMember(ctx, args.workspaceId);
     return ctx.db
@@ -29,7 +29,7 @@ export const get = query({
 
 export const create = mutation({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     projectId: v.optional(v.id("projects")),
     sheetId: v.optional(v.id("a2e_bookSheets")),
     description: v.string(),

@@ -20,12 +20,11 @@ import type * as a2e_invoices from "../a2e_invoices.js";
 import type * as a2e_org from "../a2e_org.js";
 import type * as activities from "../activities.js";
 import type * as http from "../http.js";
-import type * as invitations from "../invitations.js";
 import type * as lib_auth from "../lib/auth.js";
-import type * as notifications from "../notifications.js";
+import type * as migrations from "../migrations.js";
 import type * as projects from "../projects.js";
+import type * as sync from "../sync.js";
 import type * as users from "../users.js";
-import type * as workspaces from "../workspaces.js";
 
 import type {
   ApiFromModules,
@@ -46,12 +45,11 @@ declare const fullApi: ApiFromModules<{
   a2e_org: typeof a2e_org;
   activities: typeof activities;
   http: typeof http;
-  invitations: typeof invitations;
   "lib/auth": typeof lib_auth;
-  notifications: typeof notifications;
+  migrations: typeof migrations;
   projects: typeof projects;
+  sync: typeof sync;
   users: typeof users;
-  workspaces: typeof workspaces;
 }>;
 
 /**

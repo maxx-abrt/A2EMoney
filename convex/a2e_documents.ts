@@ -62,7 +62,7 @@ function safeFileName(name: string) {
 /** Action: returns a presigned URL for direct upload to S3 from the browser. */
 export const presignUpload = action({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     fileName: v.string(),
     contentType: v.string(),
     size: v.number(),
@@ -71,13 +71,12 @@ export const presignUpload = action({
     ctx,
     args,
   ): Promise<{ uploadUrl: string; key: string; publicUrl: string }> => {
-    // Authorization via shared helper (action can't use ctx.db directly,
-    // but the membership query runs through the public API).
-    const member: any = await ctx.runQuery(
-      api.workspaces.get,
-      { workspaceId: args.workspaceId },
+    // DEPRECATED: uploads moved to A2E Core drive (@a2e/core useUpload).
+    // This action remains only so old clients fail loudly instead of writing
+    // orphaned rows; it is removed once the document migration completes.
+    throw new Error(
+      "Legacy upload path removed — uploads now go through the A2E Core drive.",
     );
-    if (!member) throw new Error("Forbidden");
 
     if (args.size > 50 * 1024 * 1024) {
       throw new Error("File too large (max 50MB per file)");
@@ -151,7 +150,7 @@ export const presignView = action({
 /** List documents (optionally filtered by linked target). */
 export const list = query({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     linkedToType: v.optional(
       v.union(
         v.literal("expense"),
@@ -192,7 +191,7 @@ export const get = query({
 
 export const create = mutation({
   args: {
-    workspaceId: v.id("workspaces"),
+    workspaceId: v.string(),
     name: v.string(),
     type: v.union(
       v.literal("invoice"),
@@ -216,6 +215,12 @@ export const create = mutation({
     linkedToId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // DEPRECATED: documents moved to A2E Core drive. Reads stay available
+    // until `migrations.migrateDocuments` has run; new writes are blocked.
+    throw new Error(
+      "Legacy document writes removed — use the A2E Core drive (@a2e/core useUpload).",
+    );
+
     const { userId } = await assertWorkspaceMember(
       ctx,
       args.workspaceId,
